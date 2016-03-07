@@ -28,7 +28,7 @@ public class GameManager : MonoBehaviour {
     // current max length word being used
     MaxWord CurrentWord;
 
-    void SetASize(this RectTransform trans, Vector2 newSize)
+    void SetASize(RectTransform trans, Vector2 newSize)
     {
         Vector2 oldSize = trans.rect.size;
         Vector2 deltaSize = newSize - oldSize;

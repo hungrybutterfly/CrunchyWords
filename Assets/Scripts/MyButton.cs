@@ -17,13 +17,13 @@ public class MyButton : Button
 
     GameManager Manager;
 
-    void Awake()
+    protected override void Awake()
     {
         //Get a component reference to the GameManager.
         Manager = GameObject.Find("GameManager").GetComponent<GameManager>();
     }
 
-    void Start()
+    protected override void Start()
     {
         onClick.AddListener(() => OnClick());
 	}

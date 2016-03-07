@@ -35,36 +35,23 @@ public class DictionaryManager : MonoBehaviour
     {
         List<string> TempWords = new List<string>();
 
-        TextAsset bindata = Resources.Load(DictionaryFile) as TextAsset;
-        string Text = bindata.ToString();
+        TextAsset bindata = Resources.Load(DictionaryFile, typeof(TextAsset)) as TextAsset;
+        string[] OriginalWords = bindata.text.Split('\n');
         bindata = Resources.Load(DictionaryRatingsFile) as TextAsset;
-        string Ratings = bindata.ToString();
-        int StartIndex = 0;
-        int StartIndexRatings = 0;
-        int Length;
-        do
+        string[] Ratings = bindata.text.Split('\n');
+        for(int i =0;i < OriginalWords.Length;i++)
         {
-            int EndIndex = Text.IndexOf('\n', StartIndex);
-            Length = EndIndex - StartIndex;
-            if (Length > 0)
+            // is this word small enough
+            if (OriginalWords[i].Length >= MinWordSize && OriginalWords[i].Length <= MaxWordSize)
             {
-                // is this word small enough
-                if (Length >= MinWordSize && Length <= MaxWordSize)
+                // does this word meet the rating requirement
+                int Rating = int.Parse(Ratings[i]);
+                if (Rating <= MaxRating)
                 {
-                    // does this word meet the rating requirement
-                    string RatingText = Ratings.Substring(StartIndexRatings, 1);
-                    int Rating = int.Parse(RatingText);
-                    if (Rating <= MaxRating)
-                    {
-                        // add it to the list
-                        string NewText = Text.Substring(StartIndex, Length);
-                        TempWords.Add(NewText);
-                    }
+                    TempWords.Add(OriginalWords[i]);
                 }
-                StartIndex += Length + 1;
             }
-            StartIndexRatings += 2;
-        } while (Length > 0);
+        }
 
         Words = TempWords.ToArray();
 

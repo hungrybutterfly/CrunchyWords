@@ -13,13 +13,9 @@ public class Word : MonoBehaviour
     };
 
     eState State;
-    GameManager Manager;
 
     void Awake()
     {
-        //Get a component reference to the GameManager.
-        Manager = GameObject.Find("GameManager").GetComponent<GameManager>();
-
         SetState(eState.Idle);
     }
 
