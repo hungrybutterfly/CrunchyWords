@@ -36,9 +36,10 @@ public class DictionaryManager : MonoBehaviour
         List<string> TempWords = new List<string>();
 
         TextAsset bindata = Resources.Load(DictionaryFile, typeof(TextAsset)) as TextAsset;
-        string[] OriginalWords = bindata.text.Split('\n');
+        string[] SplitString = {"\r\n"};
+        string[] OriginalWords = bindata.text.Split(SplitString, System.StringSplitOptions.None);
         bindata = Resources.Load(DictionaryRatingsFile) as TextAsset;
-        string[] Ratings = bindata.text.Split('\n');
+        string[] Ratings = bindata.text.Split(SplitString, System.StringSplitOptions.None);
         for(int i =0;i < OriginalWords.Length;i++)
         {
             // is this word small enough
