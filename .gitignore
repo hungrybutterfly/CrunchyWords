@@ -45,5 +45,8 @@ $RECYCLE.BIN/
 Network Trash Folder
 Temporary Items
 .apdisk
+Library/
+MainiOSBuild/
+obj/
 
 *.suo
