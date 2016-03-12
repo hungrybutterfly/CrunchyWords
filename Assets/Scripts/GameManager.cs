@@ -14,7 +14,7 @@ public class GameManager : MonoBehaviour {
     public int m_WordRows;
     [HideInInspector] public int m_MaxWords;
 
-    public DictionaryManager m_DictionaryObject;
+    [HideInInspector] public DictionaryManager m_DictionaryObject;
 
     int m_LettersUsedIndex;                   // current letter being used
     LetterButton[] m_LetterList;
@@ -33,6 +33,10 @@ public class GameManager : MonoBehaviour {
     int m_ScoreRight;
     Text m_ScoreText;
 
+    // ceremony timer for showing the WIN text
+    int m_ShowWinTimer;
+    GameObject m_WinObject;
+
     private void SetASize(RectTransform _trans, Vector2 _newSize)
     {
         Vector2 oldSize = _trans.rect.size;
@@ -43,7 +47,7 @@ public class GameManager : MonoBehaviour {
 
 	void Start () 
     {
-        m_DictionaryObject.Init();
+        m_DictionaryObject = GameObject.Find("DictionaryManager").GetComponent<DictionaryManager>();
         m_MaxLetters = m_DictionaryObject.m_MaxWordSize;
 
         m_LetterSpacing = 640 / m_MaxLetters;
@@ -79,12 +83,28 @@ public class GameManager : MonoBehaviour {
         //Get a reference to the Scores text.
         m_ScoreText = GameObject.Find("Scores").GetComponent<Text>();
 
+        //Hide the win text for now
+        m_WinObject = GameObject.Find("Result");
+        m_WinObject.SetActive(false);
+        m_ShowWinTimer = 0;
+
         // start the first new word off
         NewWord();
     }
 	
 	void Update () 
     {
+        // was a timer started showing the WIN text
+        if (m_ShowWinTimer != 0)
+        {
+            m_ShowWinTimer--;
+            if (m_ShowWinTimer == 0)
+            {
+                // timer has finished so go to the result screen
+                SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
+                Session.ChangeScene("Results");
+            }
+        }
 	}
 
     // get the scren position for a given letter when idle
@@ -267,6 +287,16 @@ public class GameManager : MonoBehaviour {
         UpdateScore();
 
         ClearUsedLetters();
+
+        // did the player find all the words
+        if (m_ScoreRight == m_CurrentWord.FitWords.Length)
+        {
+            // show the win text
+            m_WinObject.SetActive(true);
+
+            // start a count down before going to the result screen
+            m_ShowWinTimer = 120;
+        }
     }
 
     // these 'Clicked' functions are called when the appropriate button is clicked
