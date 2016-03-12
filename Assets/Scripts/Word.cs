@@ -12,27 +12,27 @@ public class Word : MonoBehaviour
         Found,
     };
 
-    eState State;
+    eState m_State;
 
     void Awake()
     {
         SetState(eState.Idle);
     }
 
-    void SetState(eState NewState)
+    void SetState(eState _NewState)
     {
         // leave the old state
-        switch (State)
+        switch (m_State)
         {
             case eState.Hidden:
                 gameObject.SetActive(true);
                 break;
         }
 
-        State = NewState;
+        m_State = _NewState;
 
         // enter the new state
-        switch (State)
+        switch (m_State)
         {
             case eState.Hidden:
                 gameObject.SetActive(false);
@@ -57,23 +57,41 @@ public class Word : MonoBehaviour
         SetState(eState.Hidden);
     }
 
-    public void SetIdle(string Word)
+    public void SetIdle(string _Word)
     {
         SetState(eState.Idle);
 
-        GetComponentInChildren<Text>().text = Word;
+        GetComponentInChildren<Text>().text = _Word;
     }
 
-    public void SetFound(string Word)
+    public void SetIdle()
+    {
+        SetState(eState.Idle);
+    }
+
+    public void SetPossible()
+    {
+        SetState(eState.Possible);
+    }
+
+    public void SetFound(string _Word)
     {
         SetState(eState.Found);
 
-        GetComponentInChildren<Text>().text = Word;
+        GetComponentInChildren<Text>().text = _Word;
     }
 
     public bool IsFound()
     {
-        if (State == eState.Found)
+        if (m_State == eState.Found)
+            return true;
+
+        return false;
+    }
+
+    public bool IsHidden()
+    {
+        if (m_State == eState.Hidden)
             return true;
 
         return false;
