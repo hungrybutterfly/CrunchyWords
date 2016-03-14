@@ -48,7 +48,7 @@ Temporary Items
 Library/
 MainiOSBuild/
 obj/
-
+Temp/
 *.suo
 *.csproj
 *.sln
