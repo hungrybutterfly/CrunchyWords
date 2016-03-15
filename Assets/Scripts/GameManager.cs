@@ -268,7 +268,7 @@ public class GameManager : MonoBehaviour {
 
         // look for the word in the possible words
         bool Right = false;
-        for (int i = 0; i < m_CurrentWord.FitWords.Length;i++)
+        for (int i = 0; i < m_CurrentWord.FitWords.Length; i++)
         {
             if (!m_WordList[i].IsFound() && Word == m_CurrentWord.FitWords[i])
             {
@@ -279,11 +279,18 @@ public class GameManager : MonoBehaviour {
             }
         }
 
-        // update the score
+        // Update the score
+        SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
         if (Right)
+        {
             m_ScoreRight++;
+            ++Session.m_SaveData.sd_CorrectSubmits;
+        }
         else
+        {
             m_ScoreWrong++;
+            ++Session.m_SaveData.sd_IncorrectSubmits;
+        }
         UpdateScore();
 
         ClearUsedLetters();
@@ -296,7 +303,13 @@ public class GameManager : MonoBehaviour {
 
             // start a count down before going to the result screen
             m_ShowWinTimer = 120;
+
+            //Add to the save data
+            ++Session.m_SaveData.sd_PuzzlesSolved;
         }
+
+        //Save the data
+        Session.Save();
     }
 
     // these 'Clicked' functions are called when the appropriate button is clicked
