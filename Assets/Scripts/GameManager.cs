@@ -199,7 +199,7 @@ public class GameManager : MonoBehaviour {
         // update the letters
         for (int i = 0; i < m_DictionaryObject.m_MaxWordSize; i++)
         {
-            m_LetterList[i].GetComponentInChildren<Text>().text = m_CurrentWord.Word.Substring(i, 1);
+			m_LetterList[i].GetComponentInChildren<Text>().text = (m_CurrentWord.Word.Substring(i, 1)).ToLower();
             m_LetterList[i].SetLetterIndex(i);
         }
 
@@ -208,7 +208,7 @@ public class GameManager : MonoBehaviour {
         {
             if (i < m_CurrentWord.FitWords.Length)
             {
-                string String = m_CurrentWord.FitWords[i].Substring(0, 1);
+				string String = (m_CurrentWord.FitWords[i].Substring(0, 1)).ToLower();
                 for (int j = 0; j < m_CurrentWord.FitWords[i].Length - 1; j++)
                     String += "_ ";
                 m_WordList[i].SetIdle(String);
