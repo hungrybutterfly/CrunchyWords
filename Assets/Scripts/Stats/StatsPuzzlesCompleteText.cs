@@ -9,7 +9,7 @@ public class StatsPuzzlesCompleteText : MonoBehaviour
         SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
         int puzzles = Session.m_SaveData.sd_PuzzlesSolved;
         Text statsText = GetComponent<Text>();
-        statsText.text = (puzzles + " Solved");
+        statsText.text = ("Total puzzles solved : " + puzzles);
     }
 }
 

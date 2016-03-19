@@ -194,7 +194,15 @@ public class GameManager : MonoBehaviour {
     {
         ClearUsedLetters();
 
-        m_CurrentWord = m_DictionaryObject.GetRandomWord();
+        // do we want to use the last word from the previous game
+        SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
+        if (Session.m_UseLastWord)
+        {
+            m_CurrentWord = Session.m_LastWord;
+            Session.m_UseLastWord = false;
+        }
+        else
+            m_CurrentWord = m_DictionaryObject.GetRandomWord();
 
         // update the letters
         for (int i = 0; i < m_DictionaryObject.m_MaxWordSize; i++)
@@ -259,6 +267,8 @@ public class GameManager : MonoBehaviour {
 
     private void SubmitWord()
     {
+        SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
+
         // add all the letters to make the word
         string Word = "";
         for (int i = 0; i < m_LettersUsedIndex; i++)
@@ -275,12 +285,23 @@ public class GameManager : MonoBehaviour {
                 // mark the word as found
                 m_WordList[i].SetFound(Word);
                 Right = true;
+
+                // has this work been found in the lifetime stats
+                int Index = m_CurrentWord.FitWordsIndex[i];
+                if (!Session.m_SaveData.sd_WordFound[Index])
+                {
+                    // mark the word as found
+                    Session.m_SaveData.sd_WordFound[Index] = true;
+
+                    // increase the number of words for that letter
+                    int Letter = System.Convert.ToInt32(m_CurrentWord.FitWords[i][0]) - 65;
+                    Session.m_SaveData.sd_WordFoundCounts[Letter]++;
+                }
                 break;
             }
         }
 
         // Update the score
-        SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
         if (Right)
         {
             m_ScoreRight++;
@@ -298,18 +319,29 @@ public class GameManager : MonoBehaviour {
         // did the player find all the words
         if (m_ScoreRight == m_CurrentWord.FitWords.Length)
         {
-            // show the win text
-            m_WinObject.SetActive(true);
-
-            // start a count down before going to the result screen
-            m_ShowWinTimer = 120;
-
-            //Add to the save data
-            ++Session.m_SaveData.sd_PuzzlesSolved;
+            Win();
         }
 
         //Save the data
         Session.Save();
+    }
+
+    void Win()
+    {
+        // show the win text
+        m_WinObject.SetActive(true);
+
+        // start a count down before going to the result screen
+        m_ShowWinTimer = 120;
+
+        //Add to the save data
+        SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
+        ++Session.m_SaveData.sd_PuzzlesSolved;
+
+        // remember these stats to go to the review
+        Session.m_LastScoreRight = m_ScoreRight;
+        Session.m_LastScoreWrong = m_ScoreWrong;
+        Session.m_LastWord = m_CurrentWord;
     }
 
     // these 'Clicked' functions are called when the appropriate button is clicked
@@ -341,5 +373,10 @@ public class GameManager : MonoBehaviour {
     public void NewClicked()
     {
         NewWord();
+    }
+
+    public void WinClicked()
+    {
+        Win();
     }
 }

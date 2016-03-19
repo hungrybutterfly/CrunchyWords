@@ -7,9 +7,9 @@ public class StatsIncorrectText : MonoBehaviour
     void Start()
     {
         SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
-        int puzzles = Session.m_SaveData.sd_CorrectSubmits;
+        int puzzles = Session.m_SaveData.sd_IncorrectSubmits;
         Text statsText = GetComponent<Text>();
-        statsText.text = (puzzles + " Incorrect Submits");
+        statsText.text = (puzzles + " Wrong");
     }
 }
 
