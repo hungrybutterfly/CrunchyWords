@@ -78,7 +78,7 @@ public class Word : MonoBehaviour
     {
         SetState(eState.Found);
 
-		GetComponentInChildren<Text>().text = _Word.ToLower();
+		GetComponentInChildren<Text>().text = _Word;
     }
 
     public bool IsFound()
