@@ -267,6 +267,10 @@ public class GameManager : MonoBehaviour {
 
     private void SubmitWord()
     {
+		// don't allow a no-letter submission
+		if (m_LettersUsedIndex == 0)
+			return;
+	
         SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
 
         // add all the letters to make the word
