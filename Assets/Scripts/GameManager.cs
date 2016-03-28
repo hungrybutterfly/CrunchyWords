@@ -37,6 +37,18 @@ public class GameManager : MonoBehaviour {
     int m_ShowWinTimer;
     GameObject m_WinObject;
 
+    // used to provide a hint
+    Word m_SelectedWord;
+    int m_HintsUsed;
+
+    // button that is enabled when player meets the word quota
+    Button m_FinishButton;
+    int m_FinishFlashTimer;
+
+    // this will turn on bad word reenforcement in the scoring
+    static bool m_BadScore = true;
+    int m_BadScoreTimer;                        // timer to flash the score
+
     private void SetASize(RectTransform _trans, Vector2 _newSize)
     {
         Vector2 oldSize = _trans.rect.size;
@@ -78,6 +90,7 @@ public class GameManager : MonoBehaviour {
             m_WordList[i] = Instantiate(m_WordPrefab, new Vector3(x, y, 0), Quaternion.identity) as Word;
             SetASize(m_WordList[i].GetComponent<RectTransform>(), new Vector2(WordWidth, WordHeight));
             m_WordList[i].transform.SetParent(m_WordParent, false);
+            m_WordList[i].m_ID = i;
         }
 
         //Get a reference to the Scores text.
@@ -87,6 +100,13 @@ public class GameManager : MonoBehaviour {
         m_WinObject = GameObject.Find("Result");
         m_WinObject.SetActive(false);
         m_ShowWinTimer = 0;
+
+        // no word selected
+        m_SelectedWord = null;
+        m_HintsUsed = 0;
+
+        // disable the finish button
+        m_FinishButton = GameObject.Find("Finish").GetComponent<Button>();
 
         // start the first new word off
         NewWord();
@@ -103,6 +123,28 @@ public class GameManager : MonoBehaviour {
                 // timer has finished so go to the result screen
                 SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
                 Session.ChangeScene("Results");
+            }
+        }
+        else
+        {
+            // flash the finish button if it's just appeared
+            if (m_FinishFlashTimer != 0)
+            {
+                m_FinishFlashTimer--;
+                if ((m_FinishFlashTimer & 8) < 4)
+                    m_FinishButton.GetComponent<Image>().color = new Color(1, 1, 1);
+                else
+                    m_FinishButton.GetComponent<Image>().color = new Color(1, 0, 0);
+            }
+
+            // flash the finish button if it's just appeared
+            if (m_BadScoreTimer != 0)
+            {
+                m_BadScoreTimer--;
+                if ((m_BadScoreTimer & 8) < 4)
+                    m_ScoreText.GetComponent<Text>().color = new Color(1, 1, 1);
+                else
+                    m_ScoreText.GetComponent<Text>().color = new Color(1, 0, 0);
             }
         }
 	}
@@ -190,7 +232,7 @@ public class GameManager : MonoBehaviour {
     }
 
     // pick out a new random max length words and set up the letters ready for play
-    private void NewWord()
+    public void NewWord()
     {
         ClearUsedLetters();
 
@@ -232,11 +274,30 @@ public class GameManager : MonoBehaviour {
         m_ScoreWrong = 0;
         m_ScoreRight = 0;
         UpdateScore();
+
+        m_HintsUsed = 0;
+        ResetHint();
+
+        // reset the finish button
+        m_FinishButton.GetComponent<Image>().color = new Color(1, 1, 1);
+        m_FinishButton.gameObject.SetActive(false);
+        m_FinishFlashTimer = 0;
     }
 
     private void UpdateScore()
     {
-        m_ScoreText.text = m_ScoreRight.ToString() + "/" + m_ScoreWrong.ToString();
+        if (!m_BadScore)
+        {
+            m_ScoreText.text = m_ScoreRight.ToString() + "/" + m_ScoreWrong.ToString();
+        }
+        else
+        {
+            int TotalWords = m_CurrentWord.FitWords.Length;
+            int Wrong = TotalWords - m_ScoreWrong;
+            if (Wrong < 0)
+                Wrong = 0;
+            m_ScoreText.text = Wrong.ToString() + "/" + TotalWords.ToString();
+        }
     }
 
     private void JumbleLetters()
@@ -315,6 +376,10 @@ public class GameManager : MonoBehaviour {
         {
             m_ScoreWrong++;
             ++Session.m_SaveData.sd_IncorrectSubmits;
+
+            // flash the score for 2 seconds
+            if (m_BadScore)
+                m_BadScoreTimer = 120;
         }
         UpdateScore();
 
@@ -328,6 +393,16 @@ public class GameManager : MonoBehaviour {
 
         //Save the data
         Session.Save();
+
+        // have enough words been revealed to complete the level
+        if (!m_FinishButton.gameObject.activeSelf && m_ScoreRight >= m_CurrentWord.FitWords.Length / 2)
+        {
+            // enable the finish button
+            m_FinishButton.gameObject.SetActive(true);
+            m_FinishFlashTimer = 120;
+        }
+
+        ResetHint();
     }
 
     void Win()
@@ -346,6 +421,84 @@ public class GameManager : MonoBehaviour {
         Session.m_LastScoreRight = m_ScoreRight;
         Session.m_LastScoreWrong = m_ScoreWrong;
         Session.m_LastWord = m_CurrentWord;
+        Session.m_WordsCompleted = m_ScoreRight;
+        Session.m_WordsAvailable = m_CurrentWord.FitWords.Length;
+    }
+
+    void ResetHint()
+    {
+        // reset the hints counter
+        Text Hints = GameObject.Find("Hints").GetComponent<Text>();
+        Hints.text = m_HintsUsed.ToString();
+
+        // reset the hints button
+        Button Hint = GameObject.Find("Hint").GetComponent<Button>();
+        Hint.GetComponent<Image>().color = new Color(1, 1, 1);
+
+        // unselect the old word
+        if (m_SelectedWord)
+        {
+            m_SelectedWord.Selected(false);
+            m_SelectedWord = null;
+        }
+    }
+
+    void Hint()
+    {
+        // has a word been selected
+        if (m_SelectedWord)
+        {
+            // update the word to include the last letter
+            int WordIndex = m_SelectedWord.m_ID;
+            string String = (m_CurrentWord.FitWords[WordIndex].Substring(0, 1));
+            int j;
+            for (j = 0; j < m_CurrentWord.FitWords[WordIndex].Length - 2; j++)
+                String += "_ ";
+            String += (m_CurrentWord.FitWords[WordIndex].Substring(j + 1, 1));
+            m_SelectedWord.UseHint(String);
+
+            m_HintsUsed++;
+
+            ResetHint();
+        }
+    }
+
+    void SelectWord(Word WordObject)
+    {
+        // make sure this word isn't found already
+        if (!WordObject.IsFound() && !WordObject.IsHintUsed())
+        {
+            Button Hint = GameObject.Find("Hint").GetComponent<Button>();
+
+            // unselect the old word
+            if (m_SelectedWord)
+            {
+                m_SelectedWord.Selected(false);
+
+                // highlight the hint button
+                Hint.GetComponent<Image>().color = new Color(1, 1, 1);
+            }
+
+            // is this a new word (or no word)
+            if (m_SelectedWord == WordObject)
+                WordObject = null;
+
+            m_SelectedWord = WordObject;
+
+            // select the new word
+            if (m_SelectedWord)
+            {
+                m_SelectedWord.Selected(true);
+
+                // unhighlight the hint button
+                Hint.GetComponent<Image>().color = new Color(1, 0, 0);
+            }
+        }
+    }
+
+    void Finish()
+    {
+        Win();
     }
 
     // these 'Clicked' functions are called when the appropriate button is clicked
@@ -374,13 +527,25 @@ public class GameManager : MonoBehaviour {
         ClearUsedLetters();
     }
 
-    public void NewClicked()
+    public void HintClicked()
     {
-        NewWord();
+        Hint();
     }
 
-    public void WinClicked()
+    public void PauseClicked()
     {
-        Win();
+        PauseManager Pause = GameObject.Find("GameManager").GetComponent<PauseManager>();
+        Pause.SetIsEnabled(true);
     }
+
+    public void WordClicked(Word WordObject)
+    {
+        SelectWord(WordObject);
+    }
+
+    public void FinishClicked()
+    {
+        Finish();
+    }
+
 }

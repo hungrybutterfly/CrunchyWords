@@ -198,7 +198,51 @@ public class DictionaryManager : MonoBehaviour
 	{
 		MaxWord Word = new MaxWord ();
 
-        int MaxWordIndex = Random.Range(0, m_MaxWords.Length - 1);
+        // work out how many words we need based on the pack selected
+        SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
+        int MinWords = 10;
+        int MaxWords = 18;
+        if(Session.m_Pack == "A")
+        {
+            MinWords = 1;
+            MaxWords = 10;
+        }
+        if (Session.m_Pack == "B")
+        {
+            MinWords = 10;
+            MaxWords = 14;
+        }
+        if (Session.m_Pack == "C")
+        {
+            MinWords = 14;
+            MaxWords = 18;
+        }
+        if (Session.m_Pack == "D")
+        {
+            MinWords = 10;
+            MaxWords = 18;
+        }
+
+        // look for a random word until we find one within the min-max range
+        int MaxWordIndex = 0;
+        bool Again = false;
+        int Attempts = 0;
+        do
+        {
+            Again = false;
+            MaxWordIndex = Random.Range(0, m_MaxWords.Length - 1);
+
+            // make sure the chosen word is within min-max
+            int Count = m_MaxWords[MaxWordIndex].Words.Length;
+            if (Count < MinWords || Count > MaxWords)
+                Again = true;
+
+            // make sure we don't choose forever
+            Attempts++;
+            if (Attempts == 1000)
+                Again = false;
+
+        } while (Again);
 
 		// turn the index into a string
         int Index = m_MaxWords[MaxWordIndex].Index;

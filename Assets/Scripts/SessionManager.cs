@@ -32,6 +32,11 @@ public class SessionManager : MonoBehaviour
     //Last word infromation
     public bool m_UseLastWord;
     public MaxWord m_LastWord;
+    public int m_WordsCompleted;
+    public int m_WordsAvailable;
+
+    // the kind of word pack the player is using
+    public string m_Pack;
 
     void LoadDictionary()
     {
@@ -59,13 +64,15 @@ public class SessionManager : MonoBehaviour
             // if we're not on the loading screen then immediately load the dictionary
             if (SceneManager.GetActiveScene().name != "Start")
                 LoadDictionary();
+
+            m_FirstTimeInit = 0;
+            m_UseLastWord = false;
+            m_Pack = "D";
         }
     }
 
 	void Start () 
     {
-        m_FirstTimeInit = 0;
-        m_UseLastWord = false;
     }
 	
 	void Update () 
@@ -138,6 +145,12 @@ public class SessionManager : MonoBehaviour
             FileStream file = File.Create(Application.persistentDataPath + "/playerInfo.dat");
             file.Close();
         }
+    }
+
+    public void StartGame(string Pack)
+    {
+        m_Pack = Pack;
+        ChangeScene("Play");
     }
 }
 
