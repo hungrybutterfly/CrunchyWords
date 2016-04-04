@@ -7,151 +7,146 @@ using System.IO;
 
 public class SessionManager : MonoBehaviour
 {
-    //Session Manager (this)
-    public static SessionManager m_Instance;
+	//Session Manager (this)
+	public static SessionManager m_Instance;
 
-    //Dictionary Object
-    [HideInInspector]
-    public GameObject m_DictionaryObject;
+	//Dictionary Object
+	[HideInInspector]
+	public GameObject m_DictionaryObject;
 
-    //Dictionary Manager
-    [HideInInspector]
-    public DictionaryManager m_DictionaryManager;
+	//Dictionary Manager
+	[HideInInspector]
+	public DictionaryManager m_DictionaryManager;
 
-    //First time init int (for loading screen)
-    private int m_FirstTimeInit;
+	//First time init int (for loading screen)
+	private int m_FirstTimeInit;
 
-    //Save Data
-    [HideInInspector]
-    public PlayerData m_SaveData;
+	//Save Data
+	[HideInInspector]
+	public PlayerData m_SaveData;
 
-    //Review data
-    public int m_LastScoreRight;
-    public int m_LastScoreWrong;
+	//Review data
+	public int m_LastScoreRight;
+	public int m_LastScoreWrong;
 
-    //Last word infromation
-    public bool m_UseLastWord;
-    public MaxWord m_LastWord;
-    public int m_WordsCompleted;
-    public int m_WordsAvailable;
+	//Last word infromation
+	public bool m_UseLastWord;
+	public MaxWord m_LastWord;
+	public int m_WordsCompleted;
+	public int m_WordsAvailable;
 
-    // the kind of word pack the player is using
-    public string m_Pack;
+	// the kind of word pack the player is using
+	public string m_Pack;
 
-    void LoadDictionary()
-    {
-        m_DictionaryObject = (GameObject)Instantiate(Resources.Load("Prefabs/DictionaryManager"));
-        m_DictionaryManager = m_DictionaryObject.GetComponent<DictionaryManager>();
-        m_DictionaryManager.Init();
-        m_DictionaryObject.name = "DictionaryManager";
-        DontDestroyOnLoad(m_DictionaryObject);
+	void LoadDictionary ()
+	{
+		m_DictionaryObject = (GameObject)Instantiate (Resources.Load ("Prefabs/DictionaryManager"));
+		m_DictionaryManager = m_DictionaryObject.GetComponent<DictionaryManager> ();
+		m_DictionaryManager.Init ();
+		m_DictionaryObject.name = "DictionaryManager";
+		DontDestroyOnLoad (m_DictionaryObject);
 
-        // now it's safe to load the player's data
-        Load();
-    }
+		// now it's safe to load the player's data
+		Load ();
+	}
 
-    void Awake()
-    {
-        // Session Manager needs to be created and never destroyed so
-        // this will make sure we only ever have one instance of Session Manager
-        if (m_Instance)
-            DestroyImmediate(gameObject);
-        else
-        {
-            DontDestroyOnLoad(gameObject);
-            m_Instance = this;
+	void Awake ()
+	{
+		// Session Manager needs to be created and never destroyed so
+		// this will make sure we only ever have one instance of Session Manager
+		if (m_Instance)
+			DestroyImmediate (gameObject);
+		else {
+			DontDestroyOnLoad (gameObject);
+			m_Instance = this;
 
-            // if we're not on the loading screen then immediately load the dictionary
-            if (SceneManager.GetActiveScene().name != "Start")
-                LoadDictionary();
+			// if we're not on the loading screen then immediately load the dictionary
+			if (SceneManager.GetActiveScene ().name != "Start")
+				LoadDictionary ();
 
-            m_FirstTimeInit = 0;
-            m_UseLastWord = false;
-            m_Pack = "D";
-        }
-    }
+			m_FirstTimeInit = 0;
+			m_UseLastWord = false;
+			m_Pack = "D";
+		}
+	}
 
-	void Start () 
-    {
-    }
-	
-	void Update () 
-    {
-        // if we're on the loading screen wait 2 game frames, load the dictionary then transition to the cover
-        if (SceneManager.GetActiveScene().name == "Start")
-        {
-            if (m_FirstTimeInit == 2)
-            {
-                LoadDictionary();
+	void Start ()
+	{
+	}
 
-                ChangeScene("Cover");
-            }
-            m_FirstTimeInit++;
-        }
-    }
+	void Update ()
+	{
+		// if we're on the loading screen wait 2 game frames, load the dictionary then transition to the cover
+		if (SceneManager.GetActiveScene ().name == "Start") {
+			if (m_FirstTimeInit == 2) {
+				LoadDictionary ();
 
-    public void ChangeScene(string SceneName)
-    {
-        SceneManager.LoadScene(SceneName);
-    }
+				ChangeScene ("Cover");
+			}
+			m_FirstTimeInit++;
+		}
+	}
 
-    public void Save()
-    {
-        BinaryFormatter bf = new BinaryFormatter();
-        FileStream file = File.Open(Application.persistentDataPath + "/playerInfo.dat", FileMode.Open);
-        bf.Serialize(file, m_SaveData);
-        file.Close();
-        //Debug.Log("SAVED -> "+ Application.persistentDataPath + "/playerInfo.dat");
-    }
+	public void ChangeScene (string SceneName)
+	{
+		SceneManager.LoadScene (SceneName);
+	}
 
-    public void CreateNewSaveData()
-    {
-        //Create from new
-        m_SaveData = new PlayerData();
+	public void Save ()
+	{
+		BinaryFormatter bf = new BinaryFormatter ();
+		FileStream file = File.Open (Application.persistentDataPath + "/playerInfo.dat", FileMode.Open);
+		bf.Serialize (file, m_SaveData);
+		file.Close ();
+		Debug.Log ("SAVED -> " + Application.persistentDataPath + "/playerInfo.dat");
+	}
 
-        // create and clear the arrays
-        int Size = m_DictionaryManager.m_Words.Length;
-        m_SaveData.sd_WordFound = new bool[Size];
-        for (int i = 0; i < Size; i++)
-            m_SaveData.sd_WordFound[i] = false;
-        Size = 26;
-        m_SaveData.sd_WordFoundCounts = new int[Size];
-        for (int i = 0; i < Size; i++)
-            m_SaveData.sd_WordFoundCounts[i] = 0;
-    }
+	public void CreateNewSaveData ()
+	{
+		//Create from new
+		m_SaveData = new PlayerData ();
+		Debug.Log ("CREATING -> " + Application.persistentDataPath + "/playerInfo.dat");
+		FileStream file = File.Create (Application.persistentDataPath + "/playerInfo.dat");
+		file.Close ();
 
-    public void Load()
-    {
-        if(File.Exists(Application.persistentDataPath + "/playerInfo.dat"))
-        {
-            //Load - file exists
-            BinaryFormatter bf = new BinaryFormatter();
-            FileStream file = File.Open(Application.persistentDataPath + "/playerInfo.dat", FileMode.Open);
-            m_SaveData = (PlayerData)bf.Deserialize(file);
-            // is the version number different
-            if (m_SaveData.sd_Version != PlayerData.sd_CurrentVersion)
-            {
-                // do something here to upgrade the data
-                // for now I'll just create a new one
-                CreateNewSaveData();
-            }
-            file.Close();
-            //Debug.Log("LOADED -> " + Application.persistentDataPath + "/playerInfo.dat");
-        }
-        else
-        {
-            CreateNewSaveData();
-            //Debug.Log("CREATING -> " + Application.persistentDataPath + "/playerInfo.dat");
-            FileStream file = File.Create(Application.persistentDataPath + "/playerInfo.dat");
-            file.Close();
-        }
-    }
+		// create and clear the arrays
+		int Size = m_DictionaryManager.m_Words.Length;
+		m_SaveData.sd_WordFound = new bool[Size];
+		for (int i = 0; i < Size; i++)
+			m_SaveData.sd_WordFound [i] = false;
+		Size = 26;
+		m_SaveData.sd_WordFoundCounts = new int[Size];
+		for (int i = 0; i < Size; i++)
+			m_SaveData.sd_WordFoundCounts [i] = 0;
 
-    public void StartGame(string Pack)
-    {
-        m_Pack = Pack;
-        ChangeScene("Play");
-    }
+		Save ();
+	}
+
+	public void Load ()
+	{
+		if (File.Exists (Application.persistentDataPath + "/playerInfo.dat")) {
+			//Load - file exists
+			BinaryFormatter bf = new BinaryFormatter ();
+			FileStream file = File.Open (Application.persistentDataPath + "/playerInfo.dat", FileMode.Open);
+			m_SaveData = (PlayerData)bf.Deserialize (file);
+			file.Close ();
+			// is the version number different
+			if (m_SaveData.sd_Version != PlayerData.sd_CurrentVersion) {
+				// do something here to upgrade the data
+				// for now I'll just create a new one
+				CreateNewSaveData ();
+			}            
+			Debug.Log ("LOADED -> " + Application.persistentDataPath + "/playerInfo.dat");
+		} else {
+			CreateNewSaveData ();            
+		}
+	}
+
+	public void StartGame (string Pack)
+	{
+		m_Pack = Pack;
+		ChangeScene ("Play");
+	}
 }
 
 

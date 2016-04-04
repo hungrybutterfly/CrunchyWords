@@ -7,7 +7,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 public class PlayerData
 {
     // update this when the contents change. You'll also need to add an upgrade process in the SessionManager
-    public const int sd_CurrentVersion = 1;
+    public const int sd_CurrentVersion = 2;
 
     public int sd_Version = sd_CurrentVersion;
     public int sd_PuzzlesSolved = 0;
