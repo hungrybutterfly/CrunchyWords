@@ -4,10 +4,12 @@ using System.Collections.Generic;
 
 public class MaxWord
 {
-	public string Word;
 	// index into the Words array for this max word
-	public string[] FitWords;
+	public string Word;
 	// array of words that fit in the max word
+	public string[] FitWords;
+    // array of indexs into the Words array
+    public int[] FitWordsIndex;
 }
 
 public class DictionaryManager : MonoBehaviour
@@ -19,7 +21,7 @@ public class DictionaryManager : MonoBehaviour
 	public int m_MaxWordsRequired;
 	public int m_MinWordsRequired;
 
-	string[] m_Words;
+	public string[] m_Words;
 
 	// array of first-letter indexes for fast searching
 	int[] m_FirstLetterIndex;
@@ -31,6 +33,17 @@ public class DictionaryManager : MonoBehaviour
 		public int[] Words;
 		// array of indexs of words that fit into this max word
 	}
+
+    // some dictionary stats for Gary
+    int m_OriginalWordCount;
+    int m_FinalWordCount;
+    int m_OriginalMaxWordCount;
+    int m_FinalMaxWordCount;
+    int m_FinalMaxWordPlurals;
+    int m_FinalMaxWordNonPlurals;
+
+    // information used for the stats screen
+    public int[] m_FinalLetterWords;
 
 	MaxWordIndices[] m_MaxWords;
 
@@ -185,7 +198,51 @@ public class DictionaryManager : MonoBehaviour
 	{
 		MaxWord Word = new MaxWord ();
 
-        int MaxWordIndex = Random.Range(0, m_MaxWords.Length - 1);
+        // work out how many words we need based on the pack selected
+        SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
+        int MinWords = 10;
+        int MaxWords = 18;
+        if(Session.m_Pack == "A")
+        {
+            MinWords = 1;
+            MaxWords = 10;
+        }
+        if (Session.m_Pack == "B")
+        {
+            MinWords = 10;
+            MaxWords = 14;
+        }
+        if (Session.m_Pack == "C")
+        {
+            MinWords = 14;
+            MaxWords = 18;
+        }
+        if (Session.m_Pack == "D")
+        {
+            MinWords = 10;
+            MaxWords = 18;
+        }
+
+        // look for a random word until we find one within the min-max range
+        int MaxWordIndex = 0;
+        bool Again = false;
+        int Attempts = 0;
+        do
+        {
+            Again = false;
+            MaxWordIndex = Random.Range(0, m_MaxWords.Length - 1);
+
+            // make sure the chosen word is within min-max
+            int Count = m_MaxWords[MaxWordIndex].Words.Length;
+            if (Count < MinWords || Count > MaxWords)
+                Again = true;
+
+            // make sure we don't choose forever
+            Attempts++;
+            if (Attempts == 1000)
+                Again = false;
+
+        } while (Again);
 
 		// turn the index into a string
         int Index = m_MaxWords[MaxWordIndex].Index;
@@ -194,13 +251,77 @@ public class DictionaryManager : MonoBehaviour
 		// turn the fit word indices into strings
         int Length = m_MaxWords[MaxWordIndex].Words.Length;
 		Word.FitWords = new string[Length];
-		for (int i = 0; i < Length; i++) {
+        Word.FitWordsIndex = new int[Length];
+		for (int i = 0; i < Length; i++) 
+        {
             Index = m_MaxWords[MaxWordIndex].Words[i];
             Word.FitWords[i] = m_Words[Index];
+            Word.FitWordsIndex[i] = Index;
 		}
 
 		return Word;
 	}
+
+    public void CalcStats()
+    {
+        // calc some figures for Gary
+        m_OriginalWordCount = m_Words.Length;
+
+        // get a count of all the finals words used
+        m_FinalWordCount = 0;
+        bool[] WordUsed = new bool[m_Words.Length];
+        for (int i = 0; i < m_Words.Length; i++)
+            WordUsed[i] = false;
+        for (int i = 0; i < m_MaxWords.Length; i++)
+        {
+            for (int j = 0; j < m_MaxWords[i].Words.Length; j++)
+            {
+                int Index = m_MaxWords[i].Words[j];
+                if (!WordUsed[Index])
+                {
+                    WordUsed[Index] = true;
+                    m_FinalWordCount++;
+                }
+            }
+        }
+
+        // count how many max length words were in the original dictionary
+        m_OriginalMaxWordCount = 0;
+        for (int i = 0; i < m_Words.Length; i++)
+        {
+            if (m_Words[i].Length == m_MaxWordSize)
+                m_OriginalMaxWordCount++;
+        }
+
+        m_FinalMaxWordCount = m_MaxWords.Length;
+
+        // count how many max words are plurals
+        m_FinalMaxWordPlurals = 0;
+        for (int i = 0; i < m_MaxWords.Length; i++)
+        {
+            // get the word via the index
+            int Index = m_MaxWords[i].Index;
+            char LastLetter = m_Words[Index][m_MaxWordSize - 1];
+            // is the last letter of this word an 'S'
+            if (LastLetter == 'S')
+                m_FinalMaxWordPlurals++;
+        }
+
+        m_FinalMaxWordNonPlurals = m_FinalMaxWordCount - m_FinalMaxWordPlurals;
+
+        // work out how words were found for each letter
+        m_FinalLetterWords = new int[26];
+        for (int i = 0; i < 26; i++)
+            m_FinalLetterWords[i] = 0;
+        for (int i = 0; i < m_Words.Length; i++)
+        { 
+            if (WordUsed[i])
+            {
+                int Letter = System.Convert.ToInt32(m_Words[i][0]) - 65;
+                m_FinalLetterWords[Letter]++;
+            }
+        }
+    }
 
 	public void Init ()
 	{
@@ -209,6 +330,8 @@ public class DictionaryManager : MonoBehaviour
 
 		// look for the max words
 		FindMaxWords ();
+
+        CalcStats();
 	}
 
 	void Update ()

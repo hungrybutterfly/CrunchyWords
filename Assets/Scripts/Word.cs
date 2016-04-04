@@ -12,10 +12,18 @@ public class Word : MonoBehaviour
         Found,
     };
 
+    public int m_ID;
+
     eState m_State;
+
+    bool m_IsSelected;
+
+    bool m_HintUsed;
 
     void Awake()
     {
+        m_IsSelected = false;
+        m_HintUsed = false;
         SetState(eState.Idle);
     }
 
@@ -50,6 +58,9 @@ public class Word : MonoBehaviour
                 GetComponent<Image>().color = new Color(1, 1, 1, 0.5f);
                 break;
         }
+
+        if (m_IsSelected)
+            GetComponent<Image>().color = new Color(1, 0, 0);
     }
 
     public void SetHidden()
@@ -78,7 +89,7 @@ public class Word : MonoBehaviour
     {
         SetState(eState.Found);
 
-		GetComponentInChildren<Text>().text = _Word.ToLower();
+		GetComponentInChildren<Text>().text = _Word;
     }
 
     public bool IsFound()
@@ -95,5 +106,28 @@ public class Word : MonoBehaviour
             return true;
 
         return false;
+    }
+
+    public void Clicked()
+    {
+        GameManager Game = GameObject.Find("GameManager").GetComponent<GameManager>();
+        Game.WordClicked(this);
+    }
+
+    public void Selected(bool IsSelected)
+    {
+        m_IsSelected = IsSelected;
+        SetState(m_State);
+    }
+
+    public void UseHint(string _Word)
+    {
+        GetComponentInChildren<Text>().text = _Word;
+        m_HintUsed = true;
+    }
+
+    public bool IsHintUsed()
+    {
+        return m_HintUsed;
     }
 }
