@@ -29,6 +29,25 @@ public class PauseManager : MonoBehaviour
     public void QuitClicked()
     {
         SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
+
+        // keep the player's score
+        GameManager Game = GameObject.Find("GameManager").GetComponent<GameManager>();
+        Session.m_SaveData.sd_TotalScore += Game.m_TotalScore;
+
+        // move to the next puzzle
+        DictionaryManager Dictionary = GameObject.Find("DictionaryManager").GetComponent<DictionaryManager>();
+        Session.m_SaveData.sd_RandomSeed = Dictionary.m_RandomSeed;
+        Session.m_SaveData.sd_CurrentLevel++;
+
+        Session.Save();
+
         Session.ChangeScene("Cover");
+    }
+
+    public void FinishClicked()
+    {
+        GameManager Game = GameObject.Find("GameManager").GetComponent<GameManager>();
+        Game.Finish();
+        SetIsEnabled(false);
     }
 }

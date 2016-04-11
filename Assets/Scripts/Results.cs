@@ -14,13 +14,13 @@ public class Results : MonoBehaviour {
         SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
 
         // update the wrong words text
-        Text Score = GameObject.Find("Score").GetComponent<Text>();
+/*        Text Score = GameObject.Find("Score").GetComponent<Text>();
 
         int StarsEarned = 0;
         if (m_WrongWords)
         {
             // stars are taken away with wrong words
-            int WrongWords = Session.m_LastScoreWrong;
+            int WrongWords = Session.m_LastWordsWrong;
             StarsEarned = 3 - WrongWords;
             if (StarsEarned < 0)
                 StarsEarned = 0;
@@ -51,7 +51,13 @@ public class Results : MonoBehaviour {
             Star.sprite = NoStar;
         Star = GameObject.Find("Star3").GetComponent<Image>();
         if (StarsEarned < 3)
-            Star.sprite = NoStar;
+            Star.sprite = NoStar;*/
+
+        Text Score = GameObject.Find("Score").GetComponent<Text>();
+        Score.text = Session.m_LastScore.ToString();
+
+        Text TotalScore = GameObject.Find("Total Score").GetComponent<Text>();
+        TotalScore.text = Session.m_SaveData.sd_TotalScore.ToString();
     }
 	
 	public void AgainClicked() 
@@ -64,6 +70,11 @@ public class Results : MonoBehaviour {
     public void NextClicked()
     {
         SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
+        DictionaryManager Dictionary = GameObject.Find("DictionaryManager").GetComponent<DictionaryManager>();
+        // move to the next level
+        Session.m_SaveData.sd_RandomSeed = Dictionary.m_RandomSeed;
+        Session.m_SaveData.sd_CurrentLevel++;
+        Session.Save();
         Session.ChangeScene("Play");
     }
 

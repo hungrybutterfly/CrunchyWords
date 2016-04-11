@@ -26,6 +26,8 @@ public class DictionaryManager : MonoBehaviour
 	// array of first-letter indexes for fast searching
 	int[] m_FirstLetterIndex;
 
+    public int m_RandomSeed;
+
 	public class MaxWordIndices
 	{
 		public int Index;
@@ -36,7 +38,7 @@ public class DictionaryManager : MonoBehaviour
 
     // some dictionary stats for Gary
     int m_OriginalWordCount;
-    int m_FinalWordCount;
+    public int m_FinalWordCount;
     int m_OriginalMaxWordCount;
     int m_FinalMaxWordCount;
     int m_FinalMaxWordPlurals;
@@ -198,30 +200,30 @@ public class DictionaryManager : MonoBehaviour
 	{
 		MaxWord Word = new MaxWord ();
 
-        // work out how many words we need based on the pack selected
+        // work out how many words we need based on the current level
         SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
-        int MinWords = 10;
+        int MinWords = 1;
         int MaxWords = 18;
-        if(Session.m_Pack == "A")
+
+        int Round = Session.m_SaveData.sd_CurrentLevel % 6;
+        if (Round == 0)
         {
             MinWords = 1;
-            MaxWords = 10;
+            MaxWords = 8;
         }
-        if (Session.m_Pack == "B")
+        else if (Round <= 2)
         {
-            MinWords = 10;
-            MaxWords = 14;
+            MinWords = 9;
+            MaxWords = 13;
         }
-        if (Session.m_Pack == "C")
+        else
         {
             MinWords = 14;
             MaxWords = 18;
         }
-        if (Session.m_Pack == "D")
-        {
-            MinWords = 10;
-            MaxWords = 18;
-        }
+
+        // set the random seed
+        Random.seed = Session.m_SaveData.sd_RandomSeed;
 
         // look for a random word until we find one within the min-max range
         int MaxWordIndex = 0;
@@ -259,7 +261,9 @@ public class DictionaryManager : MonoBehaviour
             Word.FitWordsIndex[i] = Index;
 		}
 
-		return Word;
+        m_RandomSeed = Random.seed;
+
+        return Word;
 	}
 
     public void CalcStats()

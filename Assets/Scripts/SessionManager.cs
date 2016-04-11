@@ -8,7 +8,8 @@ using System.IO;
 public class SessionManager : MonoBehaviour
 {
 	//Session Manager (this)
-	public static SessionManager m_Instance;
+    [HideInInspector]
+    public static SessionManager m_Instance;
 
 	//Dictionary Object
 	[HideInInspector]
@@ -26,17 +27,25 @@ public class SessionManager : MonoBehaviour
 	public PlayerData m_SaveData;
 
 	//Review data
-	public int m_LastScoreRight;
-	public int m_LastScoreWrong;
+    [HideInInspector]
+    public int m_LastWordsRight;
+    [HideInInspector]
+    public int m_LastWordsWrong;
+    [HideInInspector]
+    public int m_LastScore;
 
 	//Last word infromation
-	public bool m_UseLastWord;
-	public MaxWord m_LastWord;
-	public int m_WordsCompleted;
-	public int m_WordsAvailable;
+    [HideInInspector]
+    public bool m_UseLastWord;
+    [HideInInspector]
+    public MaxWord m_LastWord;
+    [HideInInspector]
+    public int m_WordsCompleted;
+    [HideInInspector]
+    public int m_WordsAvailable;
 
-	// the kind of word pack the player is using
-	public string m_Pack;
+    [HideInInspector]
+    public string m_SaveFileName = "/playerInfo3.dat";
 
 	void LoadDictionary ()
 	{
@@ -56,7 +65,8 @@ public class SessionManager : MonoBehaviour
 		// this will make sure we only ever have one instance of Session Manager
 		if (m_Instance)
 			DestroyImmediate (gameObject);
-		else {
+		else 
+        {
 			DontDestroyOnLoad (gameObject);
 			m_Instance = this;
 
@@ -66,7 +76,6 @@ public class SessionManager : MonoBehaviour
 
 			m_FirstTimeInit = 0;
 			m_UseLastWord = false;
-			m_Pack = "D";
 		}
 	}
 
@@ -77,8 +86,10 @@ public class SessionManager : MonoBehaviour
 	void Update ()
 	{
 		// if we're on the loading screen wait 2 game frames, load the dictionary then transition to the cover
-		if (SceneManager.GetActiveScene ().name == "Start") {
-			if (m_FirstTimeInit == 2) {
+		if (SceneManager.GetActiveScene ().name == "Start") 
+        {
+			if (m_FirstTimeInit == 2) 
+            {
 				LoadDictionary ();
 
 				ChangeScene ("Cover");
@@ -95,22 +106,28 @@ public class SessionManager : MonoBehaviour
 	public void Save ()
 	{
 		BinaryFormatter bf = new BinaryFormatter ();
-		FileStream file = File.Open (Application.persistentDataPath + "/playerInfo.dat", FileMode.Open);
+		FileStream file = File.Open (Application.persistentDataPath + m_SaveFileName, FileMode.Open);
 		bf.Serialize (file, m_SaveData);
 		file.Close ();
-		Debug.Log ("SAVED -> " + Application.persistentDataPath + "/playerInfo.dat");
+        Debug.Log("SAVED -> " + Application.persistentDataPath + m_SaveFileName);
 	}
 
 	public void CreateNewSaveData ()
 	{
 		//Create from new
 		m_SaveData = new PlayerData ();
-		Debug.Log ("CREATING -> " + Application.persistentDataPath + "/playerInfo.dat");
-		FileStream file = File.Create (Application.persistentDataPath + "/playerInfo.dat");
+        Debug.Log("CREATING -> " + Application.persistentDataPath + m_SaveFileName);
+        FileStream file = File.Create(Application.persistentDataPath + m_SaveFileName);
 		file.Close ();
 
+        // clear the scores
+        m_SaveData.sd_PuzzlesSolved = 0;
+        m_SaveData.sd_CorrectSubmits = 0;
+        m_SaveData.sd_IncorrectSubmits = 0;
+
 		// create and clear the arrays
-		int Size = m_DictionaryManager.m_Words.Length;
+        DictionaryManager Dictionary = GameObject.Find("DictionaryManager").GetComponent<DictionaryManager>();
+        int Size = Dictionary.m_Words.Length;
 		m_SaveData.sd_WordFound = new bool[Size];
 		for (int i = 0; i < Size; i++)
 			m_SaveData.sd_WordFound [i] = false;
@@ -119,33 +136,35 @@ public class SessionManager : MonoBehaviour
 		for (int i = 0; i < Size; i++)
 			m_SaveData.sd_WordFoundCounts [i] = 0;
 
+        m_SaveData.sd_TotalScore = 0;
+        m_SaveData.sd_RandomSeed = 12345;
+        m_SaveData.sd_CurrentLevel = 0;
+
 		Save ();
 	}
 
 	public void Load ()
 	{
-		if (File.Exists (Application.persistentDataPath + "/playerInfo.dat")) {
+        if (File.Exists(Application.persistentDataPath + m_SaveFileName))
+        {
 			//Load - file exists
 			BinaryFormatter bf = new BinaryFormatter ();
-			FileStream file = File.Open (Application.persistentDataPath + "/playerInfo.dat", FileMode.Open);
+            FileStream file = File.Open(Application.persistentDataPath + m_SaveFileName, FileMode.Open);
 			m_SaveData = (PlayerData)bf.Deserialize (file);
 			file.Close ();
 			// is the version number different
-			if (m_SaveData.sd_Version != PlayerData.sd_CurrentVersion) {
+			if (m_SaveData.sd_Version != PlayerData.sd_CurrentVersion) 
+            {
 				// do something here to upgrade the data
 				// for now I'll just create a new one
 				CreateNewSaveData ();
-			}            
-			Debug.Log ("LOADED -> " + Application.persistentDataPath + "/playerInfo.dat");
-		} else {
+			}
+            Debug.Log("LOADED -> " + Application.persistentDataPath + m_SaveFileName);
+		} 
+        else 
+        {
 			CreateNewSaveData ();            
 		}
-	}
-
-	public void StartGame (string Pack)
-	{
-		m_Pack = Pack;
-		ChangeScene ("Play");
 	}
 }
 

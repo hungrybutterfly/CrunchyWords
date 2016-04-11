@@ -10,6 +10,7 @@ public class Word : MonoBehaviour
         Idle,
         Possible,
         Found,
+        Ended,
     };
 
     public int m_ID;
@@ -18,12 +19,13 @@ public class Word : MonoBehaviour
 
     bool m_IsSelected;
 
-    bool m_HintUsed;
+    bool[] m_HintUsed;
+
+    public string m_Word;
 
     void Awake()
     {
         m_IsSelected = false;
-        m_HintUsed = false;
         SetState(eState.Idle);
     }
 
@@ -57,6 +59,10 @@ public class Word : MonoBehaviour
             case eState.Found:
                 GetComponent<Image>().color = new Color(1, 1, 1, 0.5f);
                 break;
+
+            case eState.Ended:
+                GetComponent<Image>().color = new Color(1, 0, 0, 0.5f);
+                break;
         }
 
         if (m_IsSelected)
@@ -66,13 +72,6 @@ public class Word : MonoBehaviour
     public void SetHidden()
     {
         SetState(eState.Hidden);
-    }
-
-    public void SetIdle(string _Word)
-    {
-        SetState(eState.Idle);
-
-        GetComponentInChildren<Text>().text = _Word;
     }
 
     public void SetIdle()
@@ -85,9 +84,12 @@ public class Word : MonoBehaviour
         SetState(eState.Possible);
     }
 
-    public void SetFound(string _Word)
+    public void SetFound(string _Word, bool Ended)
     {
-        SetState(eState.Found);
+        if (Ended)
+            SetState(eState.Ended);
+        else
+            SetState(eState.Found);
 
 		GetComponentInChildren<Text>().text = _Word;
     }
@@ -120,14 +122,63 @@ public class Word : MonoBehaviour
         SetState(m_State);
     }
 
-    public void UseHint(string _Word)
+    void BuildString()
     {
-        GetComponentInChildren<Text>().text = _Word;
-        m_HintUsed = true;
+        // build the new word based on how many hints have been used
+        string String = "";
+        for (int j = 0; j < m_Word.Length; j++)
+        {
+            if (m_HintUsed[j])
+                String += (m_Word.Substring(j, 1));
+            else
+                String += "_ ";
+        }
+
+        GetComponentInChildren<Text>().text = String;
+    }
+
+    public void SetWord(string _Word)
+    {
+        m_Word = _Word;
+
+        // allocate hint space
+        m_HintUsed = new bool[_Word.Length];
+        for (int i = 0; i < _Word.Length; i++)
+            m_HintUsed[i] = false;
+        // the first letter is always revealed
+        m_HintUsed[0] = true;
+
+        BuildString();
+    }
+
+    public void UseHint()
+    {
+        // look for an unused hint slot
+        int Index = 0;
+        do
+        {
+            Index = (int)(Random.value * m_Word.Length);
+        } while (m_HintUsed[Index]);
+
+        // make that slot as used
+        m_HintUsed[Index] = true;
+
+        BuildString();
     }
 
     public bool IsHintUsed()
     {
-        return m_HintUsed;
+        // count how many hints have been used
+        int Count = 0;
+        for (int j = 0; j < m_HintUsed.Length; j++)
+        {
+            if (m_HintUsed[j])
+                Count++;
+        }
+
+        if (Count == m_Word.Length - 1)
+            return true;
+
+        return false;
     }
 }
