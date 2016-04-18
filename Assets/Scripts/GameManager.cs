@@ -124,6 +124,19 @@ public class GameManager : MonoBehaviour {
         Text Coins = GameObject.Find("Total Coins Text").GetComponent<Text>();
         Coins.text = Session.m_SaveData.sd_TotalScore.ToString();
 
+        // set the total coins text
+        GameObject Object = GameObject.Find("Jumble Cost");
+        Text Value = Object.GetComponentInChildren<Text>();
+        Value.text = m_ShuffleCost.ToString();
+
+        Object = GameObject.Find("Check Cost");
+        Value = Object.GetComponentInChildren<Text>();
+        Value.text = m_CheckWordCost.ToString();
+
+        Object = GameObject.Find("Hint Cost");
+        Value = Object.GetComponentInChildren<Text>();
+        Value.text = m_HintCost.ToString();
+
         // start the first new word off
         NewWord();
     }

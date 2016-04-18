@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 using System.Collections;
 
 public class PauseManager : MonoBehaviour 
@@ -6,12 +7,18 @@ public class PauseManager : MonoBehaviour
     public GameObject m_Root;
 
 	void Start () 
-    {	
-	}
+    {
+    }
 
     public void SetIsEnabled(bool Active)
     {
         m_Root.gameObject.SetActive(Active);
+
+        // set the total coins text
+        GameObject Object = GameObject.Find("End Cost");
+        Text Value = Object.GetComponentInChildren<Text>();
+        GameManager Game = GameObject.Find("GameManager").GetComponent<GameManager>();
+        Value.text = Game.m_RevealWordsCost.ToString();
     }
 
     public void ResumeClicked()
