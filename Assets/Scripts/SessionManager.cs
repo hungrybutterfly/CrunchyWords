@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine.SceneManagement;
 using System;
 using System.Runtime.Serialization.Formatters.Binary;
@@ -45,7 +46,20 @@ public class SessionManager : MonoBehaviour
     public int m_WordsAvailable;
 
     [HideInInspector]
-    public string m_SaveFileName = "/playerInfo3.dat";
+    public string m_SaveFileName = "/playerInfo7.dat";
+
+    // current level info
+    [HideInInspector]
+    public int m_CurrentZone = 0;
+    [HideInInspector]
+    public int m_CurrentLevel = 0;
+
+    // version string
+    public string m_Version;
+    // is this a version for external consumption
+    public bool m_ExternalVersion;
+    // debug flag for ignoring the loading of the dictionary in scenes that don't need it
+    public bool m_IgnoreDictionary = false;
 
 	void LoadDictionary ()
 	{
@@ -71,7 +85,7 @@ public class SessionManager : MonoBehaviour
 			m_Instance = this;
 
 			// if we're not on the loading screen then immediately load the dictionary
-			if (SceneManager.GetActiveScene ().name != "Start")
+            if (SceneManager.GetActiveScene().name != "Start" && !m_IgnoreDictionary)
 				LoadDictionary ();
 
 			m_FirstTimeInit = 0;
@@ -140,6 +154,8 @@ public class SessionManager : MonoBehaviour
         m_SaveData.sd_RandomSeed = 12345;
         m_SaveData.sd_CurrentLevel = 0;
 
+        m_SaveData.sd_LevelsComplete = new List<PlayerData.LevelCompleteData>();
+
 		Save ();
 	}
 
@@ -166,6 +182,27 @@ public class SessionManager : MonoBehaviour
 			CreateNewSaveData ();            
 		}
 	}
+
+    // add commas to a large number
+    public string FormatNumberString(string _In)
+    {
+        string Out = "";
+
+        int Counter = 0;
+        for(int i = _In.Length - 1;i >= 0;i--)
+        {
+            if (Counter == 3)
+            {
+                Counter = 0;
+                Out = "," + Out;
+            }
+            Counter++;
+
+            Out = _In.Substring(i, 1) + Out;
+        }
+
+        return Out;
+    }
 }
 
 

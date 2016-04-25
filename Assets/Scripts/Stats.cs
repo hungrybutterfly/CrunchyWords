@@ -19,9 +19,9 @@ public class Stats : MonoBehaviour
         for (int i = 0; i < 26; i++)
         {
             float x = (320 - 150) + (i / 13) * 300;
-            float y = 960 - ((i % 13) * 30 + 175);
+            float y = 880 - ((i % 13) * 40 + 175);
             m_LetterStats[i] = Instantiate(m_StatsLetterPrefab, new Vector3(x, y, 0), Quaternion.identity) as Text;
-            m_LetterStats[i].GetComponent<RectTransform>().sizeDelta = new Vector2(200, 40);
+            m_LetterStats[i].GetComponent<RectTransform>().sizeDelta = new Vector2(200, 50);
             m_LetterStats[i].transform.SetParent(Parent.GetComponent<Transform>(), false);
 			int FoundCount = Session.m_SaveData.sd_WordFoundCounts[i];
             m_LetterStats[i].text = System.Convert.ToChar(i + 65) + " = " + FoundCount + " / " + Dictionary.m_FinalLetterWords[i];

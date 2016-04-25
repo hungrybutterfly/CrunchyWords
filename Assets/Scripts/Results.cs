@@ -13,51 +13,18 @@ public class Results : MonoBehaviour {
     {
         SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
 
-        // update the wrong words text
-/*        Text Score = GameObject.Find("Score").GetComponent<Text>();
-
-        int StarsEarned = 0;
-        if (m_WrongWords)
-        {
-            // stars are taken away with wrong words
-            int WrongWords = Session.m_LastWordsWrong;
-            StarsEarned = 3 - WrongWords;
-            if (StarsEarned < 0)
-                StarsEarned = 0;
-
-            Score.text = WrongWords.ToString() + " Wrong";
-        }
-        else
-        {
-            // stars are earned with more completed words
-            int WordsCompleted = Session.m_WordsCompleted;
-            int PercentComplete = (WordsCompleted * 100) / Session.m_WordsAvailable;
-            if (PercentComplete >= 50)
-                StarsEarned = 1;
-            if (PercentComplete >= 75)
-                StarsEarned = 2;
-            if (PercentComplete == 100)
-                StarsEarned = 3;
-
-            Score.text = PercentComplete.ToString() + "% Completed";
-        }
-
-        // update the stars
-        Image Star = GameObject.Find("Star1").GetComponent<Image>();
-        if (StarsEarned < 1)
-            Star.sprite = NoStar;
-        Star = GameObject.Find("Star2").GetComponent<Image>();
-        if (StarsEarned < 2)
-            Star.sprite = NoStar;
-        Star = GameObject.Find("Star3").GetComponent<Image>();
-        if (StarsEarned < 3)
-            Star.sprite = NoStar;*/
-
         Text Score = GameObject.Find("Score").GetComponent<Text>();
-        Score.text = Session.m_LastScore.ToString();
+        string Number = Session.FormatNumberString(Session.m_LastScore.ToString());
+        Score.text = Number;
+
+        Text Words = GameObject.Find("FromWords").GetComponent<Text>();
+        Words.text = "From " + Session.m_LastWordsRight.ToString() + " Word";
+        if (Session.m_LastWordsRight != 1)
+            Words.text += "s";
 
         Text TotalScore = GameObject.Find("Total Score").GetComponent<Text>();
-        TotalScore.text = Session.m_SaveData.sd_TotalScore.ToString();
+        Number = Session.FormatNumberString(Session.m_SaveData.sd_TotalScore.ToString());
+        TotalScore.text = Number;
     }
 	
 	public void AgainClicked() 
@@ -72,10 +39,15 @@ public class Results : MonoBehaviour {
         SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
         DictionaryManager Dictionary = GameObject.Find("DictionaryManager").GetComponent<DictionaryManager>();
         // move to the next level
-        Session.m_SaveData.sd_RandomSeed = Dictionary.m_RandomSeed;
         Session.m_SaveData.sd_CurrentLevel++;
         Session.Save();
-        Session.ChangeScene("Play");
+
+        // was this the last level in the zone
+        LevelData Data = GameObject.Find("LevelData").GetComponent<LevelData>();
+        if (Session.m_CurrentLevel == Data.m_Zones[Session.m_CurrentZone].m_Levels.Length - 1)
+            Session.ChangeScene("Zone");
+        else
+            Session.ChangeScene("Level");
     }
 
     public void StatsClicked()

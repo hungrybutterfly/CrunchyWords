@@ -168,6 +168,9 @@ public class Word : MonoBehaviour
 
     public bool IsHintUsed()
     {
+        if (IsFound())
+            return true;
+
         // count how many hints have been used
         int Count = 0;
         for (int j = 0; j < m_HintUsed.Length; j++)

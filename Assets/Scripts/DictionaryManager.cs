@@ -26,8 +26,6 @@ public class DictionaryManager : MonoBehaviour
 	// array of first-letter indexes for fast searching
 	int[] m_FirstLetterIndex;
 
-    public int m_RandomSeed;
-
 	public class MaxWordIndices
 	{
 		public int Index;
@@ -202,28 +200,16 @@ public class DictionaryManager : MonoBehaviour
 
         // work out how many words we need based on the current level
         SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
-        int MinWords = 1;
-        int MaxWords = 18;
 
-        int Round = Session.m_SaveData.sd_CurrentLevel % 6;
-        if (Round == 0)
-        {
-            MinWords = 1;
-            MaxWords = 8;
-        }
-        else if (Round <= 2)
-        {
-            MinWords = 9;
-            MaxWords = 13;
-        }
-        else
-        {
-            MinWords = 14;
-            MaxWords = 18;
-        }
+        // set the random seed based on current zone/level
+        int Zone = Session.m_CurrentZone;
+        int Level = Session.m_CurrentLevel;
+        Random.seed = ((Zone * 20 + Level) + 1) * 1234567;
 
-        // set the random seed
-        Random.seed = Session.m_SaveData.sd_RandomSeed;
+        // fetch the min/max words
+        LevelData Data = GameObject.Find("LevelData").GetComponent<LevelData>();
+        int MinWords = Data.m_Zones[Zone].m_Levels[Level].m_MinWordCount;
+        int MaxWords = Data.m_Zones[Zone].m_Levels[Level].m_MaxWordCount;
 
         // look for a random word until we find one within the min-max range
         int MaxWordIndex = 0;
@@ -260,8 +246,6 @@ public class DictionaryManager : MonoBehaviour
             Word.FitWords[i] = m_Words[Index];
             Word.FitWordsIndex[i] = Index;
 		}
-
-        m_RandomSeed = Random.seed;
 
         return Word;
 	}

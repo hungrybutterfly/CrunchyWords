@@ -16,11 +16,16 @@ public class GameManager : MonoBehaviour {
 
     [HideInInspector] public DictionaryManager m_DictionaryObject;
 
-    // cost in coins
-    public int m_ShuffleCost;
-    public int m_CheckWordCost;
-    public int m_RevealWordsCost;
-    public int m_HintCost;
+    // starting cost in coins
+    public int m_StartShuffleCost;
+    public int m_StartCheckWordCost;
+    public int m_StartHintCost;
+    public int m_StartRevealWordsCost;
+
+    int m_ShuffleCost;
+    int m_CheckWordCost;
+    int m_HintCost;
+    [HideInInspector] public int m_RevealWordsCost;
 
     int m_LettersUsedIndex;                   // current letter being used
     LetterButton[] m_LetterList;
@@ -41,15 +46,16 @@ public class GameManager : MonoBehaviour {
 
     // used for scoring
     [HideInInspector] public int m_TotalScore;
+    int m_BestPossibleScore;                // to determin if player for a perfect score
     int m_WordsRightCombo;
     Text m_ComboText;
 
     // ceremony timer for showing the WIN text
     int m_ShowWinTimer;
-    GameObject m_WinObject;
 
     // used to provide a hint
     Word m_SelectedWord;
+    bool m_HintReady;
 
     // button that is enabled when player meets the word quota
     Button m_FinishButton;
@@ -58,6 +64,13 @@ public class GameManager : MonoBehaviour {
     // this will turn on bad word reenforcement in the scoring
     static bool m_BadScore = true;
     int m_BadScoreTimer;                        // timer to flash the score
+
+    // pick a random word when hint is used rather than the selected word
+    public bool m_RandomHint = false;
+
+    // variables to be used after a ceremony is complete
+    Word m_CorrectWord;
+    string m_WordFound;
 
     private void SetASize(RectTransform _trans, Vector2 _newSize)
     {
@@ -98,50 +111,39 @@ public class GameManager : MonoBehaviour {
         for (int i = 0; i < m_MaxWords; i++)
         {
             float x = (i / m_WordRows) * WordWidth + (WordWidth / 2);
-            float y = 955 - ((i % m_WordRows) * WordHeight) - (WordHeight / 2);
+            float y = 864 - ((i % m_WordRows) * WordHeight) - (WordHeight / 2);
             m_WordList[i] = Instantiate(m_WordPrefab, new Vector3(x, y, 0), Quaternion.identity) as Word;
             SetASize(m_WordList[i].GetComponent<RectTransform>(), new Vector2(WordWidth, WordHeight));
             m_WordList[i].transform.SetParent(m_WordParent, false);
             m_WordList[i].m_ID = i;
         }
 
-        //Get a reference to the Scores text.
-        m_ScoreText = GameObject.Find("Scores").GetComponent<Text>();
+        //Get a reference to the Coins text.
+        m_ScoreText = GameObject.Find("CoinCounter").GetComponentInChildren<Text>();
 
         //Hide the win text for now
-        m_WinObject = GameObject.Find("End Text");
-        m_WinObject.SetActive(false);
         m_ShowWinTimer = 0;
 
         // no word selected
         m_SelectedWord = null;
+        m_HintReady = false;
 
         // get some objects
         m_ComboText = GameObject.Find("Combo").GetComponent<Text>();
 //        m_FinishButton = GameObject.Find("Finish").GetComponent<Button>();
 
-        // set the total coins text
-        Text Coins = GameObject.Find("Total Coins Text").GetComponent<Text>();
-        Coins.text = Session.m_SaveData.sd_TotalScore.ToString();
-
-        // set the total coins text
-        GameObject Object = GameObject.Find("Jumble Cost");
-        Text Value = Object.GetComponentInChildren<Text>();
-        Value.text = m_ShuffleCost.ToString();
-
-        Object = GameObject.Find("Check Cost");
-        Value = Object.GetComponentInChildren<Text>();
-        Value.text = m_CheckWordCost.ToString();
-
-        Object = GameObject.Find("Hint Cost");
-        Value = Object.GetComponentInChildren<Text>();
-        Value.text = m_HintCost.ToString();
+        // set the initial cost of things
+        m_ShuffleCost = m_StartShuffleCost;
+        m_CheckWordCost = m_StartCheckWordCost;
+        m_HintCost = m_StartHintCost;
+        m_RevealWordsCost = m_StartRevealWordsCost;
+        UpdateCosts();
 
         // start the first new word off
         NewWord();
     }
 	
-	void Update () 
+	void Update() 
     {
         // was a timer started showing the WIN text
         if (m_ShowWinTimer != 0)
@@ -172,16 +174,32 @@ public class GameManager : MonoBehaviour {
         }
 	}
 
+    void UpdateCosts()
+    {
+        // set the total coins text
+        GameObject Object = GameObject.Find("Jumble Cost");
+        Text Value = Object.GetComponentInChildren<Text>();
+        Value.text = m_ShuffleCost.ToString();
+
+        Object = GameObject.Find("Check Cost");
+        Value = Object.GetComponentInChildren<Text>();
+        Value.text = m_CheckWordCost.ToString();
+
+        Object = GameObject.Find("Hint Cost");
+        Value = Object.GetComponentInChildren<Text>();
+        Value.text = m_HintCost.ToString();
+    }
+
     // get the scren position for a given letter when idle
     public Vector3 GetLetterIdlePosition(int _Index)
     {
-        return new Vector3(_Index * m_LetterSpacing + m_LetterSpacing / 2, 300, 0f);
+        return new Vector3(_Index * m_LetterSpacing + m_LetterSpacing / 2, 199, 0f);
     }
 
     // get the scren position for a given letter when used
     public Vector3 GetLetterUsedPosition(int _Index)
     {
-        return new Vector3(_Index * m_LetterSpacing + m_LetterSpacing / 2, 465, 0f);
+        return new Vector3(_Index * m_LetterSpacing + m_LetterSpacing / 2, 366, 0f);
     }
 
     // change the state of the Words to show which are potential candidates for the currently used letters
@@ -243,7 +261,7 @@ public class GameManager : MonoBehaviour {
     }
 
     // clear all letters from the word
-    private void ClearUsedLetters()
+    public void ClearUsedLetters()
     {
         for (int i = 0; i < m_LettersUsedIndex; i++)
         {
@@ -298,6 +316,9 @@ public class GameManager : MonoBehaviour {
         m_WordsRightCombo = 1;
         UpdateScore();
 
+        // work out the best possible score. todo
+        m_BestPossibleScore = 1000;
+
         ResetHint();
 
         // reset the finish button
@@ -311,9 +332,11 @@ public class GameManager : MonoBehaviour {
 
     private void UpdateScore()
     {
-        m_ScoreText.text = m_TotalScore.ToString();
+        SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
+        string Number = Session.FormatNumberString(m_TotalScore.ToString());
+        m_ScoreText.text = Number;
 
-        m_ComboText.text = "Combo x" + m_WordsRightCombo.ToString();
+        m_ComboText.text = "Chain x" + m_WordsRightCombo.ToString();
     }
 
     private void JumbleLetters()
@@ -342,7 +365,32 @@ public class GameManager : MonoBehaviour {
         }
     }
 
-    private void SubmitWord(bool Check)
+    private bool IsValidWord()
+    {
+		// don't allow a no-letter submission
+		if (m_LettersUsedIndex == 0)
+			return false;
+	
+        // add all the letters to make the word
+        string Word = "";
+        for (int i = 0; i < m_LettersUsedIndex; i++)
+        {
+            Word += m_CurrentWord.Word.Substring(m_LetterList[m_LetterUsedList[i]].m_LetterIndex, 1);
+        }
+
+        // look for the word in the possible words
+        for (int i = 0; i < m_CurrentWord.FitWords.Length; i++)
+        {
+            if (Word == m_CurrentWord.FitWords[i])
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private void SubmitWord()
     {
 		// don't allow a no-letter submission
 		if (m_LettersUsedIndex == 0)
@@ -360,26 +408,28 @@ public class GameManager : MonoBehaviour {
         // look for the word in the possible words
         bool Right = false;
         bool AlreadyFound = false;
-        for (int i = 0; i < m_CurrentWord.FitWords.Length; i++)
+        int WordIndex = 0;
+        for (; WordIndex < m_CurrentWord.FitWords.Length; WordIndex++)
         {
-            if (Word == m_CurrentWord.FitWords[i])
+            if (Word == m_CurrentWord.FitWords[WordIndex])
             {
                 // has this word not been found yet
-                if (!m_WordList[i].IsFound())
+                if (!m_WordList[WordIndex].IsFound())
                 {
-                    // mark the word as found
-                    m_WordList[i].SetFound(Word, false);
+                    // store the values for the end of the ceremony
+                    m_CorrectWord = m_WordList[WordIndex];
+                    m_WordFound = Word;
                     Right = true;
 
                     // has this word been found in the lifetime stats
-                    int Index = m_CurrentWord.FitWordsIndex[i];
+                    int Index = m_CurrentWord.FitWordsIndex[WordIndex];
                     if (!Session.m_SaveData.sd_WordFound[Index])
                     {
                         // mark the word as found
                         Session.m_SaveData.sd_WordFound[Index] = true;
 
                         // increase the number of words for that letter
-                        int Letter = System.Convert.ToInt32(m_CurrentWord.FitWords[i][0]) - 65;
+                        int Letter = System.Convert.ToInt32(m_CurrentWord.FitWords[WordIndex][0]) - 65;
                         Session.m_SaveData.sd_WordFoundCounts[Letter]++;
                     }
                     break;
@@ -402,34 +452,30 @@ public class GameManager : MonoBehaviour {
                 // update the score (add word length * combo)
                 m_TotalScore += Word.Length * m_WordsRightCombo;
 
+                // start the CorrectWord ceremony
+                CeremonyManager Ceremony = GameObject.Find("GameManager").GetComponent<CeremonyManager>();
+                Ceremony.CorrectWord(Word.Length, m_WordsRightCombo);
+
                 // increase the combo
                 m_WordsRightCombo++;
             }
             else
             {
-                if (!Check)
-                {
-                    m_WordsWrong++;
-                    ++Session.m_SaveData.sd_IncorrectSubmits;
+                m_WordsWrong++;
+                ++Session.m_SaveData.sd_IncorrectSubmits;
 
-                    // reset the combo
-                    m_WordsRightCombo = 1;
+                // reset the combo
+                m_WordsRightCombo = 1;
 
-                    // flash the score for 2 seconds
-                    if (m_BadScore)
-                        m_BadScoreTimer = 120;
-                }
+                // flash the score for 2 seconds
+                if (m_BadScore)
+                    m_BadScoreTimer = 120;
+
+                // start the IncorrectWord ceremony
+                CeremonyManager Ceremony = GameObject.Find("GameManager").GetComponent<CeremonyManager>();
+                Ceremony.IncorrectWord();
             }
             UpdateScore();
-        }
-
-        if (!Check || Right)
-            ClearUsedLetters();
-
-        // did the player find all the words
-        if (m_WordsRight == m_CurrentWord.FitWords.Length)
-        {
-            Win();
         }
 
         //Save the data
@@ -446,18 +492,47 @@ public class GameManager : MonoBehaviour {
         ResetHint();
     }
 
+    void BeginCeremony(eCeremonyType _Type)
+    {
+        CeremonyManager Ceremony = GameObject.Find("GameManager").GetComponent<CeremonyManager>();
+        Ceremony.Init(_Type);
+    }
+
     void Win()
     {
         // show the win text
-        m_WinObject.SetActive(true);
+        CeremonyManager Ceremony = GameObject.Find("GameManager").GetComponent<CeremonyManager>();
+        bool Perfect = false;
+        if (m_TotalScore == m_BestPossibleScore)
+            Perfect = true;
+        Ceremony.Win(Perfect);
+
 
         // start a count down before going to the result screen
         m_ShowWinTimer = 30;
 
+        // find the best scoring word
+        int BestWordScore = 0;
+        string BestWord = "";
+        for (int i = 0; i < m_CurrentWord.FitWords.Length; i++)
+        {
+            // has this word been found yet
+            if (m_WordList[i].IsFound())
+            {
+                // is this a better score
+                int Score = m_CurrentWord.FitWords[i].Length;
+                if (Score > BestWordScore)
+                {
+                    BestWordScore = Score;
+                    BestWord = m_CurrentWord.FitWords[i];
+                }
+            }
+        }
+
         //Add to the save data
         SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
-        ++Session.m_SaveData.sd_PuzzlesSolved;
-        Session.m_SaveData.sd_TotalScore += m_TotalScore;
+        Session.m_SaveData.LevelComplete(Session.m_CurrentZone, Session.m_CurrentLevel, BestWord, m_TotalScore);
+        Session.Save();
 
         // remember these stats to go to the review
         Session.m_LastWordsRight = m_WordsRight;
@@ -466,8 +541,6 @@ public class GameManager : MonoBehaviour {
         Session.m_LastWord = m_CurrentWord;
         Session.m_WordsCompleted = m_WordsRight;
         Session.m_WordsAvailable = m_CurrentWord.FitWords.Length;
-
-        Session.Save();
 
         // reveal any unfound words
         for (int i = 0; i < m_CurrentWord.FitWords.Length; i++)
@@ -497,8 +570,21 @@ public class GameManager : MonoBehaviour {
 
     void Hint()
     {
+        if (m_RandomHint)
+        {
+            // pick a random word with a hint still available
+            int Index = 0;
+            do
+            {
+                Index = Random.Range(0, m_WordList.Length - 1);
+            } while (m_WordList[Index].IsHintUsed());
+
+            m_WordList[Index].UseHint();
+
+            ResetHint();
+        }
         // has a word been selected
-        if (m_SelectedWord)
+        else if (m_SelectedWord)
         {
             // does this word have any hints available
             int WordIndex = m_SelectedWord.m_ID;
@@ -507,6 +593,24 @@ public class GameManager : MonoBehaviour {
 
             ResetHint();
         }
+    }
+
+    bool HintAvailable()
+    {
+        if (m_RandomHint)
+        {
+            // are there any words still to give out a hint
+            int i = 0;
+            for (;i < m_WordList.Length;i++)
+            {
+                if (!m_WordList[i].IsHintUsed())
+                    return true;
+            }
+        }
+        else if (!m_SelectedWord.IsHintUsed())
+            return true;
+
+        return false;
     }
 
     void SelectWord(Word WordObject)
@@ -542,19 +646,23 @@ public class GameManager : MonoBehaviour {
         }
     }
 
-    bool SpendCoins(int Amount)
+    bool SpendCoins(int Amount, int BaseAmount, out int AmountOut)
     {
         SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
+
+        AmountOut = Amount;
 
         // does the player have enough coins
         if (Session.m_SaveData.sd_TotalScore >= Amount)
         {
             // remove the coins
-            Session.m_SaveData.sd_TotalScore -= Amount;
+            Session.m_SaveData.AddCoins(-Amount);
 
-            // update the text
-            Text Coins = GameObject.Find("Total Coins Text").GetComponent<Text>();
-            Coins.text = Session.m_SaveData.sd_TotalScore.ToString();
+            // increase the cost until it's x10 original value
+            AmountOut += BaseAmount;
+            if (AmountOut > BaseAmount * 10)
+                AmountOut = BaseAmount * 10;
+            UpdateCosts();
 
             return true;
         }
@@ -562,10 +670,23 @@ public class GameManager : MonoBehaviour {
         return false;
     }
 
+    void UpdateHintButton()
+    {
+        // change the hint button to be red if it's selected, white if not
+        Button Hint = GameObject.Find("Hint").GetComponent<Button>();
+        ColorBlock cb = Hint.colors;
+        if (m_HintReady)
+            cb.normalColor = new Color(1, 0, 0);
+        else
+            cb.normalColor = new Color(1, 1, 1);
+        cb.highlightedColor = cb.normalColor;
+        Hint.colors = cb;
+    }
+
     public void Finish()
     {
         // attempt to spend coins
-        if (SpendCoins(m_RevealWordsCost))
+        if (SpendCoins(m_RevealWordsCost, m_StartRevealWordsCost, out m_RevealWordsCost))
         {
             Win();
         }
@@ -589,7 +710,7 @@ public class GameManager : MonoBehaviour {
     public void JumbleClicked()
     {
         // attempt to spend coins
-        if (SpendCoins(m_ShuffleCost))
+        if (SpendCoins(m_ShuffleCost, m_StartShuffleCost, out m_ShuffleCost))
         {
             ClearUsedLetters();
             JumbleLetters();
@@ -598,7 +719,7 @@ public class GameManager : MonoBehaviour {
 
     public void SubmitClicked()
     {
-        SubmitWord(false);
+        SubmitWord();
     }
 
     public void CheckClicked()
@@ -607,31 +728,65 @@ public class GameManager : MonoBehaviour {
         if (m_LettersUsedIndex != 0)
         {
             // attempt to spend coins
-            if (SpendCoins(m_CheckWordCost))
+            if (SpendCoins(m_CheckWordCost, m_StartCheckWordCost, out m_CheckWordCost))
             {
-                SubmitWord(true);
+                GameObject ButtonPrefab = (GameObject)Resources.Load("Prefabs/ZoneSelector", typeof(GameObject));
+                if (IsValidWord())
+                    BeginCeremony(eCeremonyType.CheckGood);
+                else
+                    BeginCeremony(eCeremonyType.CheckBad);
             }
         }
     }
 
     public void HintClicked()
     {
-        // attempt to spend coins
-        if (SpendCoins(m_HintCost))
+        if (!m_SelectedWord && !m_RandomHint)
         {
-            Hint();
+            m_HintReady = !m_HintReady;
+            UpdateHintButton();
+        }
+        else
+        {
+            if (HintAvailable())
+            {
+                // attempt to spend coins
+                if (SpendCoins(m_HintCost, m_StartHintCost, out m_HintCost))
+                {
+                    Hint();
+                }
+            }
         }
     }
 
     public void PauseClicked()
     {
         PauseManager Pause = GameObject.Find("GameManager").GetComponent<PauseManager>();
-        Pause.SetIsEnabled(true);
+        Pause.SetIsEnabled(!Pause.m_PauseEnabled);
     }
 
     public void WordClicked(Word WordObject)
     {
+        // can't select words when random hint is used
+        if (m_RandomHint)
+            return;
+
         SelectWord(WordObject);
+
+        if (m_HintReady)
+        {
+            m_HintReady = false;
+            UpdateHintButton();
+
+            if (HintAvailable())
+            {
+                // attempt to spend coins
+                if (SpendCoins(m_HintCost, m_StartHintCost, out m_HintCost))
+                {
+                    Hint();
+                }
+            }
+        }
     }
 
     public void EndClicked()
@@ -644,4 +799,18 @@ public class GameManager : MonoBehaviour {
         }
     }
 
+    public void CompleteWordCorrect()
+    {
+        // mark the word as correct
+        m_CorrectWord.SetFound(m_WordFound, false);
+
+        // return the letters to idle
+        ClearUsedLetters();
+
+        // did the player find all the words
+        if (m_WordsRight == m_CurrentWord.FitWords.Length)
+        {
+            Win();
+        }
+    }
 }

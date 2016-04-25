@@ -6,6 +6,9 @@ public class PauseManager : MonoBehaviour
 {
     public GameObject m_Root;
 
+    [HideInInspector]
+    public bool m_PauseEnabled = false;
+
 	void Start () 
     {
     }
@@ -14,11 +17,27 @@ public class PauseManager : MonoBehaviour
     {
         m_Root.gameObject.SetActive(Active);
 
-        // set the total coins text
-        GameObject Object = GameObject.Find("End Cost");
-        Text Value = Object.GetComponentInChildren<Text>();
-        GameManager Game = GameObject.Find("GameManager").GetComponent<GameManager>();
-        Value.text = Game.m_RevealWordsCost.ToString();
+        SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
+
+        if (Active)
+        {
+            // set the total coins text
+            GameObject Object = GameObject.Find("End Cost"); 
+            Text Value = Object.GetComponentInChildren<Text>();
+            GameManager Game = GameObject.Find("GameManager").GetComponent<GameManager>();
+            Value.text = Game.m_RevealWordsCost.ToString();
+        }
+
+        // hide debug buttons for external release
+        if (Session.m_ExternalVersion)
+        {
+            GameObject Object = GameObject.Find("End");
+            Object.SetActive(false);
+            Object = GameObject.Find("End Cost");
+            Object.SetActive(false);
+        }
+
+        m_PauseEnabled = Active;
     }
 
     public void ResumeClicked()
@@ -39,11 +58,10 @@ public class PauseManager : MonoBehaviour
 
         // keep the player's score
         GameManager Game = GameObject.Find("GameManager").GetComponent<GameManager>();
-        Session.m_SaveData.sd_TotalScore += Game.m_TotalScore;
+        Session.m_SaveData.AddCoins(Game.m_TotalScore);
 
         // move to the next puzzle
         DictionaryManager Dictionary = GameObject.Find("DictionaryManager").GetComponent<DictionaryManager>();
-        Session.m_SaveData.sd_RandomSeed = Dictionary.m_RandomSeed;
         Session.m_SaveData.sd_CurrentLevel++;
 
         Session.Save();

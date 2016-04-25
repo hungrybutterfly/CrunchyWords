@@ -9,7 +9,7 @@ public class StatsCorrectText : MonoBehaviour
         SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
         int puzzles = Session.m_SaveData.sd_CorrectSubmits;
         Text statsText = GetComponent<Text>();
-        statsText.text = (puzzles + " Right");
+        statsText.text = puzzles.ToString();
     }
 }
 

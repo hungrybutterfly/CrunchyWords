@@ -8,6 +8,10 @@ public class Cover : MonoBehaviour
     {
         SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
 
+        // set the version text
+        Text Version = GameObject.Find("VersionText").GetComponent<Text>();
+        Version.text = Session.m_Version;
+
         Text Solved = GameObject.Find("Puzzles Solved").GetComponent<Text>();
         Solved.text = Session.m_SaveData.sd_PuzzlesSolved.ToString() + " Puzzles Solved";
 
@@ -16,10 +20,17 @@ public class Cover : MonoBehaviour
         int FoundCount = 0;
         for (int i = 0; i < 26; i++)
             FoundCount += Session.m_SaveData.sd_WordFoundCounts[i];
-        Vocabulary.text = "Vocabulary  " + FoundCount.ToString() + " / " + Dictionary.m_FinalWordCount.ToString();
+        Vocabulary.text = "Total Words  " + FoundCount.ToString() + " / " + Dictionary.m_FinalWordCount.ToString();
 
-        Text Coins = GameObject.Find("Coin Text").GetComponent<Text>();
-        Coins.text = Session.m_SaveData.sd_TotalScore.ToString();
+        // hide the debug buttons if this is an external version
+        if (Session.m_ExternalVersion)
+        {
+            GameObject Button = GameObject.Find("Add Coins");
+            Button.SetActive(false);
+
+            Button = GameObject.Find("Clear");
+            Button.SetActive(false);
+        }
     }
 
 	public void ClearClicked() 
@@ -33,9 +44,6 @@ public class Cover : MonoBehaviour
     {
         // cheat to add 1000 coins
         SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
-        Session.m_SaveData.sd_TotalScore += 1000;
-
-        Text Coins = GameObject.Find("Coin Text").GetComponent<Text>();
-        Coins.text = Session.m_SaveData.sd_TotalScore.ToString();
+        Session.m_SaveData.AddCoins(1000);
     }
 }
