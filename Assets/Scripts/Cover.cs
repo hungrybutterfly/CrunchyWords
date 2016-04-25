@@ -39,11 +39,4 @@ public class Cover : MonoBehaviour
         Session.CreateNewSaveData();
         Session.ChangeScene("Cover");
 	}
-
-    public void AddCoinsClicked()
-    {
-        // cheat to add 1000 coins
-        SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
-        Session.m_SaveData.AddCoins(1000);
-    }
 }

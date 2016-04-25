@@ -204,7 +204,7 @@ public class DictionaryManager : MonoBehaviour
         // set the random seed based on current zone/level
         int Zone = Session.m_CurrentZone;
         int Level = Session.m_CurrentLevel;
-        Random.seed = ((Zone * 20 + Level) + 1) * 1234567;
+        Random.seed = ((Zone * 20 + Level) + 1) * 123457;
 
         // fetch the min/max words
         LevelData Data = GameObject.Find("LevelData").GetComponent<LevelData>();

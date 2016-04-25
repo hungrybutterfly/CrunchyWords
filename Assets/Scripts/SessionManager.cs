@@ -60,6 +60,7 @@ public class SessionManager : MonoBehaviour
     public bool m_ExternalVersion;
     // debug flag for ignoring the loading of the dictionary in scenes that don't need it
     public bool m_IgnoreDictionary = false;
+    public int m_StartingCoins = 100;
 
 	void LoadDictionary ()
 	{
@@ -150,7 +151,7 @@ public class SessionManager : MonoBehaviour
 		for (int i = 0; i < Size; i++)
 			m_SaveData.sd_WordFoundCounts [i] = 0;
 
-        m_SaveData.sd_TotalScore = 0;
+        m_SaveData.sd_TotalScore = m_StartingCoins;
         m_SaveData.sd_RandomSeed = 12345;
         m_SaveData.sd_CurrentLevel = 0;
 
