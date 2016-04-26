@@ -576,7 +576,7 @@ public class GameManager : MonoBehaviour {
             int Index = 0;
             do
             {
-                Index = Random.Range(0, m_WordList.Length - 1);
+                Index = Random.Range(0, m_CurrentWord.FitWords.Length);
             } while (m_WordList[Index].IsHintUsed());
 
             m_WordList[Index].UseHint();
@@ -601,7 +601,7 @@ public class GameManager : MonoBehaviour {
         {
             // are there any words still to give out a hint
             int i = 0;
-            for (;i < m_WordList.Length;i++)
+            for (; i < m_CurrentWord.FitWords.Length; i++)
             {
                 if (!m_WordList[i].IsHintUsed())
                     return true;
