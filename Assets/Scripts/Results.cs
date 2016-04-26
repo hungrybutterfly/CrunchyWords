@@ -37,7 +37,6 @@ public class Results : MonoBehaviour {
     public void NextClicked()
     {
         SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
-        DictionaryManager Dictionary = GameObject.Find("DictionaryManager").GetComponent<DictionaryManager>();
         // move to the next level
         Session.m_SaveData.sd_CurrentLevel++;
         Session.Save();

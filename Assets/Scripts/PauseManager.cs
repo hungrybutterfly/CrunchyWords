@@ -61,11 +61,8 @@ public class PauseManager : MonoBehaviour
         Session.m_SaveData.AddCoins(Game.m_TotalScore);
 
         // move to the next puzzle
-        DictionaryManager Dictionary = GameObject.Find("DictionaryManager").GetComponent<DictionaryManager>();
         Session.m_SaveData.sd_CurrentLevel++;
-
         Session.Save();
-
         Session.ChangeScene("Cover");
     }
 

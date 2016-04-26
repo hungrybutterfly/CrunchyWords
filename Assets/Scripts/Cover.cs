@@ -19,7 +19,7 @@ public class Cover : MonoBehaviour
         DictionaryManager Dictionary = GameObject.Find("DictionaryManager").GetComponent<DictionaryManager>();
         int FoundCount = 0;
         for (int i = 0; i < 26; i++)
-            FoundCount += Session.m_SaveData.sd_WordFoundCounts[i];
+            FoundCount += Session.m_WordFoundCounts[i];
         Vocabulary.text = "Total Words  " + FoundCount.ToString() + " / " + Dictionary.m_FinalWordCount.ToString();
 
         // hide the debug buttons if this is an external version

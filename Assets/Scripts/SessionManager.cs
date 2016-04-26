@@ -23,19 +23,22 @@ public class SessionManager : MonoBehaviour
 	//First time init int (for loading screen)
 	private int m_FirstTimeInit;
 
-	//Save Data
-	[HideInInspector]
-	public PlayerData m_SaveData;
+    //Save Data
+    [HideInInspector]
+    public SavePlayerData m_SaveData;
+    public JSONPlayerData m_JSONSaveData;
 
-	//Review data
+    //Review data
     [HideInInspector]
     public int m_LastWordsRight;
     [HideInInspector]
     public int m_LastWordsWrong;
     [HideInInspector]
     public int m_LastScore;
+    [HideInInspector]
+    public int[] m_WordFoundCounts;
 
-	//Last word infromation
+    //Last word infromation
     [HideInInspector]
     public bool m_UseLastWord;
     [HideInInspector]
@@ -120,42 +123,28 @@ public class SessionManager : MonoBehaviour
 
 	public void Save ()
 	{
-		BinaryFormatter bf = new BinaryFormatter ();
+        //Convert
+        m_SaveData.ConvertToJSON();
+        m_JSONSaveData.jssd_Dictionary = m_SaveData.sd_Dictionary;
+        //Save
+        BinaryFormatter bf = new BinaryFormatter ();
 		FileStream file = File.Open (Application.persistentDataPath + m_SaveFileName, FileMode.Open);
-		bf.Serialize (file, m_SaveData);
+		bf.Serialize (file, m_JSONSaveData);
 		file.Close ();
         Debug.Log("SAVED -> " + Application.persistentDataPath + m_SaveFileName);
 	}
 
 	public void CreateNewSaveData ()
 	{
-		//Create from new
-		m_SaveData = new PlayerData ();
+        //Create from new
+        m_SaveData = new SavePlayerData ();
+        m_JSONSaveData = new JSONPlayerData();
         Debug.Log("CREATING -> " + Application.persistentDataPath + m_SaveFileName);
         FileStream file = File.Create(Application.persistentDataPath + m_SaveFileName);
 		file.Close ();
 
-        // clear the scores
-        m_SaveData.sd_PuzzlesSolved = 0;
-        m_SaveData.sd_CorrectSubmits = 0;
-        m_SaveData.sd_IncorrectSubmits = 0;
-
-		// create and clear the arrays
-        DictionaryManager Dictionary = GameObject.Find("DictionaryManager").GetComponent<DictionaryManager>();
-        int Size = Dictionary.m_Words.Length;
-		m_SaveData.sd_WordFound = new bool[Size];
-		for (int i = 0; i < Size; i++)
-			m_SaveData.sd_WordFound [i] = false;
-		Size = 26;
-		m_SaveData.sd_WordFoundCounts = new int[Size];
-		for (int i = 0; i < Size; i++)
-			m_SaveData.sd_WordFoundCounts [i] = 0;
-
-        m_SaveData.sd_TotalScore = m_StartingCoins;
-        m_SaveData.sd_RandomSeed = 12345;
-        m_SaveData.sd_CurrentLevel = 0;
-
-        m_SaveData.sd_LevelsComplete = new List<PlayerData.LevelCompleteData>();
+        //Reset
+        m_SaveData.InitSaveData();
 
 		Save ();
 	}
@@ -167,10 +156,17 @@ public class SessionManager : MonoBehaviour
 			//Load - file exists
 			BinaryFormatter bf = new BinaryFormatter ();
             FileStream file = File.Open(Application.persistentDataPath + m_SaveFileName, FileMode.Open);
-			m_SaveData = (PlayerData)bf.Deserialize (file);
+			m_JSONSaveData = (JSONPlayerData)bf.Deserialize (file);
 			file.Close ();
-			// is the version number different
-			if (m_SaveData.sd_Version != PlayerData.sd_CurrentVersion) 
+            //Convert   
+            m_SaveData = new SavePlayerData();
+
+            m_SaveData.sd_Dictionary = m_JSONSaveData.jssd_Dictionary;
+            //m_SaveData.sd_SaveString = m_JSONSaveData.jssd_SaveString;
+
+            m_SaveData.LoadDataFromJSON();
+            // is the version number different
+            if (m_SaveData.sd_Version != SavePlayerData.sd_CurrentVersion) 
             {
 				// do something here to upgrade the data
 				// for now I'll just create a new one
@@ -182,7 +178,7 @@ public class SessionManager : MonoBehaviour
         {
 			CreateNewSaveData ();            
 		}
-	}
+    }
 
     // add commas to a large number
     public string FormatNumberString(string _In)

@@ -82,8 +82,6 @@ public class GameManager : MonoBehaviour {
 
 	void Start () 
     {
-        SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
-
         m_DictionaryObject = GameObject.Find("DictionaryManager").GetComponent<DictionaryManager>();
         m_MaxLetters = m_DictionaryObject.m_MaxWordSize;
 
@@ -422,15 +420,14 @@ public class GameManager : MonoBehaviour {
                     Right = true;
 
                     // has this word been found in the lifetime stats
-                    int Index = m_CurrentWord.FitWordsIndex[WordIndex];
-                    if (!Session.m_SaveData.sd_WordFound[Index])
+                    if (!Session.m_SaveData.IsWordAlreadyFound(m_CurrentWord.FitWords[WordIndex]))
                     {
                         // mark the word as found
-                        Session.m_SaveData.sd_WordFound[Index] = true;
+                        Session.m_SaveData.sd_WordFound.Add(m_CurrentWord.FitWords[WordIndex]);
 
                         // increase the number of words for that letter
                         int Letter = System.Convert.ToInt32(m_CurrentWord.FitWords[WordIndex][0]) - 65;
-                        Session.m_SaveData.sd_WordFoundCounts[Letter]++;
+                        Session.m_WordFoundCounts[Letter]++;
                     }
                     break;
                 }
@@ -587,7 +584,6 @@ public class GameManager : MonoBehaviour {
         else if (m_SelectedWord)
         {
             // does this word have any hints available
-            int WordIndex = m_SelectedWord.m_ID;
             if (!m_SelectedWord.IsHintUsed())
                 m_SelectedWord.UseHint();
 
@@ -730,7 +726,6 @@ public class GameManager : MonoBehaviour {
             // attempt to spend coins
             if (SpendCoins(m_CheckWordCost, m_StartCheckWordCost, out m_CheckWordCost))
             {
-                GameObject ButtonPrefab = (GameObject)Resources.Load("Prefabs/ZoneSelector", typeof(GameObject));
                 if (IsValidWord())
                     BeginCeremony(eCeremonyType.CheckGood);
                 else

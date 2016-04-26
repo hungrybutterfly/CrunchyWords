@@ -23,7 +23,7 @@ public class Stats : MonoBehaviour
             m_LetterStats[i] = Instantiate(m_StatsLetterPrefab, new Vector3(x, y, 0), Quaternion.identity) as Text;
             m_LetterStats[i].GetComponent<RectTransform>().sizeDelta = new Vector2(200, 50);
             m_LetterStats[i].transform.SetParent(Parent.GetComponent<Transform>(), false);
-			int FoundCount = Session.m_SaveData.sd_WordFoundCounts[i];
+			int FoundCount = Session.m_WordFoundCounts[i];
             m_LetterStats[i].text = System.Convert.ToChar(i + 65) + " = " + FoundCount + " / " + Dictionary.m_FinalLetterWords[i];
         }
     }

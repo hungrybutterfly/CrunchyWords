@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 public class MaxWord
 {
-	// index into the Words array for this max word
+	// Actual word itself in string form
 	public string Word;
 	// array of words that fit in the max word
 	public string[] FitWords;
