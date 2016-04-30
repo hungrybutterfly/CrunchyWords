@@ -26,7 +26,18 @@ public class SessionManager : MonoBehaviour
     //Save Data
     [HideInInspector]
     public SavePlayerData m_SaveData;
+    [HideInInspector]
     public JSONPlayerData m_JSONSaveData;
+    [HideInInspector]
+    public string m_SaveFileName = "/playerInfo7.dat";
+
+    //Settings Data
+    [HideInInspector]
+    public Settings m_Settings;
+    [HideInInspector]
+    public JSONPlayerData m_JSONSettings;
+    [HideInInspector]
+    public string m_SettingsFileName2 = "/Settings1.dat";
 
     //Review data
     [HideInInspector]
@@ -47,9 +58,8 @@ public class SessionManager : MonoBehaviour
     public int m_WordsCompleted;
     [HideInInspector]
     public int m_WordsAvailable;
-
     [HideInInspector]
-    public string m_SaveFileName = "/playerInfo7.dat";
+    public int m_BestChain;
 
     // current level info
     [HideInInspector]
@@ -73,9 +83,9 @@ public class SessionManager : MonoBehaviour
 		m_DictionaryObject.name = "DictionaryManager";
 		DontDestroyOnLoad (m_DictionaryObject);
 
-		// now it's safe to load the player's data
-		Load ();
-	}
+        // now it's safe to load the player's data
+        Load();
+    }
 
 	void Awake ()
 	{
@@ -89,7 +99,7 @@ public class SessionManager : MonoBehaviour
 			m_Instance = this;
 
 			// if we're not on the loading screen then immediately load the dictionary
-            if (SceneManager.GetActiveScene().name != "Start" && !m_IgnoreDictionary)
+            if (SceneManager.GetActiveScene().name != "Start" && SceneManager.GetActiveScene().name != "HowToPlay" && !m_IgnoreDictionary)
 				LoadDictionary ();
 
 			m_FirstTimeInit = 0;
@@ -99,18 +109,26 @@ public class SessionManager : MonoBehaviour
 
 	void Start ()
 	{
-	}
+        LoadSettings();
+        if (m_Settings.m_HowToSeen == 0)
+        {
+            m_Settings.m_HowToSeen = 1;
+            SaveSettings();
+            ChangeScene("HowToPlay");
+        }
+    }
 
 	void Update ()
 	{
-		// if we're on the loading screen wait 2 game frames, load the dictionary then transition to the cover
-		if (SceneManager.GetActiveScene ().name == "Start") 
+		// if we're on the loading screen wait 5 game frames, load the dictionary then transition to the cover
+        if (SceneManager.GetActiveScene().name == "Start" || SceneManager.GetActiveScene().name == "HowToPlay") 
         {
-			if (m_FirstTimeInit == 2) 
+			if (m_FirstTimeInit == 5) 
             {
 				LoadDictionary ();
 
-				ChangeScene ("Cover");
+                if (SceneManager.GetActiveScene().name == "Start")
+				    ChangeScene ("Cover");
 			}
 			m_FirstTimeInit++;
 		}
@@ -177,6 +195,58 @@ public class SessionManager : MonoBehaviour
         else 
         {
 			CreateNewSaveData ();            
+		}
+    }
+
+
+	public void SaveSettings ()
+	{
+        //Convert
+        m_Settings.ConvertToJSON();
+        m_JSONSettings.jssd_Dictionary = m_Settings.m_Dictionary;
+        //Save
+        BinaryFormatter bf = new BinaryFormatter ();
+        FileStream file = File.Open(Application.persistentDataPath + m_SettingsFileName2, FileMode.Open);
+        bf.Serialize(file, m_JSONSettings);
+		file.Close ();
+        Debug.Log("SAVED Settings -> " + Application.persistentDataPath + m_SettingsFileName2);
+	}
+
+    public void CreateNewSettings()
+	{
+        //Create from new
+        m_Settings = new Settings();
+        m_JSONSettings = new JSONPlayerData();
+        Debug.Log("CREATING Settings -> " + Application.persistentDataPath + m_SettingsFileName2);
+        FileStream file = File.Create(Application.persistentDataPath + m_SettingsFileName2);
+		file.Close ();
+
+        //Reset
+        m_Settings.Init();
+
+        SaveSettings();
+	}
+
+    public void LoadSettings()
+	{
+        if (File.Exists(Application.persistentDataPath + m_SettingsFileName2))
+        {
+			//Load - file exists
+			BinaryFormatter bf = new BinaryFormatter ();
+            FileStream file = File.Open(Application.persistentDataPath + m_SettingsFileName2, FileMode.Open);
+            m_JSONSettings = (JSONPlayerData)bf.Deserialize(file);
+			file.Close ();
+            //Convert   
+            m_Settings = new Settings();
+
+            m_Settings.m_Dictionary = m_JSONSettings.jssd_Dictionary;
+
+            m_Settings.LoadDataFromJSON();
+            Debug.Log("LOADED Settings -> " + Application.persistentDataPath + m_SettingsFileName2);
+		} 
+        else 
+        {
+            CreateNewSettings();            
 		}
     }
 

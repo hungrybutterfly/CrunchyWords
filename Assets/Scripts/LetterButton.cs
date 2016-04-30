@@ -7,6 +7,7 @@ public class LetterButton : Button
     enum eState
     {
         Idle,
+        UsedNotReady,
         Used
     }
 
@@ -35,12 +36,24 @@ public class LetterButton : Button
 
     void SetState(eState _NewState)
     {
+        switch (m_State)
+        {
+            case eState.UsedNotReady:
+                GetComponent<Image>().color = new Color(1, 1, 1);                
+                break;
+        }
+
         m_State = _NewState;
 
         switch (m_State)
         {
             case eState.Idle:
                 transform.localPosition = m_Manager.GetLetterIdlePosition(m_Index);
+                break;
+
+            case eState.UsedNotReady:
+                transform.localPosition = m_Manager.GetLetterUsedPosition(m_UsedIndex);
+                GetComponent<Image>().color = new Color(0.5f, 0.5f, 0.5f);
                 break;
 
             case eState.Used:
@@ -66,9 +79,17 @@ public class LetterButton : Button
         SetState(eState.Used);
     }
 
+    public void SetNotReady(bool NotReady)
+    {
+        if (NotReady && m_State == eState.Used)
+            SetState(eState.UsedNotReady);
+        else if (!NotReady && m_State == eState.UsedNotReady)
+            SetState(eState.Used);
+    }
+
     public bool IsUsed()
     {
-        if (m_State == eState.Used)
+        if (m_State == eState.UsedNotReady || m_State == eState.Used)
             return true;
 
         return false;

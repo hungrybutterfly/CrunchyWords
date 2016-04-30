@@ -10,6 +10,10 @@ public enum eCeremonyType
     WordGood,
     WordBad,
     Win,
+    All3Found,
+    All4Found,
+    All5Found,
+    All6Found,
 
     Total
 };
@@ -26,6 +30,13 @@ public class CeremonyManager : MonoBehaviour
     {
         "GOOD!",
         "BAD!",
+        "",
+        "",
+        "",
+        "All 3 letter\nwords found!",
+        "All 4 letter\nwords found!",
+        "All 5 letter\nwords found!",
+        "All 6 letter\nwords found!",
     };
 
     public void SetIsEnabled(bool _Active)
@@ -36,6 +47,8 @@ public class CeremonyManager : MonoBehaviour
     public void Init(eCeremonyType _Type) 
     {
         m_Timer = 1.0f;
+        if (_Type >= eCeremonyType.All3Found && _Type <= eCeremonyType.All6Found)
+            m_Timer = 2.0f;
         m_Type = _Type;
 
         SetIsEnabled(true);

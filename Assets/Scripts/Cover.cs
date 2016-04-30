@@ -22,6 +22,9 @@ public class Cover : MonoBehaviour
             FoundCount += Session.m_WordFoundCounts[i];
         Vocabulary.text = "Total Words  " + FoundCount.ToString() + " / " + Dictionary.m_FinalWordCount.ToString();
 
+        Text Chain = GameObject.Find("Best Chain").GetComponent<Text>();
+        Chain.text = "Best Chain " + Session.m_SaveData.sd_BestChain.ToString();
+
         // hide the debug buttons if this is an external version
         if (Session.m_ExternalVersion)
         {

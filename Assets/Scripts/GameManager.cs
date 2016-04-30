@@ -49,6 +49,7 @@ public class GameManager : MonoBehaviour {
     int m_BestPossibleScore;                // to determin if player for a perfect score
     int m_WordsRightCombo;
     Text m_ComboText;
+    int m_BestChain;
 
     // ceremony timer for showing the WIN text
     int m_ShowWinTimer;
@@ -235,6 +236,17 @@ public class GameManager : MonoBehaviour {
         }
     }
 
+    private void UpdateLettersNotReady()
+    {
+        for (int i = 0; i < m_LettersUsedIndex; i++)
+        {
+            if (m_LettersUsedIndex < 3)
+                m_LetterList[m_LetterUsedList[i]].SetNotReady(true);
+            else
+                m_LetterList[m_LetterUsedList[i]].SetNotReady(false);
+        }
+    }
+
     // add a letter to the word
     private void AddLetter(int _TheButton)
     {
@@ -242,6 +254,7 @@ public class GameManager : MonoBehaviour {
         m_LetterUsedList[m_LettersUsedIndex] = _TheButton;
         m_LettersUsedIndex++;
 
+        UpdateLettersNotReady();
         UpdatePossibleWords();
     }
 
@@ -255,6 +268,7 @@ public class GameManager : MonoBehaviour {
             m_LettersUsedIndex--;
         }
 
+        UpdateLettersNotReady();
         UpdatePossibleWords();
     }
 
@@ -267,6 +281,7 @@ public class GameManager : MonoBehaviour {
         }
         m_LettersUsedIndex = 0;
 
+        UpdateLettersNotReady();
         UpdatePossibleWords();
     }
 
@@ -312,6 +327,7 @@ public class GameManager : MonoBehaviour {
         m_WordsRight = 0;
         m_TotalScore = 0;
         m_WordsRightCombo = 1;
+        m_BestChain = 0;
         UpdateScore();
 
         // work out the best possible score. todo
@@ -391,7 +407,7 @@ public class GameManager : MonoBehaviour {
     private void SubmitWord()
     {
 		// don't allow a no-letter submission
-		if (m_LettersUsedIndex == 0)
+		if (m_LettersUsedIndex < 3)
 			return;
 	
         SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
@@ -445,21 +461,25 @@ public class GameManager : MonoBehaviour {
             {
                 m_WordsRight++;
                 ++Session.m_SaveData.sd_CorrectSubmits;
+                Session.m_SaveData.IncreaseChain();
 
                 // update the score (add word length * combo)
                 m_TotalScore += Word.Length * m_WordsRightCombo;
 
                 // start the CorrectWord ceremony
-                CeremonyManager Ceremony = GameObject.Find("GameManager").GetComponent<CeremonyManager>();
+                CeremonyManager Ceremony = GetComponent<CeremonyManager>();
                 Ceremony.CorrectWord(Word.Length, m_WordsRightCombo);
 
                 // increase the combo
                 m_WordsRightCombo++;
+                if (m_BestChain < m_WordsRightCombo - 1)
+                    m_BestChain = m_WordsRightCombo - 1;
             }
             else
             {
                 m_WordsWrong++;
                 ++Session.m_SaveData.sd_IncorrectSubmits;
+                Session.m_SaveData.BreakChain();
 
                 // reset the combo
                 m_WordsRightCombo = 1;
@@ -469,7 +489,7 @@ public class GameManager : MonoBehaviour {
                     m_BadScoreTimer = 120;
 
                 // start the IncorrectWord ceremony
-                CeremonyManager Ceremony = GameObject.Find("GameManager").GetComponent<CeremonyManager>();
+                CeremonyManager Ceremony = GetComponent<CeremonyManager>();
                 Ceremony.IncorrectWord();
             }
             UpdateScore();
@@ -538,6 +558,7 @@ public class GameManager : MonoBehaviour {
         Session.m_LastWord = m_CurrentWord;
         Session.m_WordsCompleted = m_WordsRight;
         Session.m_WordsAvailable = m_CurrentWord.FitWords.Length;
+        Session.m_BestChain = m_BestChain;
 
         // reveal any unfound words
         for (int i = 0; i < m_CurrentWord.FitWords.Length; i++)
@@ -721,7 +742,7 @@ public class GameManager : MonoBehaviour {
     public void CheckClicked()
     {
         // does the player have any letters used
-        if (m_LettersUsedIndex != 0)
+        if (m_LettersUsedIndex >= 3)
         {
             // attempt to spend coins
             if (SpendCoins(m_CheckWordCost, m_StartCheckWordCost, out m_CheckWordCost))
@@ -806,6 +827,27 @@ public class GameManager : MonoBehaviour {
         if (m_WordsRight == m_CurrentWord.FitWords.Length)
         {
             Win();
+        }
+        else
+        {
+            // did the player find all the words of the same size
+            int Length = m_WordFound.Length;
+            int i = 0;
+            for (;i < m_CurrentWord.FitWords.Length;i++)
+            {
+                if (m_CurrentWord.FitWords[i].Length == Length && !m_WordList[i].IsFound())
+                {
+                    break;
+                }
+            }
+
+            // all words found?
+            if (i == m_CurrentWord.FitWords.Length)
+            {
+                // start the ceremony
+                CeremonyManager Ceremony = GetComponent<CeremonyManager>();
+                Ceremony.Init(eCeremonyType.All3Found + (Length - 3));
+            }
         }
     }
 }

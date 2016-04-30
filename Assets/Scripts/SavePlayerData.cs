@@ -15,7 +15,7 @@ public class JSONPlayerData
 public class SavePlayerData
 {
     // update this when the contents change. You'll also need to add an upgrade process in the SessionManager
-    public const int sd_CurrentVersion = 4;
+    public const int sd_CurrentVersion = 5;
 
     //JSON Save related
     public Dictionary<string, object> sd_Dictionary;
@@ -38,6 +38,9 @@ public class SavePlayerData
         public int m_BestScore = 0;
     };
     public List<SaveLevelData> sd_LevelsComplete;
+    public int sd_BestChain;
+    public int sd_CurrentChain;
+    public int sd_HowToSeen = 0;
 
     //Reset and Initialise Save Data
     public void InitSaveData()
@@ -62,6 +65,11 @@ public class SavePlayerData
         sd_TotalScore = Session.m_StartingCoins;
         sd_RandomSeed = 12345;
         sd_CurrentLevel = 0;
+
+        sd_BestChain = 0;
+        sd_CurrentChain = 0;
+
+        sd_HowToSeen = 0;
 
         sd_LevelsComplete = new List<SavePlayerData.SaveLevelData>();
     }
@@ -92,6 +100,9 @@ public class SavePlayerData
             buffer = "sd_LevelsComplete_" + "m_BestScore_" + i;
             sd_Dictionary.Add(buffer, sd_LevelsComplete[i].m_BestScore);
         }
+        sd_Dictionary.Add("sd_BestChain", sd_BestChain);
+        sd_Dictionary.Add("sd_CurrentChain", sd_CurrentChain);
+        sd_Dictionary.Add("sd_HowToSeen", sd_HowToSeen);
     }
 
     //Take the serialised dictionary, convert it and restore the values (After Loading)
@@ -137,6 +148,9 @@ public class SavePlayerData
         {
             ++Session.m_WordFoundCounts[(Convert.ToInt32((sd_WordFound[0][0] - 65)))];
         }
+        if (sd_Dictionary.ContainsKey("sd_BestChain")) { sd_BestChain = (int)sd_Dictionary["sd_BestChain"]; }
+        if (sd_Dictionary.ContainsKey("sd_CurrentChain")) { sd_CurrentChain = (int)sd_Dictionary["sd_CurrentChain"]; }
+        if (sd_Dictionary.ContainsKey("sd_HowToSeen")) { sd_HowToSeen = (int)sd_Dictionary["sd_HowToSeen"]; }
     }
 
     //Has the player already entered/discovered this word?
@@ -215,4 +229,15 @@ public class SavePlayerData
         AddCoins(_Score);
     }
 
+    public void IncreaseChain()
+    {
+        sd_CurrentChain++;
+        if (sd_BestChain < sd_CurrentChain)
+            sd_BestChain = sd_CurrentChain;
+    }
+
+    public void BreakChain()
+    {
+        sd_CurrentChain = 0;
+    }
 }

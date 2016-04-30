@@ -14,6 +14,7 @@ public class ZoneContent : MonoBehaviour
         // create a button for each zone
         float Spacing = 125;
         GameObject ButtonPrefab = (GameObject)Resources.Load("Prefabs/ZoneSelector", typeof(GameObject));
+        GameObject CoinPrefab = (GameObject)Resources.Load("Prefabs/CoinCounter", typeof(GameObject));
         for (int i = 0; i < Data.m_Zones.Length; i++)
         {
             GameObject ButtonObject = Instantiate(ButtonPrefab, new Vector3(30, -i * Spacing - (Spacing * 0.5f), 0), Quaternion.identity) as GameObject;
@@ -32,10 +33,12 @@ public class ZoneContent : MonoBehaviour
             ZoneSelector Button = TheButton.GetComponent<ZoneSelector>();
             Button.Init(false, i);
 
+            int NumLevels = Data.m_Zones[i].m_Levels.Length;
+
+            bool Active = true;
             if (i != 0)
             {
                 // see if there's any incomplete levels in the previous zone
-                int NumLevels = Data.m_Zones[i].m_Levels.Length;
                 int j = 0;
                 for (;j < NumLevels;j++)
                 {
@@ -48,7 +51,29 @@ public class ZoneContent : MonoBehaviour
                 {
                     // disable the button
                     TheButton.interactable = false;
+                    Active = false;
                 }
+            }
+
+            if (Active)
+            {
+                // tally a best score for the zone
+                int TotalBestScore = 0;
+                for (int j = 0; j < NumLevels; j++)
+                {
+                    int Index = Session.m_SaveData.FindLevelComplete(i, j);
+                    if (Index != -1)
+                    {
+                        TotalBestScore += Session.m_SaveData.GetLevelCompleteScore(Index);
+                    }
+                }
+
+                // create and set a coin counter
+                GameObject CoinObject = Instantiate(CoinPrefab, new Vector3(475, -i * Spacing - (Spacing * 0.5f), 0), Quaternion.identity) as GameObject;
+                CoinObject.transform.SetParent(transform, false);
+                NumberText = CoinObject.GetComponentInChildren<Text>();
+                string Number = Session.FormatNumberString(TotalBestScore.ToString());
+                NumberText.text = Number;
             }
         }
 

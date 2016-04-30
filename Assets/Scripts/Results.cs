@@ -25,6 +25,12 @@ public class Results : MonoBehaviour {
         Text TotalScore = GameObject.Find("Total Score").GetComponent<Text>();
         Number = Session.FormatNumberString(Session.m_SaveData.sd_TotalScore.ToString());
         TotalScore.text = Number;
+
+        Text Chain = GameObject.Find("Chain").GetComponent<Text>();
+        Chain.text = "Best Chain " + Session.m_BestChain.ToString() + " (Max " + Session.m_WordsAvailable.ToString() + ")";
+
+        Text ContinuousChain = GameObject.Find("Continuous Chain").GetComponent<Text>();
+        ContinuousChain.text = "Continuous Chain " + Session.m_SaveData.sd_BestChain.ToString();
     }
 	
 	public void AgainClicked() 
