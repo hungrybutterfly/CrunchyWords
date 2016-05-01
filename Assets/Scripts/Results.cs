@@ -48,11 +48,11 @@ public class Results : MonoBehaviour {
         Session.Save();
 
         // was this the last level in the zone
-        LevelData Data = GameObject.Find("LevelData").GetComponent<LevelData>();
+        LevelData Data = GameObject.Find("SessionManager").GetComponent<LevelData>();
         if (Session.m_CurrentLevel == Data.m_Zones[Session.m_CurrentZone].m_Levels.Length - 1)
             Session.ChangeScene("Zone");
         else
-            Session.ChangeScene("Level");
+            Session.ChangeScene("Advert");
     }
 
     public void StatsClicked()

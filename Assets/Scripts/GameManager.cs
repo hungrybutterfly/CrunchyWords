@@ -19,13 +19,16 @@ public class GameManager : MonoBehaviour {
     // starting cost in coins
     public int m_StartShuffleCost;
     public int m_StartCheckWordCost;
+    public int m_StartLockCost;
     public int m_StartHintCost;
     public int m_StartRevealWordsCost;
 
     int m_ShuffleCost;
     int m_CheckWordCost;
+    int m_LockCost;
     int m_HintCost;
-    [HideInInspector] public int m_RevealWordsCost;
+    [HideInInspector]
+    public int m_RevealWordsCost;
 
     int m_LettersUsedIndex;                   // current letter being used
     LetterButton[] m_LetterList;
@@ -72,6 +75,10 @@ public class GameManager : MonoBehaviour {
     // variables to be used after a ceremony is complete
     Word m_CorrectWord;
     string m_WordFound;
+
+    // is the chain locked (so it won't break with a bad word)
+    bool m_Locked;
+    GameObject m_LockImage;
 
     private void SetASize(RectTransform _trans, Vector2 _newSize)
     {
@@ -127,6 +134,11 @@ public class GameManager : MonoBehaviour {
         m_SelectedWord = null;
         m_HintReady = false;
 
+        // reset the lock feature
+        m_Locked = false;
+        m_LockImage = GameObject.Find("LockImage");
+        m_LockImage.SetActive(false);
+
         // get some objects
         m_ComboText = GameObject.Find("Combo").GetComponent<Text>();
 //        m_FinishButton = GameObject.Find("Finish").GetComponent<Button>();
@@ -134,6 +146,7 @@ public class GameManager : MonoBehaviour {
         // set the initial cost of things
         m_ShuffleCost = m_StartShuffleCost;
         m_CheckWordCost = m_StartCheckWordCost;
+        m_LockCost = m_StartLockCost;
         m_HintCost = m_StartHintCost;
         m_RevealWordsCost = m_StartRevealWordsCost;
         UpdateCosts();
@@ -180,9 +193,13 @@ public class GameManager : MonoBehaviour {
         Text Value = Object.GetComponentInChildren<Text>();
         Value.text = m_ShuffleCost.ToString();
 
-        Object = GameObject.Find("Check Cost");
+/*        Object = GameObject.Find("Check Cost");
         Value = Object.GetComponentInChildren<Text>();
-        Value.text = m_CheckWordCost.ToString();
+        Value.text = m_CheckWordCost.ToString();*/
+
+        Object = GameObject.Find("Lock Cost");
+        Value = Object.GetComponentInChildren<Text>();
+        Value.text = m_LockCost.ToString();
 
         Object = GameObject.Find("Hint Cost");
         Value = Object.GetComponentInChildren<Text>();
@@ -298,7 +315,7 @@ public class GameManager : MonoBehaviour {
             Session.m_UseLastWord = false;
         }
         else
-            m_CurrentWord = m_DictionaryObject.GetRandomWord();
+            m_CurrentWord = m_DictionaryObject.GetLevelWord();
 
         // update the letters
         for (int i = 0; i < m_DictionaryObject.m_MaxWordSize; i++)
@@ -479,14 +496,18 @@ public class GameManager : MonoBehaviour {
             {
                 m_WordsWrong++;
                 ++Session.m_SaveData.sd_IncorrectSubmits;
-                Session.m_SaveData.BreakChain();
 
-                // reset the combo
-                m_WordsRightCombo = 1;
+                if (!m_Locked)
+                {
+                    Session.m_SaveData.BreakChain();
 
-                // flash the score for 2 seconds
-                if (m_BadScore)
-                    m_BadScoreTimer = 120;
+                    // reset the combo
+                    m_WordsRightCombo = 1;
+
+                    // flash the score for 2 seconds
+                    if (m_BadScore)
+                        m_BadScoreTimer = 120;
+                }
 
                 // start the IncorrectWord ceremony
                 CeremonyManager Ceremony = GetComponent<CeremonyManager>();
@@ -507,6 +528,8 @@ public class GameManager : MonoBehaviour {
         }
 
         ResetHint();
+
+        ResetLock();
     }
 
     void BeginCeremony(eCeremonyType _Type)
@@ -709,6 +732,18 @@ public class GameManager : MonoBehaviour {
         }
     }
 
+    private void Lock()
+    {
+        m_Locked = true;
+        m_LockImage.SetActive(true);
+    }
+
+    private void ResetLock()
+    {
+        m_Locked = false;
+        m_LockImage.SetActive(false);
+    }
+
     // these 'Clicked' functions are called when the appropriate button is clicked
     public void LetterClicked(int _TheButton)
     {
@@ -752,6 +787,15 @@ public class GameManager : MonoBehaviour {
                 else
                     BeginCeremony(eCeremonyType.CheckBad);
             }
+        }
+    }
+
+    public void LockClicked()
+    {
+        // attempt to spend coins
+        if (SpendCoins(m_LockCost, m_StartLockCost, out m_LockCost))
+        {
+            Lock();
         }
     }
 

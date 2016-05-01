@@ -7,10 +7,11 @@ public class LevelContent : MonoBehaviour
     void Start()
     {
         // populate the ScrollView with buttons according to the level data
-        LevelData Data = GameObject.Find("LevelData").GetComponent<LevelData>();
+        LevelData Data = GameObject.Find("SessionManager").GetComponent<LevelData>();
 
         // get the current zone data
         SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
+
         int ZoneIndex = Session.m_CurrentZone;
         LevelData.ZoneData Zone = Data.m_Zones[ZoneIndex];
 

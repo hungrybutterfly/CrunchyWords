@@ -9,7 +9,7 @@ public class ZoneContent : MonoBehaviour
         SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
 
 	    // populate the ScrollView with buttons according to the level data
-        LevelData Data = GameObject.Find("LevelData").GetComponent<LevelData>();
+        LevelData Data = GameObject.Find("SessionManager").GetComponent<LevelData>();
 
         // create a button for each zone
         float Spacing = 125;

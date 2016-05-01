@@ -47,6 +47,8 @@ public class DictionaryManager : MonoBehaviour
 
 	MaxWordIndices[] m_MaxWords;
 
+    List<List<string>> m_Levels;
+
 	// load the dictionary.txt file and create a list of strings
 	void LoadFile ()
 	{
@@ -193,10 +195,10 @@ public class DictionaryManager : MonoBehaviour
         m_MaxWords = TempMaxWords.ToArray();
 	}
 
-	// get a random max length word and the words that fit into it
-	public MaxWord GetRandomWord ()
-	{
-		MaxWord Word = new MaxWord ();
+	// get the max word for the current zone/level
+    public MaxWord GetLevelWord()
+    {
+        MaxWord Word = new MaxWord();
 
         // work out how many words we need based on the current level
         SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
@@ -204,10 +206,58 @@ public class DictionaryManager : MonoBehaviour
         // set the random seed based on current zone/level
         int Zone = Session.m_CurrentZone;
         int Level = Session.m_CurrentLevel;
-        Random.seed = ((Zone * 20 + Level) + 1) * 123457;
+
+        // get the precomputed level index
+        string MaxWord = m_Levels[Zone][Level];
+        int MaxWordIndex = 0;
+        for (; MaxWordIndex < m_MaxWords.Length; MaxWordIndex++)
+        {
+            if (MaxWord == m_Words[m_MaxWords[MaxWordIndex].Index])
+                break;
+        }
+
+        // did we find the max word
+        if (MaxWordIndex < m_MaxWords.Length)
+        {
+            // turn the index into a string
+            int Index = m_MaxWords[MaxWordIndex].Index;
+            Word.Word = m_Words[Index];
+
+            // turn the fit word indices into strings
+            int Length = m_MaxWords[MaxWordIndex].Words.Length;
+            Word.FitWords = new string[Length];
+            Word.FitWordsIndex = new int[Length];
+            for (int i = 0; i < Length; i++)
+            {
+                Index = m_MaxWords[MaxWordIndex].Words[i];
+                Word.FitWords[i] = m_Words[Index];
+                Word.FitWordsIndex[i] = Index;
+            }
+        }
+        else
+        {
+            // the word couldn't be found.
+            // need to do something here
+        }
+
+        return Word;
+    }
+
+	// get a random max length word and the words that fit into it
+	public string GetRandomWord ()
+	{
+//		MaxWord Word = new MaxWord ();
+
+        // work out how many words we need based on the current level
+        SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
+
+        // set the random seed based on current zone/level
+        int Zone = Session.m_CurrentZone;
+        int Level = Session.m_CurrentLevel;
+//        Random.seed = ((Zone * 20 + Level) + 1) * 123457;
 
         // fetch the min/max words
-        LevelData Data = GameObject.Find("LevelData").GetComponent<LevelData>();
+        LevelData Data = GameObject.Find("SessionManager").GetComponent<LevelData>();
         int MinWords = Data.m_Zones[Zone].m_Levels[Level].m_MinWordCount;
         int MaxWords = Data.m_Zones[Zone].m_Levels[Level].m_MaxWordCount;
 
@@ -232,8 +282,9 @@ public class DictionaryManager : MonoBehaviour
 
         } while (Again);
 
+        return m_Words[m_MaxWords[MaxWordIndex].Index];
 		// turn the index into a string
-        int Index = m_MaxWords[MaxWordIndex].Index;
+/*        int Index = m_MaxWords[MaxWordIndex].Index;
         Word.Word = m_Words[Index];
 
 		// turn the fit word indices into strings
@@ -247,7 +298,7 @@ public class DictionaryManager : MonoBehaviour
             Word.FitWordsIndex[i] = Index;
 		}
 
-        return Word;
+        return Word;*/
 	}
 
     public void CalcStats()
@@ -311,6 +362,57 @@ public class DictionaryManager : MonoBehaviour
         }
     }
 
+    bool IsWordUsed(string NewWord, int MaxZone, int MaxLevel)
+    {
+        // find if a given word already exists in the level data
+        LevelData Data = GameObject.Find("SessionManager").GetComponent<LevelData>();
+        for (int i = 0; i < Data.m_Zones.Length; i++)
+        {
+            int NumLevels = Data.m_Zones[i].m_Levels.Length;
+            for (int j = 0; j < NumLevels; j++)
+            {
+                if (i == MaxZone && j == MaxLevel)
+                    return false;
+
+                if (m_Levels[i][j] == NewWord)
+                    return true;
+            }
+        }
+
+        return false;
+    }
+
+    void InitLevels()
+    {
+        Random.seed = 123457;
+
+        // pre-plan which words are used for the levels so we don't get duplications.
+        // This will just be used initially but I'll need to save this list at some point so it can be
+        // hand edited to cope with an ever changing word list.
+        m_Levels = new List<List<string>>();
+
+        LevelData Data = GameObject.Find("SessionManager").GetComponent<LevelData>();
+
+        for (int i = 0; i < Data.m_Zones.Length; i++)
+        {
+            m_Levels.Add(new List<string>());
+
+            int NumLevels = Data.m_Zones[i].m_Levels.Length;
+            for (int j = 0; j < NumLevels; j++)
+            {
+                bool Used;
+                string NewWord;
+                do
+                {
+                    NewWord = GetRandomWord();
+                    Used = IsWordUsed(NewWord, i, j);
+                } while (Used);
+
+                m_Levels[i].Add(NewWord);
+            }
+        }
+    }
+
 	public void Init ()
 	{
 		// load the data file
@@ -320,6 +422,8 @@ public class DictionaryManager : MonoBehaviour
 		FindMaxWords ();
 
         CalcStats();
+
+        InitLevels();
 	}
 
 	void Update ()
