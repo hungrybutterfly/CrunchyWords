@@ -22,10 +22,6 @@ public class Results : MonoBehaviour {
         if (Session.m_LastWordsRight != 1)
             Words.text += "s";
 
-        Text TotalScore = GameObject.Find("Total Score").GetComponent<Text>();
-        Number = Session.FormatNumberString(Session.m_SaveData.sd_TotalScore.ToString());
-        TotalScore.text = Number;
-
         Text Chain = GameObject.Find("Chain").GetComponent<Text>();
         Chain.text = "Best Chain " + Session.m_BestChain.ToString() + " (Max " + Session.m_WordsAvailable.ToString() + ")";
 
