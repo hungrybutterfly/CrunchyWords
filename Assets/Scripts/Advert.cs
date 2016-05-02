@@ -19,7 +19,7 @@ public class Advert : MonoBehaviour
 	
 	void Update () 
     {
-        Text TimeLeft = GameObject.Find("TimeLeft").GetComponent<Text>();
+/*        Text TimeLeft = GameObject.Find("TimeLeft").GetComponent<Text>();
         TimeLeft.text = ((int)m_TimeLeft).ToString() + "s";
 
         m_TimeLeft -= Time.deltaTime;
@@ -27,6 +27,6 @@ public class Advert : MonoBehaviour
         {
             SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
             Session.ChangeScene("Level");
-        }
+        }*/
 	}
 }
