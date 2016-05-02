@@ -29,4 +29,10 @@ public class Advert : MonoBehaviour
             Session.ChangeScene("Level");
         }*/
 	}
+
+    public void Clicked()
+    {
+        SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
+        Session.ChangeScene("Level");
+    }
 }
