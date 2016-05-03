@@ -16,8 +16,8 @@ public class Advert : MonoBehaviour
         m_TimeLeft = 20.0f;
 
         // pick a random image to display
-        //int Index = Random.Range(0, m_Adverts.Length);
-        //GameObject.Find("Image").GetComponent<Image>().overrideSprite = m_Adverts[Index];
+        int Index = Random.Range(0, m_Adverts.Length);
+        GameObject.Find("Image").GetComponent<Image>().overrideSprite = m_Adverts[Index];
 
         m_WaitingOnFullscreenAd = true;
     }
@@ -34,14 +34,14 @@ public class Advert : MonoBehaviour
                     Session.ChangeScene("Level");
                 }*/
 
-        if (m_WaitingOnFullscreenAd)
+        /*if (m_WaitingOnFullscreenAd)
         {
             if (Advertisement.IsReady())
             {
                 Advertisement.Show();
                 m_WaitingOnFullscreenAd = false;
             }
-        }
+        }*/
     }
 
     public void Clicked()
