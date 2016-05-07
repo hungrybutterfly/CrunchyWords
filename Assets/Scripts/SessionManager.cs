@@ -8,20 +8,20 @@ using System.IO;
 
 public class SessionManager : MonoBehaviour
 {
-	//Session Manager (this)
+    //Session Manager (this)
     [HideInInspector]
     public static SessionManager m_Instance;
 
-	//Dictionary Object
-	[HideInInspector]
-	public GameObject m_DictionaryObject;
+    //Dictionary Object
+    [HideInInspector]
+    public GameObject m_DictionaryObject;
 
-	//Dictionary Manager
-	[HideInInspector]
-	public DictionaryManager m_DictionaryManager;
+    //Dictionary Manager
+    [HideInInspector]
+    public DictionaryManager m_DictionaryManager;
 
-	//First time init int (for loading screen)
-	private int m_FirstTimeInit;
+    //First time init int (for loading screen)
+    private int m_FirstTimeInit;
 
     //Save Data
     [HideInInspector]
@@ -67,6 +67,9 @@ public class SessionManager : MonoBehaviour
     [HideInInspector]
     public int m_CurrentLevel = 0;
 
+    //Flurry
+    public bool m_AllowFlurry = false;
+
     // version string
     public string m_Version;
     // is this a version for external consumption
@@ -75,107 +78,117 @@ public class SessionManager : MonoBehaviour
     public bool m_IgnoreDictionary = false;
     public int m_StartingCoins = 100;
 
-	void LoadDictionary ()
-	{
-		m_DictionaryObject = (GameObject)Instantiate (Resources.Load ("Prefabs/DictionaryManager"));
-		m_DictionaryManager = m_DictionaryObject.GetComponent<DictionaryManager> ();
-		m_DictionaryManager.Init ();
-		m_DictionaryObject.name = "DictionaryManager";
-		DontDestroyOnLoad (m_DictionaryObject);
+    void LoadDictionary()
+    {
+        m_DictionaryObject = (GameObject)Instantiate(Resources.Load("Prefabs/DictionaryManager"));
+        m_DictionaryManager = m_DictionaryObject.GetComponent<DictionaryManager>();
+        m_DictionaryManager.Init();
+        m_DictionaryObject.name = "DictionaryManager";
+        DontDestroyOnLoad(m_DictionaryObject);
 
         // now it's safe to load the player's data
         Load();
     }
 
-	void Awake ()
-	{
-		// Session Manager needs to be created and never destroyed so
-		// this will make sure we only ever have one instance of Session Manager
-		if (m_Instance)
-			DestroyImmediate (gameObject);
-		else 
+    void Awake()
+    {
+        // Session Manager needs to be created and never destroyed so
+        // this will make sure we only ever have one instance of Session Manager
+        if (m_Instance)
+            DestroyImmediate(gameObject);
+        else
         {
-			DontDestroyOnLoad (gameObject);
-			m_Instance = this;
+            DontDestroyOnLoad(gameObject);
+            m_Instance = this;
 
-			// if we're not on the loading screen then immediately load the dictionary
+            // if we're not on the loading screen then immediately load the dictionary
             if (SceneManager.GetActiveScene().name != "Start" && SceneManager.GetActiveScene().name != "HowToPlay" && !m_IgnoreDictionary)
-				LoadDictionary ();
+                LoadDictionary();
 
-			m_FirstTimeInit = 0;
-			m_UseLastWord = false;
-		}
-	}
+            m_FirstTimeInit = 0;
+            m_UseLastWord = false;
 
-	void Start ()
-	{
+            //Create Flurry Analyics
+            if (m_AllowFlurry)
+            {
+                //Flurry (IOS, ANDROID, CRASH)
+                KHD.FlurryAnalytics.Instance.StartSession("RTFXKFFH7FKH545GTCQ5", "FGF2V8MGPGPHV5BSPWRM", true);
+            }
+        }
+    }
+
+    void Start()
+    {
         LoadSettings();
         if (m_Settings.m_HowToSeen == 0)
         {
             m_Settings.m_HowToSeen = 1;
             SaveSettings();
             ChangeScene("HowToPlay");
+
+            //Flurry Test
+            TestFlurryAnalytics();
         }
     }
 
-	void Update ()
-	{
-		// if we're on the loading screen wait 5 game frames, load the dictionary then transition to the cover
-        if (SceneManager.GetActiveScene().name == "Start" || SceneManager.GetActiveScene().name == "HowToPlay") 
+    void Update()
+    {
+        // if we're on the loading screen wait 5 game frames, load the dictionary then transition to the cover
+        if (SceneManager.GetActiveScene().name == "Start" || SceneManager.GetActiveScene().name == "HowToPlay")
         {
-			if (m_FirstTimeInit == 5) 
+            if (m_FirstTimeInit == 5)
             {
-				LoadDictionary ();
+                LoadDictionary();
 
                 if (SceneManager.GetActiveScene().name == "Start")
-				    ChangeScene ("Cover");
-			}
-			m_FirstTimeInit++;
-		}
-	}
+                    ChangeScene("Cover");
+            }
+            m_FirstTimeInit++;
+        }
+    }
 
-	public void ChangeScene (string SceneName)
-	{
-		SceneManager.LoadScene (SceneName);
-	}
+    public void ChangeScene(string SceneName)
+    {
+        SceneManager.LoadScene(SceneName);
+    }
 
-	public void Save ()
-	{
+    public void Save()
+    {
         //Convert
         m_SaveData.ConvertToJSON();
         m_JSONSaveData.jssd_Dictionary = m_SaveData.sd_Dictionary;
         //Save
-        BinaryFormatter bf = new BinaryFormatter ();
-		FileStream file = File.Open (Application.persistentDataPath + m_SaveFileName, FileMode.Open);
-		bf.Serialize (file, m_JSONSaveData);
-		file.Close ();
+        BinaryFormatter bf = new BinaryFormatter();
+        FileStream file = File.Open(Application.persistentDataPath + m_SaveFileName, FileMode.Open);
+        bf.Serialize(file, m_JSONSaveData);
+        file.Close();
         Debug.Log("SAVED -> " + Application.persistentDataPath + m_SaveFileName);
-	}
+    }
 
-	public void CreateNewSaveData ()
-	{
+    public void CreateNewSaveData()
+    {
         //Create from new
-        m_SaveData = new SavePlayerData ();
+        m_SaveData = new SavePlayerData();
         m_JSONSaveData = new JSONPlayerData();
         Debug.Log("CREATING -> " + Application.persistentDataPath + m_SaveFileName);
         FileStream file = File.Create(Application.persistentDataPath + m_SaveFileName);
-		file.Close ();
+        file.Close();
 
         //Reset
         m_SaveData.InitSaveData();
 
-		Save ();
-	}
+        Save();
+    }
 
-	public void Load ()
-	{
+    public void Load()
+    {
         if (File.Exists(Application.persistentDataPath + m_SaveFileName))
         {
-			//Load - file exists
-			BinaryFormatter bf = new BinaryFormatter ();
+            //Load - file exists
+            BinaryFormatter bf = new BinaryFormatter();
             FileStream file = File.Open(Application.persistentDataPath + m_SaveFileName, FileMode.Open);
-			m_JSONSaveData = (JSONPlayerData)bf.Deserialize (file);
-			file.Close ();
+            m_JSONSaveData = (JSONPlayerData)bf.Deserialize(file);
+            file.Close();
             //Convert   
             m_SaveData = new SavePlayerData();
 
@@ -184,58 +197,58 @@ public class SessionManager : MonoBehaviour
 
             m_SaveData.LoadDataFromJSON();
             // is the version number different
-            if (m_SaveData.sd_Version != SavePlayerData.sd_CurrentVersion) 
+            if (m_SaveData.sd_Version != SavePlayerData.sd_CurrentVersion)
             {
-				// do something here to upgrade the data
-				// for now I'll just create a new one
-				CreateNewSaveData ();
-			}
+                // do something here to upgrade the data
+                // for now I'll just create a new one
+                CreateNewSaveData();
+            }
             Debug.Log("LOADED -> " + Application.persistentDataPath + m_SaveFileName);
-		} 
-        else 
+        }
+        else
         {
-			CreateNewSaveData ();            
-		}
+            CreateNewSaveData();
+        }
     }
 
 
-	public void SaveSettings ()
-	{
+    public void SaveSettings()
+    {
         //Convert
         m_Settings.ConvertToJSON();
         m_JSONSettings.jssd_Dictionary = m_Settings.m_Dictionary;
         //Save
-        BinaryFormatter bf = new BinaryFormatter ();
+        BinaryFormatter bf = new BinaryFormatter();
         FileStream file = File.Open(Application.persistentDataPath + m_SettingsFileName2, FileMode.Open);
         bf.Serialize(file, m_JSONSettings);
-		file.Close ();
+        file.Close();
         Debug.Log("SAVED Settings -> " + Application.persistentDataPath + m_SettingsFileName2);
-	}
+    }
 
     public void CreateNewSettings()
-	{
+    {
         //Create from new
         m_Settings = new Settings();
         m_JSONSettings = new JSONPlayerData();
         Debug.Log("CREATING Settings -> " + Application.persistentDataPath + m_SettingsFileName2);
         FileStream file = File.Create(Application.persistentDataPath + m_SettingsFileName2);
-		file.Close ();
+        file.Close();
 
         //Reset
         m_Settings.Init();
 
         SaveSettings();
-	}
+    }
 
     public void LoadSettings()
-	{
+    {
         if (File.Exists(Application.persistentDataPath + m_SettingsFileName2))
         {
-			//Load - file exists
-			BinaryFormatter bf = new BinaryFormatter ();
+            //Load - file exists
+            BinaryFormatter bf = new BinaryFormatter();
             FileStream file = File.Open(Application.persistentDataPath + m_SettingsFileName2, FileMode.Open);
             m_JSONSettings = (JSONPlayerData)bf.Deserialize(file);
-			file.Close ();
+            file.Close();
             //Convert   
             m_Settings = new Settings();
 
@@ -243,11 +256,11 @@ public class SessionManager : MonoBehaviour
 
             m_Settings.LoadDataFromJSON();
             Debug.Log("LOADED Settings -> " + Application.persistentDataPath + m_SettingsFileName2);
-		} 
-        else 
+        }
+        else
         {
-            CreateNewSettings();            
-		}
+            CreateNewSettings();
+        }
     }
 
     // add commas to a large number
@@ -256,7 +269,7 @@ public class SessionManager : MonoBehaviour
         string Out = "";
 
         int Counter = 0;
-        for(int i = _In.Length - 1;i >= 0;i--)
+        for (int i = _In.Length - 1; i >= 0; i--)
         {
             if (Counter == 3)
             {
@@ -269,6 +282,21 @@ public class SessionManager : MonoBehaviour
         }
 
         return Out;
+    }
+
+    public void TestFlurryAnalytics()
+    {
+        if (m_AllowFlurry)
+        {
+            //Post an event
+            KHD.FlurryAnalytics.Instance.LogEvent("TEST_Player_Died");
+
+            //Post a custom event
+            KHD.FlurryAnalytics.Instance.LogEventWithParameters("TEST_PlayerScore",
+                new Dictionary<string, string>() {
+                { "Game_1", "Score_1" }
+                });
+        }
     }
 }
 
