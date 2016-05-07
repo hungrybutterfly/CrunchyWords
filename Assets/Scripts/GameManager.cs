@@ -255,13 +255,12 @@ public class GameManager : MonoBehaviour {
 
     private void UpdateLettersNotReady()
     {
-        for (int i = 0; i < m_LettersUsedIndex; i++)
-        {
-            if (m_LettersUsedIndex < 3)
-                m_LetterList[m_LetterUsedList[i]].SetNotReady(true);
-            else
-                m_LetterList[m_LetterUsedList[i]].SetNotReady(false);
-        }
+        Button Submit = GameObject.Find("Submit").GetComponent<Button>();
+
+        if (m_LettersUsedIndex < 3)
+            Submit.interactable = false;
+        else
+            Submit.interactable = true;
     }
 
     // add a letter to the word
