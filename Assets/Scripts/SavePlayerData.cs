@@ -130,13 +130,13 @@ public class SavePlayerData
                 Data.m_BestScore = 0;
 
                 string buffer = "sd_LevelsComplete_" + "m_Zone_" + i;
-                if (sd_Dictionary.ContainsKey("buffer")) { Data.m_Zone = (int)sd_Dictionary[buffer]; }
+                if (sd_Dictionary.ContainsKey(buffer)) { Data.m_Zone = (int)sd_Dictionary[buffer]; }
                 buffer = "sd_LevelsComplete_" + "m_Level_" + i;
-                if (sd_Dictionary.ContainsKey("buffer")) { Data.m_Level = (int)sd_Dictionary[buffer]; }
+                if (sd_Dictionary.ContainsKey(buffer)) { Data.m_Level = (int)sd_Dictionary[buffer]; }
                 buffer = "sd_LevelsComplete_" + "m_BestWord_" + i;
-                if (sd_Dictionary.ContainsKey("buffer")) { Data.m_BestWord = (string)sd_Dictionary[buffer]; }
+                if (sd_Dictionary.ContainsKey(buffer)) { Data.m_BestWord = (string)sd_Dictionary[buffer]; }
                 buffer = "sd_LevelsComplete_" + "m_BestScore_" + i;
-                if (sd_Dictionary.ContainsKey("buffer")) { Data.m_BestScore = (int)sd_Dictionary[buffer]; }
+                if (sd_Dictionary.ContainsKey(buffer)) { Data.m_BestScore = (int)sd_Dictionary[buffer]; }
 
                 sd_LevelsComplete.Add(Data);
             }

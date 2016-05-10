@@ -13,6 +13,7 @@ public class LetterButton : Button
 
     [HideInInspector] public int m_Index;
     [HideInInspector] public int m_LetterIndex;
+    [HideInInspector] public int m_Value;
 
     public int m_UsedIndex;
     eState m_State;
@@ -98,6 +99,25 @@ public class LetterButton : Button
     public void SetUnused()
     {
         SetState(eState.Idle);
+    }
+
+    public void SetLetter(string _Letter)
+    {
+        LetterScores Scores = GameObject.Find("GameManager").GetComponent<LetterScores>();
+
+        Text[] Texts = GetComponentsInChildren<Text>();
+        for (int i = 0; i < Texts.Length;i++)
+        {
+            if (Texts[i].name == "Text")
+                Texts[i].text = _Letter;
+            if (Texts[i].name == "Value")
+            {
+                char c = _Letter[0];
+                int Index = c;
+                m_Value = Scores.m_Values[Index - 65];
+                Texts[i].text = m_Value.ToString();
+            }
+        }
     }
 
     void OnClick()

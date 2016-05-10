@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
+using System.Collections.Generic;
 
 public class GameManager : MonoBehaviour {
 
@@ -80,6 +81,9 @@ public class GameManager : MonoBehaviour {
     bool m_Locked;
     GameObject m_LockImage;
 
+    // a list of new words found
+    List<string> m_NewWordsFound;
+
     private void SetASize(RectTransform _trans, Vector2 _newSize)
     {
         Vector2 oldSize = _trans.rect.size;
@@ -97,6 +101,8 @@ public class GameManager : MonoBehaviour {
         m_LetterWidth = m_LetterSpacing - 5;
 
         m_LettersUsedIndex = 0;
+
+        m_NewWordsFound = new List<string>();
 
         // create the letter buttons
         m_LetterList = new LetterButton[m_MaxLetters];
@@ -117,7 +123,7 @@ public class GameManager : MonoBehaviour {
         for (int i = 0; i < m_MaxWords; i++)
         {
             float x = (i / m_WordRows) * WordWidth + (WordWidth / 2);
-            float y = 864 - ((i % m_WordRows) * WordHeight) - (WordHeight / 2);
+            float y = 854 - ((i % m_WordRows) * WordHeight) - (WordHeight / 2);
             m_WordList[i] = Instantiate(m_WordPrefab, new Vector3(x, y, 0), Quaternion.identity) as Word;
             SetASize(m_WordList[i].GetComponent<RectTransform>(), new Vector2(WordWidth, WordHeight));
             m_WordList[i].transform.SetParent(m_WordParent, false);
@@ -179,7 +185,7 @@ public class GameManager : MonoBehaviour {
             {
                 m_BadScoreTimer--;
                 if ((m_BadScoreTimer & 8) < 4)
-                    m_ComboText.GetComponent<Text>().color = new Color(1, 1, 1);
+                    m_ComboText.GetComponent<Text>().color = new Color(0.66f, 0.66f, 0);
                 else
                     m_ComboText.GetComponent<Text>().color = new Color(1, 0, 0);
             }
@@ -319,7 +325,7 @@ public class GameManager : MonoBehaviour {
         // update the letters
         for (int i = 0; i < m_DictionaryObject.m_MaxWordSize; i++)
         {
-			m_LetterList[i].GetComponentInChildren<Text>().text = (m_CurrentWord.Word.Substring(i, 1));
+			m_LetterList[i].SetLetter(m_CurrentWord.Word.Substring(i, 1));
             m_LetterList[i].SetLetterIndex(i);
         }
 
@@ -348,6 +354,8 @@ public class GameManager : MonoBehaviour {
 
         // work out the best possible score. todo
         m_BestPossibleScore = 1000;
+
+        m_NewWordsFound.Clear();
 
         ResetHint();
 
@@ -430,9 +438,11 @@ public class GameManager : MonoBehaviour {
 
         // add all the letters to make the word
         string Word = "";
+        int Score = 0;
         for (int i = 0; i < m_LettersUsedIndex; i++)
         {
             Word += m_CurrentWord.Word.Substring(m_LetterList[m_LetterUsedList[i]].m_LetterIndex, 1);
+            Score += m_LetterList[m_LetterUsedList[i]].m_Value;
         }
 
         // look for the word in the possible words
@@ -452,14 +462,10 @@ public class GameManager : MonoBehaviour {
                     Right = true;
 
                     // has this word been found in the lifetime stats
-                    if (!Session.m_SaveData.IsWordAlreadyFound(m_CurrentWord.FitWords[WordIndex]))
+                    string NewWord = m_CurrentWord.FitWords[WordIndex];
+                    if (!Session.m_SaveData.IsWordAlreadyFound(NewWord) && !m_NewWordsFound.Contains(NewWord))
                     {
-                        // mark the word as found
-                        Session.m_SaveData.sd_WordFound.Add(m_CurrentWord.FitWords[WordIndex]);
-
-                        // increase the number of words for that letter
-                        int Letter = System.Convert.ToInt32(m_CurrentWord.FitWords[WordIndex][0]) - 65;
-                        Session.m_WordFoundCounts[Letter]++;
+                        m_NewWordsFound.Add(NewWord);
                     }
                     break;
                 }
@@ -470,7 +476,11 @@ public class GameManager : MonoBehaviour {
             }
         }
 
-        if (!AlreadyFound)
+        if (AlreadyFound)
+        {
+            BeginCeremony(eCeremonyType.AlreadyFound);
+        }
+        else
         {
             // Update the score
             if (Right)
@@ -479,12 +489,12 @@ public class GameManager : MonoBehaviour {
                 ++Session.m_SaveData.sd_CorrectSubmits;
                 Session.m_SaveData.IncreaseChain();
 
-                // update the score (add word length * combo)
-                m_TotalScore += Word.Length * m_WordsRightCombo;
+                // update the score (add word Score * combo)
+                m_TotalScore += Score * m_WordsRightCombo;
 
                 // start the CorrectWord ceremony
                 CeremonyManager Ceremony = GetComponent<CeremonyManager>();
-                Ceremony.CorrectWord(Word.Length, m_WordsRightCombo);
+                Ceremony.CorrectWord(Score, m_WordsRightCombo);
 
                 // increase the combo
                 m_WordsRightCombo++;
@@ -581,6 +591,17 @@ public class GameManager : MonoBehaviour {
         Session.m_WordsCompleted = m_WordsRight;
         Session.m_WordsAvailable = m_CurrentWord.FitWords.Length;
         Session.m_BestChain = m_BestChain;
+
+        // transfer the new words found to the permanent list
+        for (int i = 0; i < m_NewWordsFound.Count; i++)
+        {
+            // mark the word as found
+            Session.m_SaveData.sd_WordFound.Add(m_NewWordsFound[i]);
+
+            // increase the number of words for that letter
+            int Letter = System.Convert.ToInt32(m_NewWordsFound[i][0]) - 65;
+            Session.m_WordFoundCounts[Letter]++;
+        }
 
         // reveal any unfound words
         for (int i = 0; i < m_CurrentWord.FitWords.Length; i++)

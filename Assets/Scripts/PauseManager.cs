@@ -57,13 +57,13 @@ public class PauseManager : MonoBehaviour
         SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
 
         // keep the player's score
-        GameManager Game = GameObject.Find("GameManager").GetComponent<GameManager>();
+/*        GameManager Game = GameObject.Find("GameManager").GetComponent<GameManager>();
         Session.m_SaveData.AddCoins(Game.m_TotalScore);
 
         // move to the next puzzle
         Session.m_SaveData.sd_CurrentLevel++;
-        Session.Save();
-        Session.ChangeScene("Cover");
+        Session.Save();*/
+        Session.ChangeScene("Level");
     }
 
     public void FinishClicked()

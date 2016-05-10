@@ -15,15 +15,21 @@ public class LevelContent : MonoBehaviour
         int ZoneIndex = Session.m_CurrentZone;
         LevelData.ZoneData Zone = Data.m_Zones[ZoneIndex];
 
+        // set the zone title
+        Text ZoneTitle = GameObject.Find("ZoneTitle").GetComponent<Text>();
+        ZoneTitle.text = Data.m_Zones[ZoneIndex].m_Name;
+
         DictionaryManager Dictionary = GameObject.Find("DictionaryManager").GetComponent<DictionaryManager>();
 
+        GameObject Root = GameObject.Find("Root");
+
         // create a button for each zone
-        float Spacing = 125;
+        float Spacing = 110;
         GameObject ButtonPrefab = (GameObject)Resources.Load("Prefabs/ZoneSelector", typeof(GameObject));
         for (int i = 0; i < Zone.m_Levels.Length; i++)
         {
-            GameObject ButtonObject = Instantiate(ButtonPrefab, new Vector3(50, -i * Spacing - (Spacing * 0.5f), 0), Quaternion.identity) as GameObject;
-            ButtonObject.transform.SetParent(transform, false);
+            GameObject ButtonObject = Instantiate(ButtonPrefab, new Vector3(200, 725 -i * Spacing - (Spacing * 0.5f), 0), Quaternion.identity) as GameObject;
+            ButtonObject.transform.SetParent(Root.transform, false);
 
             // set the number of the button
             Text NumberText = ButtonObject.GetComponent<Text>();

@@ -14,6 +14,7 @@ public enum eCeremonyType
     All4Found,
     All5Found,
     All6Found,
+    AlreadyFound,
 
     Total
 };
@@ -37,6 +38,7 @@ public class CeremonyManager : MonoBehaviour
         "All 4 letter\nwords found!",
         "All 5 letter\nwords found!",
         "All 6 letter\nwords found!",
+        "Already\nFound!"
     };
 
     public void SetIsEnabled(bool _Active)
@@ -65,12 +67,12 @@ public class CeremonyManager : MonoBehaviour
             SetIsEnabled(false);
 	}
 
-    public void CorrectWord(int _WordLength, int _Multiplier)
+    public void CorrectWord(int _WordScore, int _Multiplier)
     {
-        StartCoroutine(PlayCorrectWord(_WordLength, _Multiplier));
+        StartCoroutine(PlayCorrectWord(_WordScore, _Multiplier));
     }
 
-    IEnumerator PlayCorrectWord(int _WordLength, int _Multiplier)
+    IEnumerator PlayCorrectWord(int _WordScore, int _Multiplier)
     {
         m_Type = eCeremonyType.WordGood;
 
@@ -92,7 +94,7 @@ public class CeremonyManager : MonoBehaviour
         // set the text and make it active
         Transform t = CeremonyObject.transform.Find("Text");
         Text CeremonyText = t.gameObject.GetComponent<Text>();
-        CeremonyText.text = _WordLength.ToString() + " x " + _Multiplier.ToString();
+        CeremonyText.text = _WordScore.ToString() + " x " + _Multiplier.ToString();
         CeremonyText.gameObject.SetActive(true);
 
         yield return new WaitForSeconds(1.0f);

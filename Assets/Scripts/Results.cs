@@ -23,10 +23,10 @@ public class Results : MonoBehaviour {
             Words.text += "s";
 
         Text Chain = GameObject.Find("Chain").GetComponent<Text>();
-        Chain.text = "Best Chain " + Session.m_BestChain.ToString() + " (Max " + Session.m_WordsAvailable.ToString() + ")";
+        Chain.text = "Best Chain " + Session.m_BestChain.ToString();
 
         Text ContinuousChain = GameObject.Find("Continuous Chain").GetComponent<Text>();
-        ContinuousChain.text = "Continuous Chain " + Session.m_SaveData.sd_BestChain.ToString();
+        ContinuousChain.text = "Continuous Chain " + Session.m_SaveData.sd_CurrentChain.ToString();
     }
 	
 	public void AgainClicked() 
