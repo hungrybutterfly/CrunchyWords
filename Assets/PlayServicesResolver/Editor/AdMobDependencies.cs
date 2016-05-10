@@ -11,6 +11,7 @@ public static class AdMobDependencies
     /// Initializes static members of the class.
     static AdMobDependencies()
     {
+		#if UNITY_ANDROID
         PlayServicesSupport svcSupport =
             PlayServicesSupport.CreateInstance(PluginName, EditorPrefs.GetString("AndroidSdkRoot"),
                     "ProjectSettings");
@@ -19,5 +20,6 @@ public static class AdMobDependencies
 
         // Marshmallow permissions requires app-compat.
         svcSupport.DependOn("com.android.support", "appcompat-v7", "23.1.0+");
+		#endif
     }
 }
