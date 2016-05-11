@@ -37,10 +37,12 @@ public class Advert : MonoBehaviour
     void Start()
     {
         //iOS/Android ? Hide skip button
-#if (UNITY_IOS || UNITY_ANDROID)
+#if !(UNITY_IOS || UNITY_ANDROID)
         Button skipButton = GameObject.Find("SkipButton").GetComponent<Button>();
-        skipButton.enabled = false;
+		skipButton.transform.localScale = new Vector2 (1,1);
+#endif
 
+#if (UNITY_IOS || UNITY_ANDROID)
         //Show an Ad...
         m_WaitingOnFullscreenAd = true;
 

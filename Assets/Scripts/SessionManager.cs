@@ -124,11 +124,11 @@ public class SessionManager : MonoBehaviour
         {
             m_Settings.m_HowToSeen = 1;
             SaveSettings();
-            ChangeScene("HowToPlay");
-
-            //Flurry Test
-            TestFlurryAnalytics();
+            ChangeScene("HowToPlay");            
         }
+
+		//Flurry Test - Remove when done :)
+		TestFlurryAnalytics();
     }
 
     void Update()
