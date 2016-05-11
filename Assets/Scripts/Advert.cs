@@ -28,7 +28,7 @@ public class Advert : MonoBehaviour
     private bool m_StaticAd = true;
 
     //Which Video AD mode?
-    private bool m_VideoADBasic = false;
+    private bool m_VideoADBasic = true;
 
     //Hold static ad
     InterstitialAd m_InterstitialAd = null;
