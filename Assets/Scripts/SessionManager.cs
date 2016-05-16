@@ -117,18 +117,20 @@ public class SessionManager : MonoBehaviour
             m_FirstTimeInit = 0;
             m_UseLastWord = false;
 
-            //Create Flurry Analyics
-            if (m_AllowFlurry)
-            {
-                //Flurry (IOS, ANDROID, CRASH)
-                KHD.FlurryAnalytics.Instance.StartSession("RTFXKFFH7FKH545GTCQ5", "FGF2V8MGPGPHV5BSPWRM", true);
-            }
-
             //Create Advert Manager
             if (!m_AdvertManager)
             {
                 m_AdvertManager = GetComponent<AdvertManager>();
                 m_AdvertManager.RequestAd();
+            }
+
+            //Create Flurry Analyics
+            if (m_AllowFlurry)
+            {
+                //Flurry (IOS, ANDROID, CRASH)
+                KHD.FlurryAnalytics.Instance.StartSession("RTFXKFFH7FKH545GTCQ5", "FGF2V8MGPGPHV5BSPWRM", true);
+                KHD.FlurryAnalytics.Instance.SetAppVersion(m_Version);
+                KHD.FlurryAnalytics.Instance.SetUserId(m_AdvertManager.GetDeviceID());
             }
         }
     }
@@ -140,7 +142,7 @@ public class SessionManager : MonoBehaviour
         {
             m_Settings.m_HowToSeen = 1;
             SaveSettings();
-            ChangeScene("HowToPlay");            
+            ChangeScene("HowToPlay");
         }
     }
 
