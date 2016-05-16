@@ -63,6 +63,22 @@ public class CeremonyManager : MonoBehaviour
         {
             SessionManager.PlaySound("Fanfare_Already");
         }
+        else if (_Type == eCeremonyType.All3Found)
+        {
+            SessionManager.PlaySound("All_3_Complete");
+        }
+        else if (_Type == eCeremonyType.All4Found)
+        {
+            SessionManager.PlaySound("All_4_Complete");
+        }
+        else if (_Type == eCeremonyType.All5Found)
+        {
+            SessionManager.PlaySound("All_5_Complete");
+        }
+        else if (_Type == eCeremonyType.All6Found)
+        {
+            SessionManager.PlaySound("All_6_Complete");
+        }
     }
 	
 	void Update () 
