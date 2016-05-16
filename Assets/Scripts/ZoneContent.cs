@@ -6,6 +6,8 @@ public class ZoneContent : MonoBehaviour
 {
 	void Start () 
     {
+        SessionManager.MetricsLogEvent("ZoneContent");
+
         SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
 
 	    // populate the ScrollView with buttons according to the level data
@@ -28,6 +30,11 @@ public class ZoneContent : MonoBehaviour
             Button TheButton = ButtonObject.GetComponentInChildren<Button>();
             Text ButtonText = TheButton.GetComponentInChildren<Text>();
             ButtonText.text = Data.m_Zones[i].m_Name;
+
+            // set the button colour
+            Color Colour;
+            MyMisc.HexToColour(Data.m_Zones[i].m_Colour, out Colour);
+            TheButton.GetComponent<Image>().color = Colour;
 
             // setup the button type and index
             ZoneSelector Button = TheButton.GetComponent<ZoneSelector>();
@@ -52,6 +59,9 @@ public class ZoneContent : MonoBehaviour
                     // disable the button
                     TheButton.interactable = false;
                     Active = false;
+
+                    // make it grey
+                    TheButton.GetComponent<Image>().color = new Color(0.5f, 0.5f, 0.5f);
                 }
             }
 
@@ -81,5 +91,13 @@ public class ZoneContent : MonoBehaviour
         Vector2 Size = GetComponent<RectTransform>().sizeDelta;
         Size.y = Spacing * Data.m_Zones.Length;
         GetComponent<RectTransform>().sizeDelta = Size;
+    }
+
+    public void BackClicked()
+    {
+        SessionManager.MetricsLogEvent("ZoneContentBack");
+        SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
+        Session.ChangeScene("Cover");
+        SessionManager.PlaySound("Option_Back");
     }
 }

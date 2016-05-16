@@ -21,11 +21,13 @@ public class LevelData : MonoBehaviour
     {
         public string m_Name;
         public Level[] m_Levels;
+        public string m_Colour;
 
-        public ZoneData(string Name, Level[] Levels)
+        public ZoneData(string _Name, Level[] _Levels, string _Colour)
         {
-            m_Name = Name;
-            m_Levels = Levels;
+            m_Name = _Name;
+            m_Levels = _Levels;
+            m_Colour = _Colour;
         }
     }
 
@@ -91,11 +93,11 @@ public class LevelData : MonoBehaviour
 
     public ZoneData[] m_Zones =
     {
-        new ZoneData("A Zone", m_Zone1_Levels),
-        new ZoneData("B Zone", m_Zone2_Levels),
-        new ZoneData("C Zone", m_Zone3_Levels),
-        new ZoneData("D Zone", m_Zone4_Levels),
-        new ZoneData("E Zone", m_Zone5_Levels),
-        new ZoneData("F Zone", m_Zone6_Levels),
+        new ZoneData("A Zone", m_Zone1_Levels, "fce5cdff"),
+        new ZoneData("B Zone", m_Zone2_Levels, "d9d2e9ff"),
+        new ZoneData("C Zone", m_Zone3_Levels, "d9ead3ff"),
+        new ZoneData("D Zone", m_Zone4_Levels, "f4ccccff"),
+        new ZoneData("E Zone", m_Zone5_Levels, "c9daf8ff"),
+        new ZoneData("F Zone", m_Zone6_Levels, "c9daf8ff"),
     };
 }

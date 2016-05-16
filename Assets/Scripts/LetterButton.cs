@@ -14,6 +14,7 @@ public class LetterButton : Button
     [HideInInspector] public int m_Index;
     [HideInInspector] public int m_LetterIndex;
     [HideInInspector] public int m_Value;
+    [HideInInspector] public string m_Letter;
 
     public int m_UsedIndex;
     eState m_State;
@@ -104,6 +105,8 @@ public class LetterButton : Button
     public void SetLetter(string _Letter)
     {
         LetterScores Scores = GameObject.Find("GameManager").GetComponent<LetterScores>();
+
+        m_Letter = _Letter;
 
         Text[] Texts = GetComponentsInChildren<Text>();
         for (int i = 0; i < Texts.Length;i++)

@@ -10,6 +10,8 @@ public class Stats : MonoBehaviour
 
     void Start()
     {
+        SessionManager.MetricsLogEvent("Stats");
+
         SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
         DictionaryManager Dictionary = GameObject.Find("DictionaryManager").GetComponent<DictionaryManager>();
 
@@ -30,6 +32,8 @@ public class Stats : MonoBehaviour
 
     public void BackClicked()
     {
+        SessionManager.PlaySound("Option_Back");
+
         SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
         Session.ChangeScene("Results");
     }

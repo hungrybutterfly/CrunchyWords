@@ -5,5 +5,6 @@ public class Loading : MonoBehaviour
 {
 	void Start () 
     {
-	}
+        SessionManager.MetricsLogEvent("Loading");
+    }
 }

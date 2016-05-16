@@ -42,6 +42,8 @@ public class PauseManager : MonoBehaviour
 
     public void ResumeClicked()
     {
+        SessionManager.PlaySound("Option_Back");
+
         SetIsEnabled(false);
     }
 
@@ -54,6 +56,10 @@ public class PauseManager : MonoBehaviour
 
     public void QuitClicked()
     {
+        SessionManager.MetricsLogEvent("Quit");
+
+        SessionManager.PlaySound("Option_Back");
+
         SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
 
         // keep the player's score
@@ -68,6 +74,8 @@ public class PauseManager : MonoBehaviour
 
     public void FinishClicked()
     {
+        SessionManager.PlaySound("Option_Select");
+
         GameManager Game = GameObject.Find("GameManager").GetComponent<GameManager>();
         Game.Finish();
         SetIsEnabled(false);

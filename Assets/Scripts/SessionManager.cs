@@ -60,6 +60,8 @@ public class SessionManager : MonoBehaviour
     public int m_WordsAvailable;
     [HideInInspector]
     public int m_BestChain;
+    [HideInInspector]
+    public bool m_AlreadyDone;
 
     // current level info
     [HideInInspector]
@@ -69,6 +71,9 @@ public class SessionManager : MonoBehaviour
 
     //Flurry
     public bool m_AllowFlurry = false;
+
+    //Audio
+    public bool m_AllowAudio = false;
 
     // version string
     public string m_Version;
@@ -126,9 +131,6 @@ public class SessionManager : MonoBehaviour
             SaveSettings();
             ChangeScene("HowToPlay");            
         }
-
-		//Flurry Test - Remove when done :)
-		TestFlurryAnalytics();
     }
 
     void Update()
@@ -284,18 +286,31 @@ public class SessionManager : MonoBehaviour
         return Out;
     }
 
-    public void TestFlurryAnalytics()
+    static public void MetricsLogEvent(string _EventName)
     {
-        if (m_AllowFlurry)
+        SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
+        if (Session.m_AllowFlurry)
         {
-            //Post an event
-            KHD.FlurryAnalytics.Instance.LogEvent("TEST_Player_Died");
+            KHD.FlurryAnalytics.Instance.LogEvent(_EventName);
+        }
+    }
 
-            //Post a custom event
-            KHD.FlurryAnalytics.Instance.LogEventWithParameters("TEST_PlayerScore",
-                new Dictionary<string, string>() {
-                { "Game_1", "Score_1" }
-                });
+    static public void MetricsLogEventWithParameters(string _EventName, Dictionary<string, string> _Params)
+    {
+        SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
+        if (Session.m_AllowFlurry)
+        {
+            KHD.FlurryAnalytics.Instance.LogEventWithParameters(_EventName, _Params);
+        }
+    }
+
+    static public void PlaySound(string _Name)
+    {
+        SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
+        if (Session.m_AllowAudio)
+        {
+            SoundManager Manager = GameObject.Find("SessionManager").GetComponent<SoundManager>();
+            Manager.PlaySound(_Name);
         }
     }
 }

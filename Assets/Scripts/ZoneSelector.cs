@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
+using System.Collections.Generic;
 
 public class ZoneSelector : MonoBehaviour
 {
@@ -23,11 +24,15 @@ public class ZoneSelector : MonoBehaviour
         {
             Session.m_CurrentLevel = m_Index;
             Session.ChangeScene("Play");
+            SessionManager.MetricsLogEventWithParameters("ZoneSelectorLevel", new Dictionary<string, string>() { { "Level", m_Index.ToString() } });
         }
         else
         {
             Session.m_CurrentZone = m_Index;
             Session.ChangeScene("Level");
+            SessionManager.MetricsLogEventWithParameters("ZoneSelectorZone", new Dictionary<string, string>() { { "Zone", m_Index.ToString() } });
         }
-	}
+
+        SessionManager.PlaySound("Option_Select");
+    }
 }

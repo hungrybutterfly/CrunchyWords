@@ -3,6 +3,10 @@ using System.Collections;
 
 public class ShopManager : MonoBehaviour 
 {
+    public void Start()
+    {
+        SessionManager.MetricsLogEvent("ShopManager");
+    }
 
     public void AddCoinsClicked()
     {

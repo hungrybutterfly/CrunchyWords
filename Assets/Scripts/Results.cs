@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine.UI;
 
 public class Results : MonoBehaviour {
@@ -11,6 +12,8 @@ public class Results : MonoBehaviour {
 
 	void Start () 
     {
+        SessionManager.MetricsLogEvent("Results");
+
         SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
 
         Text Score = GameObject.Find("Score").GetComponent<Text>();
@@ -38,21 +41,34 @@ public class Results : MonoBehaviour {
 
     public void NextClicked()
     {
+        SessionManager.MetricsLogEvent("ResultsNext");
+
+        SessionManager.PlaySound("Option_Select");
+
         SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
+
+        SessionManager.MetricsLogEventWithParameters("SaveData", new Dictionary<string, string>() 
+        { 
+            { "BestChain", Session.m_SaveData.sd_BestChain.ToString() }, 
+            { "CorrectSubmits", Session.m_SaveData.sd_CorrectSubmits.ToString() }, 
+            { "IncorrectSubmits", Session.m_SaveData.sd_IncorrectSubmits.ToString() }, 
+            { "LevelsComplete", Session.m_SaveData.sd_LevelsComplete.ToString() }, 
+            { "TotalScore", Session.m_SaveData.sd_TotalScore.ToString() }, 
+        });
+
         // move to the next level
         Session.m_SaveData.sd_CurrentLevel++;
         Session.Save();
 
-        // was this the last level in the zone
-        LevelData Data = GameObject.Find("SessionManager").GetComponent<LevelData>();
-        if (Session.m_CurrentLevel == Data.m_Zones[Session.m_CurrentZone].m_Levels.Length - 1)
-            Session.ChangeScene("Zone");
-        else
-            Session.ChangeScene("Advert");
+        Session.ChangeScene("Advert");
     }
 
     public void StatsClicked()
     {
+        SessionManager.MetricsLogEvent("ResultsStats");
+
+        SessionManager.PlaySound("Option_Select");
+
         SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
         Session.ChangeScene("Stats");
     }

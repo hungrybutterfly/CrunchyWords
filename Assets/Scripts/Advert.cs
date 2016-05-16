@@ -14,6 +14,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine.Advertisements;
 using System;
 using GoogleMobileAds;
@@ -36,6 +37,17 @@ public class Advert : MonoBehaviour
     //Initial Call
     void Start()
     {
+        // send metrics
+        int Static = 0;
+        if (m_StaticAd) Static = 1;
+        int VideoADBasic = 0;
+        if (m_VideoADBasic) VideoADBasic = 1;
+        SessionManager.MetricsLogEventWithParameters("Advert", new Dictionary<string, string>() 
+        { 
+            { "Static", Static.ToString() },
+            { "VideoADBasic", VideoADBasic.ToString() },
+        });
+
         //iOS/Android ? Hide skip button
 #if !(UNITY_IOS || UNITY_ANDROID)
         Button skipButton = GameObject.Find("SkipButton").GetComponent<Button>();
@@ -219,7 +231,13 @@ public class Advert : MonoBehaviour
     public void Clicked()
     {
         SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
-        Session.ChangeScene("Level");
+
+        // was this the last level in the zone
+        LevelData Data = GameObject.Find("SessionManager").GetComponent<LevelData>();
+        if (Session.m_CurrentLevel == Data.m_Zones[Session.m_CurrentZone].m_Levels.Length - 1 && !Session.m_AlreadyDone)
+            Session.ChangeScene("Zone");
+        else
+            Session.ChangeScene("Level");
     }
 
     //GOOGLE ADS - Return Device ID

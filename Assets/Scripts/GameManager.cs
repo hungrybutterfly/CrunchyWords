@@ -84,6 +84,9 @@ public class GameManager : MonoBehaviour {
     // a list of new words found
     List<string> m_NewWordsFound;
 
+    // the time when Start() is called
+    float m_StartTime;
+
     private void SetASize(RectTransform _trans, Vector2 _newSize)
     {
         Vector2 oldSize = _trans.rect.size;
@@ -94,6 +97,10 @@ public class GameManager : MonoBehaviour {
 
 	void Start () 
     {
+        SessionManager.MetricsLogEvent("HowToPlay");
+
+        m_StartTime = Time.time;
+
         m_DictionaryObject = GameObject.Find("DictionaryManager").GetComponent<DictionaryManager>();
         m_MaxLetters = m_DictionaryObject.m_MaxWordSize;
 
@@ -272,12 +279,16 @@ public class GameManager : MonoBehaviour {
     // add a letter to the word
     private void AddLetter(int _TheButton)
     {
+        SessionManager.MetricsLogEventWithParameters("LetterClickedAdd", new Dictionary<string, string>() { { "Letter", m_LetterList[_TheButton].m_Letter } });
+
         m_LetterList[_TheButton].SetUsed(m_LettersUsedIndex);
         m_LetterUsedList[m_LettersUsedIndex] = _TheButton;
         m_LettersUsedIndex++;
 
         UpdateLettersNotReady();
         UpdatePossibleWords();
+
+        SessionManager.PlaySound("Letter_Select");
     }
 
     // remove the last letter from the word
@@ -286,8 +297,16 @@ public class GameManager : MonoBehaviour {
         // are there any letters to remove
         if (m_LettersUsedIndex != 0)
         {
+            SessionManager.MetricsLogEvent("LetterClickedRemoveSuccess");
+
             m_LetterList[m_LetterUsedList[m_LettersUsedIndex - 1]].SetUnused();
             m_LettersUsedIndex--;
+
+            SessionManager.PlaySound("Letter_Remove");
+        }
+        else
+        {
+            SessionManager.MetricsLogEvent("LetterClickedRemoveFailed");
         }
 
         UpdateLettersNotReady();
@@ -430,12 +449,6 @@ public class GameManager : MonoBehaviour {
 
     private void SubmitWord()
     {
-		// don't allow a no-letter submission
-		if (m_LettersUsedIndex < 3)
-			return;
-	
-        SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
-
         // add all the letters to make the word
         string Word = "";
         int Score = 0;
@@ -444,6 +457,15 @@ public class GameManager : MonoBehaviour {
             Word += m_CurrentWord.Word.Substring(m_LetterList[m_LetterUsedList[i]].m_LetterIndex, 1);
             Score += m_LetterList[m_LetterUsedList[i]].m_Value;
         }
+
+        // don't allow a no-letter submission
+        if (m_LettersUsedIndex < 3)
+        {
+            SessionManager.MetricsLogEventWithParameters("SubmitTooSmall", new Dictionary<string, string>() { { "Word", Word } });
+            return;
+        }
+	
+        SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
 
         // look for the word in the possible words
         bool Right = false;
@@ -478,6 +500,8 @@ public class GameManager : MonoBehaviour {
 
         if (AlreadyFound)
         {
+            SessionManager.MetricsLogEventWithParameters("SubmitAlreadyFound", new Dictionary<string, string>() { { "Word", Word } });
+
             BeginCeremony(eCeremonyType.AlreadyFound);
         }
         else
@@ -485,6 +509,8 @@ public class GameManager : MonoBehaviour {
             // Update the score
             if (Right)
             {
+                SessionManager.MetricsLogEventWithParameters("SubmitGood", new Dictionary<string, string>() { { "Word", Word } });
+
                 m_WordsRight++;
                 ++Session.m_SaveData.sd_CorrectSubmits;
                 Session.m_SaveData.IncreaseChain();
@@ -508,6 +534,8 @@ public class GameManager : MonoBehaviour {
 
                 if (!m_Locked)
                 {
+                    SessionManager.MetricsLogEventWithParameters("SubmitBadChainBroken", new Dictionary<string, string>() { { "Word", Word } });
+
                     Session.m_SaveData.BreakChain();
 
                     // reset the combo
@@ -516,6 +544,10 @@ public class GameManager : MonoBehaviour {
                     // flash the score for 2 seconds
                     if (m_BadScore)
                         m_BadScoreTimer = 120;
+                }
+                else
+                {
+                    SessionManager.MetricsLogEventWithParameters("SubmitBadChainLocked", new Dictionary<string, string>() { { "Word", Word } });
                 }
 
                 // start the IncorrectWord ceremony
@@ -556,7 +588,6 @@ public class GameManager : MonoBehaviour {
             Perfect = true;
         Ceremony.Win(Perfect);
 
-
         // start a count down before going to the result screen
         m_ShowWinTimer = 30;
 
@@ -580,7 +611,7 @@ public class GameManager : MonoBehaviour {
 
         //Add to the save data
         SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
-        Session.m_SaveData.LevelComplete(Session.m_CurrentZone, Session.m_CurrentLevel, BestWord, m_TotalScore);
+        bool AlreadyDone = Session.m_SaveData.LevelComplete(Session.m_CurrentZone, Session.m_CurrentLevel, BestWord, m_TotalScore);
         Session.Save();
 
         // remember these stats to go to the review
@@ -591,6 +622,22 @@ public class GameManager : MonoBehaviour {
         Session.m_WordsCompleted = m_WordsRight;
         Session.m_WordsAvailable = m_CurrentWord.FitWords.Length;
         Session.m_BestChain = m_BestChain;
+        Session.m_AlreadyDone = AlreadyDone;
+
+        int TotalTime = (int) (Time.time - m_StartTime);
+
+        SessionManager.MetricsLogEventWithParameters("Win", new Dictionary<string, string>() 
+        { 
+            { "Time", TotalTime.ToString() }, 
+            { "Score", m_TotalScore.ToString() }, 
+            { "BestWord", BestWord.ToString() }, 
+            { "BestWordScore", BestWordScore.ToString() }, 
+            { "WordsRight", m_TotalScore.ToString() }, 
+            { "LastWordsWrong", Session.m_LastWordsWrong.ToString() }, 
+            { "WordsCompleted", Session.m_WordsCompleted.ToString() }, 
+            { "WordsAvailable", Session.m_WordsAvailable.ToString() },
+            { "BestChain", m_BestChain.ToString() },
+        });
 
         // transfer the new words found to the permanent list
         for (int i = 0; i < m_NewWordsFound.Count; i++)
@@ -649,7 +696,10 @@ public class GameManager : MonoBehaviour {
         {
             // does this word have any hints available
             if (!m_SelectedWord.IsHintUsed())
+            {
+                SessionManager.MetricsLogEventWithParameters("Hint", new Dictionary<string, string>() { { "Word", m_SelectedWord.m_Word } });
                 m_SelectedWord.UseHint();
+            }
 
             ResetHint();
         }
@@ -715,6 +765,8 @@ public class GameManager : MonoBehaviour {
         // does the player have enough coins
         if (Session.m_SaveData.sd_TotalScore >= Amount)
         {
+            SessionManager.MetricsLogEventWithParameters("CoinsSpentSuccess", new Dictionary<string, string>() { { "Coins", AmountOut.ToString() } });
+
             // remove the coins
             Session.m_SaveData.AddCoins(-Amount);
 
@@ -725,6 +777,10 @@ public class GameManager : MonoBehaviour {
             UpdateCosts();
 
             return true;
+        }
+        else
+        {
+            SessionManager.MetricsLogEventWithParameters("CoinsSpentFailed", new Dictionary<string, string>() { { "Coins", AmountOut.ToString() } });
         }
 
         return false;
@@ -781,11 +837,19 @@ public class GameManager : MonoBehaviour {
 
     public void JumbleClicked()
     {
+        SessionManager.PlaySound("Option_Select");
+
         // attempt to spend coins
         if (SpendCoins(m_ShuffleCost, m_StartShuffleCost, out m_ShuffleCost))
         {
+            SessionManager.MetricsLogEventWithParameters("JumbleSuccess", new Dictionary<string, string>() { { "Cost", m_StartShuffleCost.ToString() } });
+
             ClearUsedLetters();
             JumbleLetters();
+        }
+        else
+        {
+            SessionManager.MetricsLogEventWithParameters("JumbleFailed", new Dictionary<string, string>() { { "Cost", m_StartShuffleCost.ToString() } });
         }
     }
 
@@ -796,6 +860,8 @@ public class GameManager : MonoBehaviour {
 
     public void CheckClicked()
     {
+        SessionManager.PlaySound("Option_Select");
+
         // does the player have any letters used
         if (m_LettersUsedIndex >= 3)
         {
@@ -812,37 +878,73 @@ public class GameManager : MonoBehaviour {
 
     public void LockClicked()
     {
+        SessionManager.PlaySound("Option_Select");
+
         // attempt to spend coins
         if (SpendCoins(m_LockCost, m_StartLockCost, out m_LockCost))
         {
+            SessionManager.MetricsLogEventWithParameters("LockSuccess", new Dictionary<string, string>() { { "Cost", m_StartLockCost.ToString() } });
+
             Lock();
+        }
+        else
+        {
+            SessionManager.MetricsLogEventWithParameters("LockFailed", new Dictionary<string, string>() { { "Cost", m_StartLockCost.ToString() } });
+        }
+    }
+
+    void AttemptHint()
+    {
+        SessionManager.PlaySound("Option_Select");
+
+        if (HintAvailable())
+        {
+            // attempt to spend coins
+            if (SpendCoins(m_HintCost, m_StartHintCost, out m_HintCost))
+            {
+                SessionManager.MetricsLogEventWithParameters("HintUsedSuccess", new Dictionary<string, string>() { { "Cost", m_StartHintCost.ToString() } });
+
+                Hint();
+            }
+            else
+            {
+                SessionManager.MetricsLogEventWithParameters("HintUsedFailed", new Dictionary<string, string>() { { "Cost", m_StartHintCost.ToString() } });
+            }
+        }
+        else
+        {
+            SessionManager.MetricsLogEvent("HintUsedNotAvailable");
         }
     }
 
     public void HintClicked()
     {
+        SessionManager.PlaySound("Option_Select");
+
         if (!m_SelectedWord && !m_RandomHint)
         {
+            SessionManager.MetricsLogEvent("HintReady");
+
             m_HintReady = !m_HintReady;
             UpdateHintButton();
         }
         else
         {
-            if (HintAvailable())
-            {
-                // attempt to spend coins
-                if (SpendCoins(m_HintCost, m_StartHintCost, out m_HintCost))
-                {
-                    Hint();
-                }
-            }
+            AttemptHint();
         }
     }
 
     public void PauseClicked()
     {
+        SessionManager.PlaySound("Option_Select");
+
         PauseManager Pause = GameObject.Find("GameManager").GetComponent<PauseManager>();
         Pause.SetIsEnabled(!Pause.m_PauseEnabled);
+
+        if (Pause.m_PauseEnabled)
+            SessionManager.MetricsLogEvent("Paused");
+        else
+            SessionManager.MetricsLogEvent("Unpaused");
     }
 
     public void WordClicked(Word WordObject)
@@ -851,6 +953,8 @@ public class GameManager : MonoBehaviour {
         if (m_RandomHint)
             return;
 
+        SessionManager.PlaySound("Option_Select");
+
         SelectWord(WordObject);
 
         if (m_HintReady)
@@ -858,14 +962,11 @@ public class GameManager : MonoBehaviour {
             m_HintReady = false;
             UpdateHintButton();
 
-            if (HintAvailable())
-            {
-                // attempt to spend coins
-                if (SpendCoins(m_HintCost, m_StartHintCost, out m_HintCost))
-                {
-                    Hint();
-                }
-            }
+            AttemptHint();
+        }
+        else
+        {
+            SessionManager.MetricsLogEventWithParameters("WordClicked", new Dictionary<string, string>() { { "Word", WordObject.m_Word } });
         }
     }
 
@@ -873,6 +974,10 @@ public class GameManager : MonoBehaviour {
     {
         if (m_ShowWinTimer == 0)
         {
+            SessionManager.MetricsLogEvent("EndClicked");
+
+            SessionManager.PlaySound("Option_Select");
+
             // timer has finished so go to the result screen
             SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
             Session.ChangeScene("Results");
@@ -908,6 +1013,15 @@ public class GameManager : MonoBehaviour {
             // all words found?
             if (i == m_CurrentWord.FitWords.Length)
             {
+                if (Length == 3)
+                    SessionManager.MetricsLogEvent("All3Found");
+                if (Length == 4)
+                    SessionManager.MetricsLogEvent("All4Found");
+                if (Length == 5)
+                    SessionManager.MetricsLogEvent("All5Found");
+                if (Length == 6)
+                    SessionManager.MetricsLogEvent("All6Found");
+
                 // start the ceremony
                 CeremonyManager Ceremony = GetComponent<CeremonyManager>();
                 Ceremony.Init(eCeremonyType.All3Found + (Length - 3));

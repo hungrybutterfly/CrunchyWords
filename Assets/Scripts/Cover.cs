@@ -6,6 +6,8 @@ public class Cover : MonoBehaviour
 {
     void Start()
     {
+        SessionManager.MetricsLogEvent("Cover");
+
         SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
 
         // set the version text
@@ -36,17 +38,41 @@ public class Cover : MonoBehaviour
         }
     }
 
+    public void StartClicked()
+    {
+        SessionManager.MetricsLogEvent("CoverStartClicked");
+
+        SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
+        Session.ChangeScene("Zone");
+        SessionManager.PlaySound("Option_Select");
+    }
+
+    public void HowToPlayClicked()
+    {
+        SessionManager.MetricsLogEvent("CoverHowToPlayClicked");
+
+        SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
+        Session.ChangeScene("HowToPlay");
+        SessionManager.PlaySound("Option_Select");
+    }
+
 	public void ClearClicked() 
     {
+        SessionManager.MetricsLogEvent("ClearClicked");
+
         SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
         Session.CreateNewSaveData();
         Session.ChangeScene("Cover");
-	}
+        SessionManager.PlaySound("Option_Select");
+    }
 
     public void AddCoinsClicked()
     {
+        SessionManager.MetricsLogEvent("AddCoinsClicked");
+
         // cheat to add 1000 coins
         SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
         Session.m_SaveData.AddCoins(1000);
+        SessionManager.PlaySound("Option_Select");
     }
 }

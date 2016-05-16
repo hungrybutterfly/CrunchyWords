@@ -58,6 +58,11 @@ public class CeremonyManager : MonoBehaviour
         GameObject Object = GameObject.Find("Ceremony Text");
         Text String = Object.GetComponent<Text>();
         String.text = m_Strings[(int) _Type];
+
+        if (_Type == eCeremonyType.AlreadyFound)
+        {
+            SessionManager.PlaySound("Fanfare_Already");
+        }
     }
 	
 	void Update () 
@@ -82,15 +87,17 @@ public class CeremonyManager : MonoBehaviour
         GameObject CeremonyObject = Instantiate(Prefab) as GameObject;
         CeremonyObject.transform.SetParent(Root.transform, false);
 
+        SessionManager.PlaySound("Fanfare_Right");
+
 /*        // reveal the tick
-        Image CeremonyImage = CeremonyObject.transform.Find("Image").gameObject.GetComponent<Image>();
-        CeremonyImage.gameObject.SetActive(true);
+                Image CeremonyImage = CeremonyObject.transform.Find("Image").gameObject.GetComponent<Image>();
+                CeremonyImage.gameObject.SetActive(true);
 
-        yield return new WaitForSeconds(1.0f);
+                yield return new WaitForSeconds(1.0f);
 
-        // hide the tick
-        CeremonyImage.gameObject.SetActive(false);
-*/
+                // hide the tick
+                CeremonyImage.gameObject.SetActive(false);
+        */
         // set the text and make it active
         Transform t = CeremonyObject.transform.Find("Text");
         Text CeremonyText = t.gameObject.GetComponent<Text>();
@@ -124,6 +131,8 @@ public class CeremonyManager : MonoBehaviour
         GameObject CeremonyObject = Instantiate(Prefab) as GameObject;
         CeremonyObject.transform.SetParent(Root.transform, false);
 
+        SessionManager.PlaySound("Fanfare_Wrong");
+
         // reveal the cross
         Image CeremonyImage = CeremonyObject.transform.Find("Image").gameObject.GetComponent<Image>();
         CeremonyImage.gameObject.SetActive(true);
@@ -151,6 +160,12 @@ public class CeremonyManager : MonoBehaviour
         {
             Text CeremonyText = CeremonyObject.transform.Find("Text").gameObject.GetComponent<Text>();
             CeremonyText.text = "PERFECT!";
+
+            SessionManager.PlaySound("Level_Complete_More");
+        }
+        else
+        {
+            SessionManager.PlaySound("Level_Complete");
         }
 
         GameManager Game = GameObject.Find("GameManager").GetComponent<GameManager>();

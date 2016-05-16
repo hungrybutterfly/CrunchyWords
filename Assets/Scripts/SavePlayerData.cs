@@ -201,8 +201,10 @@ public class SavePlayerData
         return sd_LevelsComplete[_Index].m_BestScore;
     }
 
-    public void LevelComplete(int _Zone, int _Level, string _Word, int _Score)
+    public bool LevelComplete(int _Zone, int _Level, string _Word, int _Score)
     {
+        bool AlreadyDone = false;
+
         // does the level data already exist
         int Index = FindLevelComplete(_Zone, _Level);
         if (Index != -1)
@@ -212,6 +214,8 @@ public class SavePlayerData
                 sd_LevelsComplete[Index].m_BestScore = _Score;
             if (sd_LevelsComplete[Index].m_BestWord.Length < _Word.Length)
                 sd_LevelsComplete[Index].m_BestWord = _Word;
+
+            AlreadyDone = true;
         }
         else
         {
@@ -227,13 +231,18 @@ public class SavePlayerData
 
         sd_PuzzlesSolved++;
         AddCoins(_Score);
+
+        return AlreadyDone;
     }
 
     public void IncreaseChain()
     {
         sd_CurrentChain++;
         if (sd_BestChain < sd_CurrentChain)
+        {
+            SessionManager.MetricsLogEventWithParameters("BestChain", new Dictionary<string, string>() { { "Chain", sd_CurrentChain.ToString() } });
             sd_BestChain = sd_CurrentChain;
+        }
     }
 
     public void BreakChain()

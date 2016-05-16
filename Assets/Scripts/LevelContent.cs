@@ -6,6 +6,8 @@ public class LevelContent : MonoBehaviour
 {
     void Start()
     {
+        SessionManager.MetricsLogEvent("LevelContent");
+
         // populate the ScrollView with buttons according to the level data
         LevelData Data = GameObject.Find("SessionManager").GetComponent<LevelData>();
 
@@ -18,6 +20,17 @@ public class LevelContent : MonoBehaviour
         // set the zone title
         Text ZoneTitle = GameObject.Find("ZoneTitle").GetComponent<Text>();
         ZoneTitle.text = Data.m_Zones[ZoneIndex].m_Name;
+
+        // set the zone bg colour
+        Color Colour;
+        MyMisc.HexToColour(Data.m_Zones[ZoneIndex].m_Colour, out Colour);
+        GameObject.Find("Main Camera").GetComponent<Camera>().backgroundColor = Colour;
+
+        // set the zone panel colour
+        Colour.r *= 0.85f;
+        Colour.g *= 0.85f;
+        Colour.b *= 0.85f;
+        GameObject.Find("ZonePanel").GetComponent<Image>().color = Colour;
 
         DictionaryManager Dictionary = GameObject.Find("DictionaryManager").GetComponent<DictionaryManager>();
 
@@ -38,7 +51,7 @@ public class LevelContent : MonoBehaviour
             // set the button text
             Button TheButton = ButtonObject.GetComponentInChildren<Button>();
             Text ButtonText = TheButton.GetComponentInChildren<Text>();
-            string String = "_ _ _ _ _ _";
+            string String = "- - - - - -";
             // is the level complete
             int Index = Session.m_SaveData.FindLevelComplete(ZoneIndex, i);
             if (Index != -1)
@@ -50,7 +63,7 @@ public class LevelContent : MonoBehaviour
                     if (j < Word.Length)
                         String += (Word.Substring(j, 1));
                     else
-                        String += " _";
+                        String += " -";
                 }
             }
             ButtonText.text = String;
@@ -74,5 +87,13 @@ public class LevelContent : MonoBehaviour
         Vector2 Size = GetComponent<RectTransform>().sizeDelta;
         Size.y = Spacing * (Zone.m_Levels.Length);
         GetComponent<RectTransform>().sizeDelta = Size;
+    }
+
+    public void BackClicked()
+    {
+        SessionManager.MetricsLogEvent("LevelContentBack");
+        SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
+        Session.ChangeScene("Zone");
+        SessionManager.PlaySound("Option_Back");
     }
 }
