@@ -69,6 +69,10 @@ public class SessionManager : MonoBehaviour
     [HideInInspector]
     public int m_CurrentLevel = 0;
 
+    //Adverts
+    [HideInInspector]
+    public AdvertManager m_AdvertManager = null;
+
     //Flurry
     public bool m_AllowFlurry = false;
 
@@ -118,6 +122,13 @@ public class SessionManager : MonoBehaviour
             {
                 //Flurry (IOS, ANDROID, CRASH)
                 KHD.FlurryAnalytics.Instance.StartSession("RTFXKFFH7FKH545GTCQ5", "FGF2V8MGPGPHV5BSPWRM", true);
+            }
+
+            //Create Advert Manager
+            if (!m_AdvertManager)
+            {
+                m_AdvertManager = GetComponent<AdvertManager>();
+                m_AdvertManager.RequestAd();
             }
         }
     }
