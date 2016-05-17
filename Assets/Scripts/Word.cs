@@ -131,7 +131,7 @@ public class Word : MonoBehaviour
             if (m_HintUsed[j])
                 String += (m_Word.Substring(j, 1));
             else
-                String += " -";
+                String += " _";
         }
 
         GetComponentInChildren<Text>().text = String;

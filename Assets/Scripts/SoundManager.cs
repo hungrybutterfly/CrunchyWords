@@ -35,6 +35,11 @@ public class SoundManager : MonoBehaviour
         m_MusicSource.Play();
     }
 
+    public void SetMusicVolume(float _Volume)
+    {
+        m_MusicSource.volume = _Volume;
+    }
+
     void InitSounds()
     {
         // create some sources for later use

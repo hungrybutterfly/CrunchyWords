@@ -99,6 +99,9 @@ public class GameManager : MonoBehaviour {
     {
         SessionManager.MetricsLogEvent("HowToPlay");
 
+        SoundManager Sound = GameObject.Find("SessionManager").GetComponent<SoundManager>();
+        Sound.SetMusicVolume(0.5f);
+
         m_StartTime = Time.time;
 
         m_DictionaryObject = GameObject.Find("DictionaryManager").GetComponent<DictionaryManager>();
@@ -166,6 +169,12 @@ public class GameManager : MonoBehaviour {
 
         // start the first new word off
         NewWord();
+    }
+
+    void OnDestroy()
+    {
+        SoundManager Sound = GameObject.Find("SessionManager").GetComponent<SoundManager>();
+        Sound.SetMusicVolume(1.0f);
     }
 	
 	void Update() 
@@ -878,6 +887,9 @@ public class GameManager : MonoBehaviour {
 
     public void LockClicked()
     {
+        if (m_Locked)
+            return;
+
         SessionManager.PlaySound("Option_Select");
 
         // attempt to spend coins

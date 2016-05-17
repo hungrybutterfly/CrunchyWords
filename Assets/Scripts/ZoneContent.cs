@@ -24,7 +24,7 @@ public class ZoneContent : MonoBehaviour
 
             // set the number of the button
             Text NumberText = ButtonObject.GetComponent<Text>();
-            NumberText.text = (i + 1).ToString();
+            //NumberText.text = (i + 1).ToString();
 
             // set the button text
             Button TheButton = ButtonObject.GetComponentInChildren<Button>();

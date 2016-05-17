@@ -38,7 +38,7 @@ public class CeremonyManager : MonoBehaviour
         "All 4 letter\nwords found!",
         "All 5 letter\nwords found!",
         "All 6 letter\nwords found!",
-        "Already\nFound!"
+        "Already Found!"
     };
 
     public void SetIsEnabled(bool _Active)

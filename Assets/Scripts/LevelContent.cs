@@ -46,12 +46,12 @@ public class LevelContent : MonoBehaviour
 
             // set the number of the button
             Text NumberText = ButtonObject.GetComponent<Text>();
-            NumberText.text = (ZoneIndex + 1).ToString() + "-" + (i + 1).ToString();
+            //NumberText.text = (ZoneIndex + 1).ToString() + "-" + (i + 1).ToString();
 
             // set the button text
             Button TheButton = ButtonObject.GetComponentInChildren<Button>();
             Text ButtonText = TheButton.GetComponentInChildren<Text>();
-            string String = "- - - - - -";
+            string String = "_ _ _ _ _ _";
             // is the level complete
             int Index = Session.m_SaveData.FindLevelComplete(ZoneIndex, i);
             if (Index != -1)
@@ -63,7 +63,7 @@ public class LevelContent : MonoBehaviour
                     if (j < Word.Length)
                         String += (Word.Substring(j, 1));
                     else
-                        String += " -";
+                        String += " _";
                 }
             }
             ButtonText.text = String;
