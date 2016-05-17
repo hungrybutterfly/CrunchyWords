@@ -26,7 +26,7 @@ public class AdvertManager : MonoBehaviour
     private bool m_WaitingOnFullscreenAd = false;
 
     //What type of ad?
-    private bool m_StaticAd = false;
+    private bool m_StaticAd = true;
 
     //Which Video AD mode?
     private bool m_VideoADBasic = true;
