@@ -238,13 +238,8 @@ public class AdvertManager : MonoBehaviour
     //Return General DeviceID
     public string GetDeviceID()
     {
-#if UNITY_ANDROID
-        return GetAndroidAdMobID();
-#elif UNITY_IPHONE
-        return GetIOSAdMobID();
-#else
-        return "NONE";
-#endif
+        //Rely on Unity
+        return SystemInfo.deviceUniqueIdentifier;
     }
 
     //GOOGLE ADS - Return Device ID
