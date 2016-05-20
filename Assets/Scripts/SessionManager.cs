@@ -61,7 +61,7 @@ public class SessionManager : MonoBehaviour
     [HideInInspector]
     public int m_BestChain;
     [HideInInspector]
-    public bool m_AlreadyDone;
+    public bool m_ZoneComplete = false;
 
     // current level info
     [HideInInspector]
@@ -86,6 +86,11 @@ public class SessionManager : MonoBehaviour
     // debug flag for ignoring the loading of the dictionary in scenes that don't need it
     public bool m_IgnoreDictionary = false;
     public int m_StartingCoins = 100;
+
+    // what kind of advert to show when launching ads
+    public bool m_AdvertStatic;
+    // what scene to return to when launching ads
+    public string m_AdvertReturn;
 
     void LoadDictionary()
     {

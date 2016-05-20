@@ -34,10 +34,10 @@ public class CeremonyManager : MonoBehaviour
         "",
         "",
         "",
-        "All 3 letter\nwords found!",
-        "All 4 letter\nwords found!",
-        "All 5 letter\nwords found!",
-        "All 6 letter\nwords found!",
+        "All 3 letter words found!",
+        "All 4 letter words found!",
+        "All 5 letter words found!",
+        "All 6 letter words found!",
         "Already Found!"
     };
 
@@ -132,12 +132,12 @@ public class CeremonyManager : MonoBehaviour
         Game.CompleteWordCorrect();
     }
 
-    public void IncorrectWord()
+    public void IncorrectWord(int _WordsRightCombo)
     {
-        StartCoroutine(PlayIncorrectWord());
+        StartCoroutine(PlayIncorrectWord(_WordsRightCombo));
     }
 
-    IEnumerator PlayIncorrectWord()
+    IEnumerator PlayIncorrectWord(int _WordsRightCombo)
     {
         m_Type = eCeremonyType.WordGood;
 
@@ -149,14 +149,34 @@ public class CeremonyManager : MonoBehaviour
 
         SessionManager.PlaySound("Fanfare_Wrong");
 
-        // reveal the cross
-        Image CeremonyImage = CeremonyObject.transform.Find("Image").gameObject.GetComponent<Image>();
-        CeremonyImage.gameObject.SetActive(true);
+        if (_WordsRightCombo == 1)
+        {
+            // reveal the cross
+            Image CeremonyImage = CeremonyObject.transform.Find("Image").gameObject.GetComponent<Image>();
+            CeremonyImage.gameObject.SetActive(true);
+        }
+        else
+        {
+            // reveal the text
+            Text CeremonyText = CeremonyObject.transform.Find("Text").gameObject.GetComponent<Text>();
+            CeremonyText.text = "X" + _WordsRightCombo.ToString() + " CHAIN BROKEN!";
+            CeremonyText.gameObject.SetActive(true);
+        }
 
         yield return new WaitForSeconds(1.0f);
 
-        // hide the cross
-        CeremonyImage.gameObject.SetActive(false);
+        if (_WordsRightCombo == 1)
+        {
+            // hide the cross
+            Image CeremonyImage = CeremonyObject.transform.Find("Image").gameObject.GetComponent<Image>();
+            CeremonyImage.gameObject.SetActive(false);
+        }
+        else
+        {
+            // hide the text
+            Text CeremonyText = CeremonyObject.transform.Find("Text").gameObject.GetComponent<Text>();
+            CeremonyText.gameObject.SetActive(false);
+        }
 
         // delete the object
         Destroy(CeremonyObject.gameObject);

@@ -16,10 +16,10 @@ public class ZoneContent : MonoBehaviour
         // create a button for each zone
         float Spacing = 125;
         GameObject ButtonPrefab = (GameObject)Resources.Load("Prefabs/ZoneSelector", typeof(GameObject));
-        GameObject CoinPrefab = (GameObject)Resources.Load("Prefabs/CoinCounter", typeof(GameObject));
+        GameObject ZoneScore = (GameObject)Resources.Load("Prefabs/ZoneScore", typeof(GameObject));
         for (int i = 0; i < Data.m_Zones.Length; i++)
         {
-            GameObject ButtonObject = Instantiate(ButtonPrefab, new Vector3(30, -i * Spacing - (Spacing * 0.5f), 0), Quaternion.identity) as GameObject;
+            GameObject ButtonObject = Instantiate(ButtonPrefab, new Vector3(-20, -i * Spacing - (Spacing * 0.5f), 0), Quaternion.identity) as GameObject;
             ButtonObject.transform.SetParent(transform, false);
 
             // set the number of the button
@@ -78,12 +78,12 @@ public class ZoneContent : MonoBehaviour
                     }
                 }
 
-                // create and set a coin counter
-                GameObject CoinObject = Instantiate(CoinPrefab, new Vector3(475, -i * Spacing - (Spacing * 0.5f), 0), Quaternion.identity) as GameObject;
-                CoinObject.transform.SetParent(transform, false);
-                NumberText = CoinObject.GetComponentInChildren<Text>();
+                // create and set a score
+                GameObject ScoreObject = Instantiate(ZoneScore, new Vector3(480, -i * Spacing - (Spacing * 0.5f) - 15, 0), Quaternion.identity) as GameObject;
+                ScoreObject.transform.SetParent(transform, false);
+                NumberText = ScoreObject.GetComponentInChildren<Text>();
                 string Number = Session.FormatNumberString(TotalBestScore.ToString());
-                NumberText.text = Number;
+                NumberText.text = "Score " + Number;
             }
         }
 
@@ -91,6 +91,14 @@ public class ZoneContent : MonoBehaviour
         Vector2 Size = GetComponent<RectTransform>().sizeDelta;
         Size.y = Spacing * Data.m_Zones.Length;
         GetComponent<RectTransform>().sizeDelta = Size;
+
+        if (Session.m_ZoneComplete)
+        {
+            Session.m_ZoneComplete = false;
+
+            // kick of the zome complete ceremony
+            StartCoroutine(PlayZoneComplete());
+        }
     }
 
     public void BackClicked()
@@ -99,5 +107,21 @@ public class ZoneContent : MonoBehaviour
         SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
         Session.ChangeScene("Cover");
         SessionManager.PlaySound("Option_Back");
+    }
+
+    IEnumerator PlayZoneComplete()
+    {
+        // create and attach the ceremony
+        GameObject Prefab = (GameObject)Resources.Load("Prefabs/Ceremonies/CeremonyZoneComplete", typeof(GameObject));
+        GameObject Root = GameObject.Find("Root");
+        GameObject CeremonyObject = Instantiate(Prefab) as GameObject;
+        CeremonyObject.transform.SetParent(Root.transform, false);
+
+//        SessionManager.PlaySound("Fanfare_Wrong");
+
+        yield return new WaitForSeconds(2.0f);
+
+        // delete the object
+        Destroy(CeremonyObject.gameObject);
     }
 }

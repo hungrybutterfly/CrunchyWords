@@ -31,10 +31,7 @@ public class Cover : MonoBehaviour
         // hide the debug buttons if this is an external version
         if (Session.m_ExternalVersion)
         {
-            GameObject Button = GameObject.Find("Add Coins");
-            Button.SetActive(false);
-
-            Button = GameObject.Find("Clear");
+            GameObject Button = GameObject.Find("Clear");
             Button.SetActive(false);
         }
     }
@@ -64,6 +61,15 @@ public class Cover : MonoBehaviour
         SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
         Session.CreateNewSaveData();
         Session.ChangeScene("Cover");
+        SessionManager.PlaySound("Option_Select");
+    }
+
+    public void ShopClicked()
+    {
+        SessionManager.MetricsLogEvent("CoverShopClicked");
+
+        SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
+        Session.ChangeScene("Shop");
         SessionManager.PlaySound("Option_Select");
     }
 

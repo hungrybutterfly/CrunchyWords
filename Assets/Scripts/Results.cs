@@ -60,7 +60,26 @@ public class Results : MonoBehaviour {
         Session.m_SaveData.sd_CurrentLevel++;
         Session.Save();
 
-        Session.ChangeScene("Advert");
+        // has static ads been paid for
+        if (!Session.m_ZoneComplete && Session.m_SaveData.sd_RemoveStaticAds != 0)
+            Session.ChangeScene("Level");
+        // has ALL ads been paid for
+        else if (Session.m_ZoneComplete && Session.m_SaveData.sd_RemoveALLAds != 0)
+            Session.ChangeScene("Zone");
+        else
+        {
+            if (Session.m_ZoneComplete)
+            {
+                Session.m_AdvertStatic = false;
+                Session.m_AdvertReturn = "Zone";
+            }
+            else
+            {
+                Session.m_AdvertStatic = true;
+                Session.m_AdvertReturn = "Level";
+            }
+            Session.ChangeScene("Advert");
+        }
     }
 
     public void StatsClicked()

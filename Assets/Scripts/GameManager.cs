@@ -114,6 +114,17 @@ public class GameManager : MonoBehaviour {
 
         m_NewWordsFound = new List<string>();
 
+        // create the letter slots
+        GameObject LetterSlot = (GameObject)Resources.Load("Prefabs/LetterSlot", typeof(GameObject));
+        for (int i = 0; i < m_MaxLetters; i++)
+        {
+            GameObject NewSlot = Instantiate(LetterSlot, GetLetterIdlePosition(i), Quaternion.identity) as GameObject;
+            NewSlot.transform.SetParent(m_LetterParent, false);
+
+            NewSlot = Instantiate(LetterSlot, GetLetterUsedPosition(i), Quaternion.identity) as GameObject;
+            NewSlot.transform.SetParent(m_LetterParent, false);
+        }
+
         // create the letter buttons
         m_LetterList = new LetterButton[m_MaxLetters];
         m_LetterUsedList = new int[m_MaxLetters];
@@ -541,6 +552,10 @@ public class GameManager : MonoBehaviour {
                 m_WordsWrong++;
                 ++Session.m_SaveData.sd_IncorrectSubmits;
 
+                // start the IncorrectWord ceremony
+                CeremonyManager Ceremony = GetComponent<CeremonyManager>();
+                Ceremony.IncorrectWord(m_WordsRightCombo);
+
                 if (!m_Locked)
                 {
                     SessionManager.MetricsLogEventWithParameters("SubmitBadChainBroken", new Dictionary<string, string>() { { "Word", Word } });
@@ -558,10 +573,6 @@ public class GameManager : MonoBehaviour {
                 {
                     SessionManager.MetricsLogEventWithParameters("SubmitBadChainLocked", new Dictionary<string, string>() { { "Word", Word } });
                 }
-
-                // start the IncorrectWord ceremony
-                CeremonyManager Ceremony = GetComponent<CeremonyManager>();
-                Ceremony.IncorrectWord();
             }
             UpdateScore();
         }
@@ -631,7 +642,12 @@ public class GameManager : MonoBehaviour {
         Session.m_WordsCompleted = m_WordsRight;
         Session.m_WordsAvailable = m_CurrentWord.FitWords.Length;
         Session.m_BestChain = m_BestChain;
-        Session.m_AlreadyDone = AlreadyDone;
+
+        LevelData Data = GameObject.Find("SessionManager").GetComponent<LevelData>();
+        if (Session.m_CurrentLevel == Data.m_Zones[Session.m_CurrentZone].m_Levels.Length - 1 && !AlreadyDone)
+            Session.m_ZoneComplete = true;
+        else
+            Session.m_ZoneComplete = false;
 
         int TotalTime = (int) (Time.time - m_StartTime);
 

@@ -41,6 +41,8 @@ public class SavePlayerData
     public int sd_BestChain;
     public int sd_CurrentChain;
     public int sd_HowToSeen = 0;
+    public int sd_RemoveStaticAds = 0;
+    public int sd_RemoveALLAds = 0;
 
     //Reset and Initialise Save Data
     public void InitSaveData()
@@ -70,6 +72,9 @@ public class SavePlayerData
         sd_CurrentChain = 0;
 
         sd_HowToSeen = 0;
+
+        sd_RemoveStaticAds = 0;
+        sd_RemoveALLAds = 0;
 
         sd_LevelsComplete = new List<SavePlayerData.SaveLevelData>();
     }
@@ -103,6 +108,8 @@ public class SavePlayerData
         sd_Dictionary.Add("sd_BestChain", sd_BestChain);
         sd_Dictionary.Add("sd_CurrentChain", sd_CurrentChain);
         sd_Dictionary.Add("sd_HowToSeen", sd_HowToSeen);
+        sd_Dictionary.Add("sd_RemoveStaticAds", sd_RemoveStaticAds);
+        sd_Dictionary.Add("sd_RemoveALLAds", sd_RemoveALLAds);
     }
 
     //Take the serialised dictionary, convert it and restore the values (After Loading)
@@ -151,6 +158,8 @@ public class SavePlayerData
         if (sd_Dictionary.ContainsKey("sd_BestChain")) { sd_BestChain = (int)sd_Dictionary["sd_BestChain"]; }
         if (sd_Dictionary.ContainsKey("sd_CurrentChain")) { sd_CurrentChain = (int)sd_Dictionary["sd_CurrentChain"]; }
         if (sd_Dictionary.ContainsKey("sd_HowToSeen")) { sd_HowToSeen = (int)sd_Dictionary["sd_HowToSeen"]; }
+        if (sd_Dictionary.ContainsKey("sd_RemoveStaticAds")) { sd_RemoveStaticAds = (int)sd_Dictionary["sd_RemoveStaticAds"]; }
+        if (sd_Dictionary.ContainsKey("sd_RemoveALLAds")) { sd_RemoveALLAds = (int)sd_Dictionary["sd_RemoveALLAds"]; }
     }
 
     //Has the player already entered/discovered this word?

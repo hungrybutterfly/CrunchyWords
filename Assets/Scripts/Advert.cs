@@ -26,22 +26,16 @@ public class Advert : MonoBehaviour
     void Start()
     {
         //iOS/Android ? Hide skip button
-#if !(UNITY_IOS || UNITY_ANDROID)
-        Button skipButton = GameObject.Find("SkipButton").GetComponent<Button>();
-        skipButton.transform.localScale = new Vector2(1, 1);
-#else
+#if (UNITY_IOS || UNITY_ANDROID)
+        GameObject skipButton = GameObject.Find("SkipButton");
+        skipButton.SetActive(false);
+
         //Call for an Ad to display
         SessionManager _session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
         if (_session)
         {
-            // was this the last level in the zone
-            bool Static = true;
-            LevelData Data = GameObject.Find("SessionManager").GetComponent<LevelData>();
-            if (_session.m_CurrentLevel == Data.m_Zones[_session.m_CurrentZone].m_Levels.Length - 1 && !_session.m_AlreadyDone)
-                Static = false;
-
             //Display and Ad (bool is for true for static or video)
-            _session.m_AdvertManager.DisplayAd(Static);
+            _session.m_AdvertManager.DisplayAd(_session.m_AdvertStatic);
             //Set the advert callback
             _session.m_AdvertManager.m_Callback = AdvertReturn;
         }
@@ -59,12 +53,6 @@ public class Advert : MonoBehaviour
     public void Clicked()
     {
         SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
-
-        // was this the last level in the zone
-        LevelData Data = GameObject.Find("SessionManager").GetComponent<LevelData>();
-        if (Session.m_CurrentLevel == Data.m_Zones[Session.m_CurrentZone].m_Levels.Length - 1 && !Session.m_AlreadyDone)
-            Session.ChangeScene("Zone");
-        else
-            Session.ChangeScene("Level");
+        Session.ChangeScene(Session.m_AdvertReturn);
     }
 }
