@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.SceneManagement;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -69,8 +70,7 @@ public class ShopManager : MonoBehaviour
         if (OptionIndex == eOption.Watch)
         {
             Session.m_AdvertStatic = false;
-            Session.m_AdvertReturn = "Shop";
-            Session.ChangeScene("Advert");
+            Session.ChangeScene("Advert", LoadSceneMode.Additive);
         }
     }
 
@@ -78,7 +78,7 @@ public class ShopManager : MonoBehaviour
     {
         SessionManager.MetricsLogEvent("ShopBack");
         SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
-        Session.ChangeScene("Cover");
+        Session.ReturnScene("Shop");
         SessionManager.PlaySound("Option_Back");
     }
 

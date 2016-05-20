@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 using System.Collections;
 
 public class LevelContent : MonoBehaviour
@@ -87,6 +88,18 @@ public class LevelContent : MonoBehaviour
         Vector2 Size = GetComponent<RectTransform>().sizeDelta;
         Size.y = Spacing * (Zone.m_Levels.Length);
         GetComponent<RectTransform>().sizeDelta = Size;
+
+        if (Session.m_WatchAd)
+        {
+            Session.m_WatchAd = false;
+
+            // has static ads been paid for
+            if (Session.m_SaveData.sd_RemoveStaticAds == 0 && Session.m_SaveData.sd_RemoveALLAds == 0)
+            {
+                Session.m_AdvertStatic = true;
+                Session.ChangeScene("Advert", LoadSceneMode.Additive);
+            }
+        }
     }
 
     public void BackClicked()

@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.SceneManagement;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.SceneManagement;
@@ -62,6 +63,12 @@ public class SessionManager : MonoBehaviour
     public int m_BestChain;
     [HideInInspector]
     public bool m_ZoneComplete = false;
+    [HideInInspector]
+    public int m_JumblesUsed;
+    [HideInInspector]
+    public int m_HintsUsed;
+    [HideInInspector]
+    public int m_LocksUsed;    
 
     // current level info
     [HideInInspector]
@@ -89,8 +96,8 @@ public class SessionManager : MonoBehaviour
 
     // what kind of advert to show when launching ads
     public bool m_AdvertStatic;
-    // what scene to return to when launching ads
-    public string m_AdvertReturn;
+    // has player just come from the results screen
+    public bool m_WatchAd = false;
 
     void LoadDictionary()
     {
@@ -167,9 +174,14 @@ public class SessionManager : MonoBehaviour
         }
     }
 
-    public void ChangeScene(string SceneName)
+    public void ChangeScene(string SceneName, LoadSceneMode Mode = LoadSceneMode.Single)
     {
-        SceneManager.LoadScene(SceneName);
+        SceneManager.LoadScene(SceneName, Mode);
+    }
+
+    public void ReturnScene(string SceneName)
+    {
+        SceneManager.UnloadScene(SceneName);
     }
 
     public void Save()

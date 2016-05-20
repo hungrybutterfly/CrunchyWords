@@ -11,6 +11,7 @@ public class Word : MonoBehaviour
         Possible,
         Found,
         Ended,
+        Nudge,
     };
 
     public int m_ID;
@@ -23,10 +24,27 @@ public class Word : MonoBehaviour
 
     public string m_Word;
 
+    float m_NudgeTimer;
+    eState m_NudgeOldState;
+
     void Awake()
     {
         m_IsSelected = false;
         SetState(eState.Idle);
+    }
+
+    void Update()
+    {
+        switch (m_State)
+        {
+        case eState.Nudge:
+            m_NudgeTimer += Time.deltaTime;
+            if (((int)(m_NudgeTimer * 60)) % 30 < 20)
+                GetComponent<Image>().color = new Color(1, 0.75f, 0.75f, 1);
+            else
+                GetComponent<Image>().color = new Color(1, 1, 1, 1);
+            break;
+        }
     }
 
     void SetState(eState _NewState)
@@ -36,6 +54,10 @@ public class Word : MonoBehaviour
         {
             case eState.Hidden:
                 gameObject.SetActive(true);
+                break;
+
+            case eState.Nudge:
+                GetComponent<Image>().color = new Color(1, 1, 1);
                 break;
         }
 
@@ -63,6 +85,10 @@ public class Word : MonoBehaviour
             case eState.Ended:
                 GetComponent<Image>().color = new Color(1, 0, 0, 0.5f);
                 break;
+
+            case eState.Nudge:
+                m_NudgeTimer = 0;
+                break;
         }
 
         if (m_IsSelected)
@@ -82,6 +108,25 @@ public class Word : MonoBehaviour
     public void SetPossible()
     {
         SetState(eState.Possible);
+    }
+
+    public void SetNudge(bool Nudge)
+    {
+        if (Nudge)
+        {
+            if ((m_State == eState.Idle || m_State == eState.Possible) && !IsHintUsed())
+            {
+                m_NudgeOldState = m_State;
+                SetState(eState.Nudge);
+            }
+        }
+        else
+        {
+            if (m_State == eState.Nudge)
+            {
+                SetState(m_NudgeOldState);
+            }
+        }
     }
 
     public void SetFound(string _Word, bool Ended)
@@ -120,6 +165,13 @@ public class Word : MonoBehaviour
     {
         m_IsSelected = IsSelected;
         SetState(m_State);
+    }
+
+    public void SetLetter(int Index, string Letter)
+    {
+        string OldWord = GetComponentInChildren<Text>().text;
+        string Word = OldWord.Substring(0, Index) + Letter + OldWord.Substring(Index + 1, m_Word.Length - (Index + 1));
+        GetComponentInChildren<Text>().text = Word;
     }
 
     void BuildString()

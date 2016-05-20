@@ -102,6 +102,11 @@ public class LetterButton : Button
         SetState(eState.Idle);
     }
 
+    public void SetVisible(bool Visible)
+    {
+        gameObject.SetActive(Visible);
+    }
+
     public void SetLetter(string _Letter)
     {
         LetterScores Scores = GameObject.Find("GameManager").GetComponent<LetterScores>();

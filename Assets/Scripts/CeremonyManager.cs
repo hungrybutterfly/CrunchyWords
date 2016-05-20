@@ -79,6 +79,14 @@ public class CeremonyManager : MonoBehaviour
         {
             SessionManager.PlaySound("All_6_Complete");
         }
+
+        GameObject Blocker = GameObject.Find("Ceremony Panel Blocker");
+
+        // disable raycasting so player can click
+        bool Block = true;
+        if (_Type >= eCeremonyType.All3Found && _Type <= eCeremonyType.All6Found)
+            Block = false;
+        Blocker.GetComponent<Image>().raycastTarget = Block;
     }
 	
 	void Update () 
@@ -88,12 +96,12 @@ public class CeremonyManager : MonoBehaviour
             SetIsEnabled(false);
 	}
 
-    public void CorrectWord(int _WordScore, int _Multiplier)
+    public void CorrectWord(int _WordLength, int _Multiplier)
     {
-        StartCoroutine(PlayCorrectWord(_WordScore, _Multiplier));
+        StartCoroutine(PlayCorrectWord(_WordLength, _Multiplier));
     }
 
-    IEnumerator PlayCorrectWord(int _WordScore, int _Multiplier)
+    IEnumerator PlayCorrectWord(int _WordLength, int _Multiplier)
     {
         m_Type = eCeremonyType.WordGood;
 
@@ -105,22 +113,57 @@ public class CeremonyManager : MonoBehaviour
 
         SessionManager.PlaySound("Fanfare_Right");
 
-/*        // reveal the tick
-                Image CeremonyImage = CeremonyObject.transform.Find("Image").gameObject.GetComponent<Image>();
-                CeremonyImage.gameObject.SetActive(true);
-
-                yield return new WaitForSeconds(1.0f);
-
-                // hide the tick
-                CeremonyImage.gameObject.SetActive(false);
-        */
         // set the text and make it active
         Transform t = CeremonyObject.transform.Find("Text");
         Text CeremonyText = t.gameObject.GetComponent<Text>();
-        CeremonyText.text = _WordScore.ToString() + " x " + _Multiplier.ToString();
+        CeremonyText.text = "0";
         CeremonyText.gameObject.SetActive(true);
 
-        yield return new WaitForSeconds(1.0f);
+        GameManager Game = GameObject.Find("GameManager").GetComponent<GameManager>();
+
+        // tally up the letters
+        int TotalScore = 0;
+        for (int i = 0; i < _WordLength; i++)
+        {
+            yield return new WaitForSeconds(0.075f);
+
+            TotalScore += Game.CorrectWordNextLetter(i);
+            CeremonyText.text = TotalScore.ToString();
+        }
+
+        // display the multiplier
+        yield return new WaitForSeconds(0.25f);
+        CeremonyText.text = TotalScore.ToString() + " x " + _Multiplier.ToString();
+
+        yield return new WaitForSeconds(0.5f);
+
+        Game.CompleteWordCorrect();
+
+        // disable raycasting on the big panel so player can start clicking again
+        CeremonyObject.GetComponent<Image>().raycastTarget = false;
+
+        // fade out text and add on score
+        int FadeDelay = 30;
+        float Score = Game.m_TotalScore;
+        float ScoreDelta = ((float) (Game.m_TargetScore - Game.m_TotalScore)) / FadeDelay;
+        for (int i = 0; i < FadeDelay; i++)
+        {
+            yield return new WaitForSeconds(0.01f);
+
+            // add on score
+            Score += ScoreDelta;
+            Game.m_TotalScore = (int)Score;
+            Game.UpdateScore();
+
+            // fade out text
+            Color colour = CeremonyText.color;
+            colour.a = 1 - ((float)i / FadeDelay);
+            CeremonyText.color = colour;
+        }
+
+        // make sure final score is correct
+        Game.m_TotalScore = Game.m_TargetScore;
+        Game.UpdateScore();
 
         // hide the text
         CeremonyText.gameObject.SetActive(false);
@@ -128,8 +171,6 @@ public class CeremonyManager : MonoBehaviour
         // delete the object
         Destroy(CeremonyObject.gameObject);
 
-        GameManager Game = GameObject.Find("GameManager").GetComponent<GameManager>();
-        Game.CompleteWordCorrect();
     }
 
     public void IncorrectWord(int _WordsRightCombo)

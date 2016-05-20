@@ -53,6 +53,6 @@ public class Advert : MonoBehaviour
     public void Clicked()
     {
         SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
-        Session.ChangeScene(Session.m_AdvertReturn);
+        Session.ReturnScene("Advert");
     }
 }

@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -50,10 +51,16 @@ public class GameManager : MonoBehaviour {
 
     // used for scoring
     [HideInInspector] public int m_TotalScore;
+    // used to add on a new score over time
+    [HideInInspector] public int m_TargetScore;
     int m_BestPossibleScore;                // to determin if player for a perfect score
     int m_WordsRightCombo;
     Text m_ComboText;
     int m_BestChain;
+
+    int m_JumblesUsed;
+    int m_HintsUsed;
+    int m_LocksUsed;    
 
     // ceremony timer for showing the WIN text
     int m_ShowWinTimer;
@@ -61,6 +68,7 @@ public class GameManager : MonoBehaviour {
     // used to provide a hint
     Word m_SelectedWord;
     bool m_HintReady;
+    HintButton m_HintButton;
 
     // button that is enabled when player meets the word quota
     Button m_FinishButton;
@@ -159,7 +167,7 @@ public class GameManager : MonoBehaviour {
 
         // no word selected
         m_SelectedWord = null;
-        m_HintReady = false;
+        m_HintButton = GameObject.Find("Hint").GetComponent<HintButton>();
 
         // reset the lock feature
         m_Locked = false;
@@ -177,6 +185,10 @@ public class GameManager : MonoBehaviour {
         m_HintCost = m_StartHintCost;
         m_RevealWordsCost = m_StartRevealWordsCost;
         UpdateCosts();
+
+        m_JumblesUsed = 0;
+        m_HintsUsed = 0;
+        m_LocksUsed = 0;    
 
         // start the first new word off
         NewWord();
@@ -339,6 +351,7 @@ public class GameManager : MonoBehaviour {
         for (int i = 0; i < m_LettersUsedIndex; i++)
         {
             m_LetterList[m_LetterUsedList[i]].SetUnused();
+            m_LetterList[m_LetterUsedList[i]].SetVisible(true);
         }
         m_LettersUsedIndex = 0;
 
@@ -407,7 +420,7 @@ public class GameManager : MonoBehaviour {
         }
     }
 
-    private void UpdateScore()
+    public void UpdateScore()
     {
         SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
         string Number = Session.FormatNumberString(m_TotalScore.ToString());
@@ -536,11 +549,11 @@ public class GameManager : MonoBehaviour {
                 Session.m_SaveData.IncreaseChain();
 
                 // update the score (add word Score * combo)
-                m_TotalScore += Score * m_WordsRightCombo;
+                m_TargetScore = m_TotalScore + Score * m_WordsRightCombo;
 
                 // start the CorrectWord ceremony
                 CeremonyManager Ceremony = GetComponent<CeremonyManager>();
-                Ceremony.CorrectWord(Score, m_WordsRightCombo);
+                Ceremony.CorrectWord(Word.Length, m_WordsRightCombo);
 
                 // increase the combo
                 m_WordsRightCombo++;
@@ -574,7 +587,6 @@ public class GameManager : MonoBehaviour {
                     SessionManager.MetricsLogEventWithParameters("SubmitBadChainLocked", new Dictionary<string, string>() { { "Word", Word } });
                 }
             }
-            UpdateScore();
         }
 
         //Save the data
@@ -642,6 +654,9 @@ public class GameManager : MonoBehaviour {
         Session.m_WordsCompleted = m_WordsRight;
         Session.m_WordsAvailable = m_CurrentWord.FitWords.Length;
         Session.m_BestChain = m_BestChain;
+        Session.m_JumblesUsed = m_JumblesUsed;
+        Session.m_HintsUsed = m_HintsUsed;
+        Session.m_LocksUsed = m_LocksUsed;
 
         LevelData Data = GameObject.Find("SessionManager").GetComponent<LevelData>();
         if (Session.m_CurrentLevel == Data.m_Zones[Session.m_CurrentZone].m_Levels.Length - 1 && !AlreadyDone)
@@ -689,15 +704,21 @@ public class GameManager : MonoBehaviour {
 
     void ResetHint()
     {
-        // reset the hints button
-        Button Hint = GameObject.Find("Hint").GetComponent<Button>();
-        Hint.GetComponent<Image>().color = new Color(1, 1, 1);
+        // reset the hint button
+        m_HintButton.SetReady(false);
+        m_HintButton.SetNudge(false);
 
         // unselect the old word
         if (m_SelectedWord)
         {
             m_SelectedWord.Selected(false);
             m_SelectedWord = null;
+        }
+
+        // turn off nudge on all words
+        for (int i = 0; i < m_WordList.Length; i++)
+        {
+            m_WordList[i].SetNudge(false);
         }
     }
 
@@ -753,15 +774,18 @@ public class GameManager : MonoBehaviour {
         // make sure this word isn't found already
         if (!WordObject.IsFound() && !WordObject.IsHintUsed())
         {
-            Button Hint = GameObject.Find("Hint").GetComponent<Button>();
+            // turn off nudge on all words
+            for(int i = 0;i < m_WordList.Length;i++)
+            {
+                m_WordList[i].SetNudge(false);
+            }
 
             // unselect the old word
             if (m_SelectedWord)
             {
                 m_SelectedWord.Selected(false);
 
-                // highlight the hint button
-                Hint.GetComponent<Image>().color = new Color(1, 1, 1);
+                m_HintButton.SetNudge(false);
             }
 
             // is this a new word (or no word)
@@ -775,8 +799,7 @@ public class GameManager : MonoBehaviour {
             {
                 m_SelectedWord.Selected(true);
 
-                // unhighlight the hint button
-                Hint.GetComponent<Image>().color = new Color(1, 0, 0);
+                m_HintButton.SetNudge(true);
             }
         }
     }
@@ -806,22 +829,12 @@ public class GameManager : MonoBehaviour {
         else
         {
             SessionManager.MetricsLogEventWithParameters("CoinsSpentFailed", new Dictionary<string, string>() { { "Coins", AmountOut.ToString() } });
+
+            // send the player to the shop
+            Session.ChangeScene("Shop", LoadSceneMode.Additive);
         }
 
         return false;
-    }
-
-    void UpdateHintButton()
-    {
-        // change the hint button to be red if it's selected, white if not
-        Button Hint = GameObject.Find("Hint").GetComponent<Button>();
-        ColorBlock cb = Hint.colors;
-        if (m_HintReady)
-            cb.normalColor = new Color(1, 0, 0);
-        else
-            cb.normalColor = new Color(1, 1, 1);
-        cb.highlightedColor = cb.normalColor;
-        Hint.colors = cb;
     }
 
     public void Finish()
@@ -848,6 +861,8 @@ public class GameManager : MonoBehaviour {
     // these 'Clicked' functions are called when the appropriate button is clicked
     public void LetterClicked(int _TheButton)
     {
+        ResetHint();
+
         // if the letter clicked isn't used add it to the word otherwise submit the word
         if (!m_LetterList[_TheButton].IsUsed())
             AddLetter(_TheButton);
@@ -871,6 +886,7 @@ public class GameManager : MonoBehaviour {
 
             ClearUsedLetters();
             JumbleLetters();
+            m_JumblesUsed++;
         }
         else
         {
@@ -914,6 +930,7 @@ public class GameManager : MonoBehaviour {
             SessionManager.MetricsLogEventWithParameters("LockSuccess", new Dictionary<string, string>() { { "Cost", m_StartLockCost.ToString() } });
 
             Lock();
+            m_LocksUsed++;
         }
         else
         {
@@ -933,6 +950,7 @@ public class GameManager : MonoBehaviour {
                 SessionManager.MetricsLogEventWithParameters("HintUsedSuccess", new Dictionary<string, string>() { { "Cost", m_StartHintCost.ToString() } });
 
                 Hint();
+                m_HintsUsed++;
             }
             else
             {
@@ -953,8 +971,14 @@ public class GameManager : MonoBehaviour {
         {
             SessionManager.MetricsLogEvent("HintReady");
 
-            m_HintReady = !m_HintReady;
-            UpdateHintButton();
+            m_HintButton.SetReady(!m_HintButton.GetReady());
+
+            // turn on nudge on all words
+            for (int i = 0; i < m_WordList.Length; i++)
+            {
+                m_WordList[i].SetNudge(m_HintButton.GetReady());
+            }
+
         }
         else
         {
@@ -985,10 +1009,9 @@ public class GameManager : MonoBehaviour {
 
         SelectWord(WordObject);
 
-        if (m_HintReady)
+        if (m_HintButton.GetReady())
         {
-            m_HintReady = false;
-            UpdateHintButton();
+            m_HintButton.SetReady(false);
 
             AttemptHint();
         }
@@ -1055,5 +1078,15 @@ public class GameManager : MonoBehaviour {
                 Ceremony.Init(eCeremonyType.All3Found + (Length - 3));
             }
         }
+    }
+
+    public int CorrectWordNextLetter(int Index)
+    {
+        LetterButton Letter = m_LetterList[m_LetterUsedList[Index]];
+        Letter.SetVisible(false);
+
+        m_CorrectWord.SetLetter(Index, Letter.m_Letter);
+
+        return Letter.m_Value;
     }
 }

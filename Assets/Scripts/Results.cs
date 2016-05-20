@@ -16,20 +16,35 @@ public class Results : MonoBehaviour {
 
         SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
 
-        Text Score = GameObject.Find("Score").GetComponent<Text>();
-        string Number = Session.FormatNumberString(Session.m_LastScore.ToString());
+        Text Score = GameObject.Find("Chain").GetComponent<Text>();
+        string Number = Session.FormatNumberString(Session.m_BestChain.ToString());
         Score.text = Number;
 
-        Text Words = GameObject.Find("FromWords").GetComponent<Text>();
-        Words.text = "From " + Session.m_LastWordsRight.ToString() + " Word";
-        if (Session.m_LastWordsRight != 1)
-            Words.text += "s";
+        Text From = GameObject.Find("Possible").GetComponent<Text>();
+        Number = Session.FormatNumberString(Session.m_WordsAvailable.ToString());
+        From.text = Number;
 
-        Text Chain = GameObject.Find("Chain").GetComponent<Text>();
-        Chain.text = "Best Chain " + Session.m_BestChain.ToString();
+        Text Word = GameObject.Find("Word").GetComponent<Text>();
+        Word.text = Session.m_LastWord.Word;
 
-        Text ContinuousChain = GameObject.Find("Continuous Chain").GetComponent<Text>();
-        ContinuousChain.text = "Continuous Chain " + Session.m_SaveData.sd_CurrentChain.ToString();
+        Text Points = GameObject.Find("Points").GetComponent<Text>();
+        Number = Session.FormatNumberString(Session.m_LastScore.ToString());
+        Points.text = Number;
+
+        Text UnbrokenChain = GameObject.Find("UnbrokenChain").GetComponent<Text>();
+        UnbrokenChain.text = Session.m_SaveData.sd_CurrentChain.ToString();
+
+        Text BestUnbrokenChain = GameObject.Find("BestUnbrokenChain").GetComponent<Text>();
+        BestUnbrokenChain.text = Session.m_SaveData.sd_BestChain.ToString();
+
+        Text Jumble = GameObject.Find("JumbleCount").GetComponent<Text>();
+        Jumble.text = Session.m_JumblesUsed.ToString();
+
+        Text Hint = GameObject.Find("HintCount").GetComponent<Text>();
+        Hint.text = Session.m_HintsUsed.ToString();
+
+        Text Lock = GameObject.Find("LockCount").GetComponent<Text>();
+        Lock.text = Session.m_LocksUsed.ToString();
     }
 	
 	public void AgainClicked() 
@@ -60,26 +75,11 @@ public class Results : MonoBehaviour {
         Session.m_SaveData.sd_CurrentLevel++;
         Session.Save();
 
-        // has static ads been paid for
-        if (!Session.m_ZoneComplete && Session.m_SaveData.sd_RemoveStaticAds != 0)
+        Session.m_WatchAd = true;
+        if (!Session.m_ZoneComplete)
             Session.ChangeScene("Level");
-        // has ALL ads been paid for
-        else if (Session.m_ZoneComplete && Session.m_SaveData.sd_RemoveALLAds != 0)
-            Session.ChangeScene("Zone");
         else
-        {
-            if (Session.m_ZoneComplete)
-            {
-                Session.m_AdvertStatic = false;
-                Session.m_AdvertReturn = "Zone";
-            }
-            else
-            {
-                Session.m_AdvertStatic = true;
-                Session.m_AdvertReturn = "Level";
-            }
-            Session.ChangeScene("Advert");
-        }
+            Session.ChangeScene("Zone");
     }
 
     public void StatsClicked()

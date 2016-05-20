@@ -93,11 +93,11 @@ public class LevelData : MonoBehaviour
 
     public ZoneData[] m_Zones =
     {
-        new ZoneData("SET #1", m_Zone1_Levels, "B6D7A8ff"),
-        new ZoneData("SET #2", m_Zone2_Levels, "FFE599ff"),
-        new ZoneData("SET #3", m_Zone3_Levels, "A4C2F4ff"),
-        new ZoneData("SET #4", m_Zone4_Levels, "EA9999ff"),
-        new ZoneData("SET #5", m_Zone5_Levels, "B4A7D6ff"),
-        new ZoneData("SET #6", m_Zone6_Levels, "F9CB9Cff"),
+        new ZoneData("PACK #1", m_Zone1_Levels, "B6D7A8ff"),
+        new ZoneData("PACK #2", m_Zone2_Levels, "FFE599ff"),
+        new ZoneData("PACK #3", m_Zone3_Levels, "A4C2F4ff"),
+        new ZoneData("PACK #4", m_Zone4_Levels, "EA9999ff"),
+        new ZoneData("PACK #5", m_Zone5_Levels, "B4A7D6ff"),
+        new ZoneData("PACK #6", m_Zone6_Levels, "F9CB9Cff"),
     };
 }

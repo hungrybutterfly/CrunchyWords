@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 using System.Collections;
 
 public class ZoneContent : MonoBehaviour 
@@ -84,6 +85,18 @@ public class ZoneContent : MonoBehaviour
                 NumberText = ScoreObject.GetComponentInChildren<Text>();
                 string Number = Session.FormatNumberString(TotalBestScore.ToString());
                 NumberText.text = "Score " + Number;
+            }
+
+            if (Session.m_WatchAd)
+            {
+                Session.m_WatchAd = false;
+
+                // has all ads been paid for
+                if (Session.m_SaveData.sd_RemoveALLAds == 0)
+                {
+                    Session.m_AdvertStatic = true;
+                    Session.ChangeScene("Advert", LoadSceneMode.Additive);
+                }
             }
         }
 

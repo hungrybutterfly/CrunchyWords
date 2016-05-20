@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 using System.Collections;
 
 public class Cover : MonoBehaviour 
@@ -69,7 +70,7 @@ public class Cover : MonoBehaviour
         SessionManager.MetricsLogEvent("CoverShopClicked");
 
         SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
-        Session.ChangeScene("Shop");
+        Session.ChangeScene("Shop", LoadSceneMode.Additive);
         SessionManager.PlaySound("Option_Select");
     }
 

@@ -348,6 +348,15 @@ public class DictionaryManager : MonoBehaviour
         }
     }
 
+    void PrintStats()
+    {
+        for(int i = 0;i < m_MaxWords.Length;i++)
+        {
+            int Index = m_MaxWords[i].Index;
+            Debug.Log(m_Words[Index] + " " + m_MaxWords[i].Words.Length + "\n");
+        }
+    }
+
     bool IsWordUsed(string NewWord, int MaxZone, int MaxLevel)
     {
         // find if a given word already exists in the level data
@@ -408,6 +417,8 @@ public class DictionaryManager : MonoBehaviour
 		FindMaxWords ();
 
         CalcStats();
+
+        //PrintStats();
 
 //        InitLevels();
 	}
