@@ -40,20 +40,34 @@ public class AdvertManager : MonoBehaviour
     //The callback from the ad (returns true/false depending on success)
     public Action<bool> m_Callback { get; set; }
 
+    //Online?
+    public bool IsOnline()
+    {
+        //This is actually the best way believe it or not. Incredible.
+        WWW siteFound = new WWW("http://google.com");
+        return (siteFound.error == null);
+    }
 
     //Request an ad ready for later
     public void RequestAd()
     {
-        m_RequestMade = true;
-        //Request the static
-        //GOOGLE ADS
-        RequestStaticAd();
-        //NOTE: Only static requires this
+        //Are we online?
+        if (IsOnline())
+        {
+            m_RequestMade = true;
+            //Request the static
+            //GOOGLE ADS
+            RequestStaticAd();
+            //NOTE: Only static requires this
+        }
     }
 
     //Display Ad now
     public void DisplayAd(bool _static)
     {
+        //Return if not online
+        if (!IsOnline()) { return; }
+
         m_StaticAd = _static;
         if (!m_RequestMade)
         {
