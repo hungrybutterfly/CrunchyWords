@@ -79,6 +79,10 @@ public class SessionManager : MonoBehaviour
     //Adverts
     [HideInInspector]
     public AdvertManager m_AdvertManager = null;
+	// what kind of advert to show when launching ads
+	public bool m_AdvertStatic;
+	// has player just come from the results screen
+	public bool m_WatchAd = false;
 
     //Flurry
     public bool m_AllowFlurry = false;
@@ -86,18 +90,17 @@ public class SessionManager : MonoBehaviour
     //Audio
     public bool m_AllowAudio = false;
 
+	//In App Purchasing
+	[HideInInspector]
+	public IAPurchaser m_IAPManager = null;
+
     // version string
     public string m_Version;
     // is this a version for external consumption
     public bool m_ExternalVersion;
     // debug flag for ignoring the loading of the dictionary in scenes that don't need it
     public bool m_IgnoreDictionary = false;
-    public int m_StartingCoins = 100;
-
-    // what kind of advert to show when launching ads
-    public bool m_AdvertStatic;
-    // has player just come from the results screen
-    public bool m_WatchAd = false;
+    public int m_StartingCoins = 100;    
 
     // generate the dictionary at runtime
     public bool m_GenerateMaxWords = true;
@@ -150,6 +153,12 @@ public class SessionManager : MonoBehaviour
                 KHD.FlurryAnalytics.Instance.SetAppVersion(m_Version);
                 KHD.FlurryAnalytics.Instance.SetUserId(m_AdvertManager.GetDeviceID());
             }
+
+			//Create IAP
+			if (!m_IAPManager) 
+			{
+				m_IAPManager = GetComponent<IAPurchaser> ();
+			}
         }
     }
 
