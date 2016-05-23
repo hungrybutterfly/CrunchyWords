@@ -12,6 +12,8 @@ public class HowToPlay : MonoBehaviour
 
     float m_StartTime;
 
+    GameObject m_BackButton;
+
 	void Start () 
     {
         SessionManager.MetricsLogEvent("HowToPlay");
@@ -22,34 +24,38 @@ public class HowToPlay : MonoBehaviour
         SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
         if (Session.m_DictionaryObject == null)
         {
-            Text Tap = GameObject.Find("Tap").GetComponent<Text>();
-            Tap.text = "Loading...";
+            m_BackButton = GameObject.Find("Back");
+            m_BackButton.SetActive(false);
+            m_BackButton.GetComponent<Text>().text = "PLAY";
+
             m_DictionaryLoading = true;
         }
         else
         {
+            if (GameObject.Find("Tap"))
+                GameObject.Find("Tap").SetActive(false);
+
             m_DictionaryLoading = false;
         }
+
+        GameObject.Find("Content").GetComponent<RectTransform>().sizeDelta = GameObject.Find("Content").GetComponent<RectTransform>().sizeDelta;
 
         m_StartTime = Time.time;
     }
 	
 	void Update () 
     {
-        // is the dictionary done loading
-        SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
-        if (Session.m_DictionaryObject != null)
+        if (m_DictionaryLoading)
         {
-            Text Tap = GameObject.Find("Tap").GetComponent<Text>();
-            Tap.text = "TAP!";
+            // is the dictionary done loading
+            SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
+            if (Session.m_DictionaryObject != null)
+            {
+                if (GameObject.Find("Tap"))
+                    GameObject.Find("Tap").SetActive(false);
 
-            m_FlashTimer++;
-            Color Colour = Tap.color;
-            if (m_FlashTimer % 30 < 20)
-                Colour.a = 1;
-            else
-                Colour.a = 0;
-            Tap.color = Colour;
+                m_BackButton.SetActive(true);
+            }
         }
     }
 
