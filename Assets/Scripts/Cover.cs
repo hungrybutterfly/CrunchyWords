@@ -12,6 +12,7 @@ public class Cover : MonoBehaviour
         SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
 
         // set the version text
+<<<<<<< Updated upstream
         Text Version = GameObject.Find("VersionText").GetComponent<Text>();
         Version.text = Session.m_Version;
 
@@ -28,12 +29,49 @@ public class Cover : MonoBehaviour
 
         Text Chain = GameObject.Find("Best Chain").GetComponent<Text>();
         Chain.text = "Best Chain " + Session.m_SaveData.sd_BestChain.ToString();*/
+=======
+		GameObject versionObject = GameObject.Find("VersionText");
+		if (versionObject) 
+		{
+			Text Version = versionObject.GetComponent<Text> ();
+			Version.text = Session.m_Version;
+		}
+
+		GameObject puzzleSolvedObject = GameObject.Find ("Puzzles Solved");
+		if (puzzleSolvedObject) 
+		{
+			Text Solved = puzzleSolvedObject.GetComponent<Text>();
+			Solved.text = Session.m_SaveData.sd_PuzzlesSolved.ToString () + " Puzzles Solved";
+		}
+
+		GameObject vocabularyObject = GameObject.Find ("Your Vocabulary");
+		if (vocabularyObject) 
+		{
+			Text Vocabulary = vocabularyObject.GetComponent<Text> ();
+			DictionaryManager Dictionary = GameObject.Find ("DictionaryManager").GetComponent<DictionaryManager> ();
+			int FoundCount = 0;
+			for (int i = 0; i < 26; i++)
+				FoundCount += Session.m_WordFoundCounts [i];
+			string Number = Session.FormatNumberString (Dictionary.m_FinalWordCount.ToString ());
+			Vocabulary.text = "Total Words  " + FoundCount.ToString () + " / " + Number;
+		}
+
+		GameObject chainObject = GameObject.Find ("Best Chain");
+		if(chainObject)
+		{
+			Text Chain = chainObject.GetComponent<Text>();
+			Chain.text = "Best Chain " + Session.m_SaveData.sd_BestChain.ToString();
+		}
+>>>>>>> Stashed changes
 
         // hide the debug buttons if this is an external version
         if (Session.m_ExternalVersion)
         {
             GameObject Button = GameObject.Find("Clear");
-            Button.SetActive(false);
+			if (Button) 
+			{
+				Button.SetActive (false);
+			}
         }
     }
 
