@@ -219,12 +219,32 @@ public class DictionaryManager : MonoBehaviour
         {
             // load the list in
             BinaryFormatter bf = new BinaryFormatter();
-            FileStream file;
+            Stream file;
             if (BitConverter.IsLittleEndian)
-                file = File.Open("Assets/Resources/MaxWordsLittle.dat", FileMode.Open);
+            {
+                Debug.Log("Load little endian");
+                TextAsset asset = Resources.Load("MaxWordsLittle", typeof(TextAsset)) as TextAsset;
+                if (asset == null)
+                {
+                    Debug.Log("asset duff");
+                }
+                file = new MemoryStream(asset.bytes);
+            }
             else
-                file = File.Open("Assets/Resources/MaxWordsBig.dat" + m_MaxWordsFilename, FileMode.Open);
-            m_MaxWords = (MaxWordIndices[]) bf.Deserialize(file);
+            {
+                Debug.Log("Load big endian");
+                TextAsset asset = Resources.Load("MaxWordsBig", typeof(TextAsset)) as TextAsset;
+                if (asset == null)
+                {
+                    Debug.Log("asset duff");
+                }
+                file = new MemoryStream(asset.bytes);
+            }
+            if (file == null)
+            {
+                Debug.Log("File duff");
+            }
+            m_MaxWords = (MaxWordIndices[])bf.Deserialize(file);
             file.Close();
         }
 	}
