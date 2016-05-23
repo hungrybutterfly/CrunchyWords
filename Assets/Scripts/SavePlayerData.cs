@@ -239,7 +239,6 @@ public class SavePlayerData
         }
 
         sd_PuzzlesSolved++;
-        AddCoins(_Score);
 
         return AlreadyDone;
     }

@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using System.Collections;
 using System.Collections.Generic;
@@ -18,6 +19,23 @@ public class ShopManager : MonoBehaviour
     public void Start()
     {
         SessionManager.MetricsLogEvent("ShopManager");
+    }
+
+    public void Update()
+    {
+        SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
+
+        // disable options that don't make sense to keep active
+        if (Session.m_SaveData.sd_RemoveStaticAds != 0 || Session.m_SaveData.sd_RemoveALLAds != 0)
+        {
+            Button Option = GameObject.Find("ShopOption4").GetComponentInChildren<Button>();
+            Option.interactable = false;
+        }
+        if (Session.m_SaveData.sd_RemoveALLAds != 0)
+        {
+            Button Option = GameObject.Find("ShopOption5").GetComponentInChildren<Button>();
+            Option.interactable = false;
+        }
     }
 
     // process a successful purchase

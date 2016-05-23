@@ -38,11 +38,11 @@ public class LevelContent : MonoBehaviour
         GameObject Root = GameObject.Find("Root");
 
         // create a button for each zone
-        float Spacing = 110;
-        GameObject ButtonPrefab = (GameObject)Resources.Load("Prefabs/ZoneSelector", typeof(GameObject));
+        float Spacing = 105;
+        GameObject ButtonPrefab = (GameObject)Resources.Load("Prefabs/LevelSelector", typeof(GameObject));
         for (int i = 0; i < Zone.m_Levels.Length; i++)
         {
-            GameObject ButtonObject = Instantiate(ButtonPrefab, new Vector3(200, 725 -i * Spacing - (Spacing * 0.5f), 0), Quaternion.identity) as GameObject;
+            GameObject ButtonObject = Instantiate(ButtonPrefab, new Vector3(320, 755 -i * Spacing - (Spacing * 0.5f), 0), Quaternion.identity) as GameObject;
             ButtonObject.transform.SetParent(Root.transform, false);
 
             // set the number of the button

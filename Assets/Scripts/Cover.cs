@@ -15,7 +15,7 @@ public class Cover : MonoBehaviour
         Text Version = GameObject.Find("VersionText").GetComponent<Text>();
         Version.text = Session.m_Version;
 
-        Text Solved = GameObject.Find("Puzzles Solved").GetComponent<Text>();
+/*        Text Solved = GameObject.Find("Puzzles Solved").GetComponent<Text>();
         Solved.text = Session.m_SaveData.sd_PuzzlesSolved.ToString() + " Puzzles Solved";
 
         Text Vocabulary = GameObject.Find("Your Vocabulary").GetComponent<Text>();
@@ -27,7 +27,7 @@ public class Cover : MonoBehaviour
         Vocabulary.text = "Total Words  " + FoundCount.ToString() + " / " + Number;
 
         Text Chain = GameObject.Find("Best Chain").GetComponent<Text>();
-        Chain.text = "Best Chain " + Session.m_SaveData.sd_BestChain.ToString();
+        Chain.text = "Best Chain " + Session.m_SaveData.sd_BestChain.ToString();*/
 
         // hide the debug buttons if this is an external version
         if (Session.m_ExternalVersion)

@@ -30,7 +30,7 @@ public class SessionManager : MonoBehaviour
     [HideInInspector]
     public JSONPlayerData m_JSONSaveData;
     [HideInInspector]
-    public string m_SaveFileName = "/playerInfo7.dat";
+    public string m_SaveFileName2 = "/playerInfo8.dat";
 
     //Settings Data
     [HideInInspector]
@@ -98,6 +98,12 @@ public class SessionManager : MonoBehaviour
     public bool m_AdvertStatic;
     // has player just come from the results screen
     public bool m_WatchAd = false;
+
+    // generate the dictionary at runtime
+    public bool m_GenerateMaxWords = true;
+
+    // conversion rate from score to coins
+    public float m_ScoreToCoins = 10.0f;
 
     void LoadDictionary()
     {
@@ -191,10 +197,10 @@ public class SessionManager : MonoBehaviour
         m_JSONSaveData.jssd_Dictionary = m_SaveData.sd_Dictionary;
         //Save
         BinaryFormatter bf = new BinaryFormatter();
-        FileStream file = File.Open(Application.persistentDataPath + m_SaveFileName, FileMode.Open);
+        FileStream file = File.Open(Application.persistentDataPath + m_SaveFileName2, FileMode.Open);
         bf.Serialize(file, m_JSONSaveData);
         file.Close();
-        Debug.Log("SAVED -> " + Application.persistentDataPath + m_SaveFileName);
+        Debug.Log("SAVED -> " + Application.persistentDataPath + m_SaveFileName2);
     }
 
     public void CreateNewSaveData()
@@ -202,8 +208,8 @@ public class SessionManager : MonoBehaviour
         //Create from new
         m_SaveData = new SavePlayerData();
         m_JSONSaveData = new JSONPlayerData();
-        Debug.Log("CREATING -> " + Application.persistentDataPath + m_SaveFileName);
-        FileStream file = File.Create(Application.persistentDataPath + m_SaveFileName);
+        Debug.Log("CREATING -> " + Application.persistentDataPath + m_SaveFileName2);
+        FileStream file = File.Create(Application.persistentDataPath + m_SaveFileName2);
         file.Close();
 
         //Reset
@@ -214,11 +220,11 @@ public class SessionManager : MonoBehaviour
 
     public void Load()
     {
-        if (File.Exists(Application.persistentDataPath + m_SaveFileName))
+        if (File.Exists(Application.persistentDataPath + m_SaveFileName2))
         {
             //Load - file exists
             BinaryFormatter bf = new BinaryFormatter();
-            FileStream file = File.Open(Application.persistentDataPath + m_SaveFileName, FileMode.Open);
+            FileStream file = File.Open(Application.persistentDataPath + m_SaveFileName2, FileMode.Open);
             m_JSONSaveData = (JSONPlayerData)bf.Deserialize(file);
             file.Close();
             //Convert   
@@ -235,7 +241,7 @@ public class SessionManager : MonoBehaviour
                 // for now I'll just create a new one
                 CreateNewSaveData();
             }
-            Debug.Log("LOADED -> " + Application.persistentDataPath + m_SaveFileName);
+            Debug.Log("LOADED -> " + Application.persistentDataPath + m_SaveFileName2);
         }
         else
         {

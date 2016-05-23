@@ -33,62 +33,62 @@ public class LevelData : MonoBehaviour
 
     static Level[] m_Zone1_Levels =
     {
-        new Level(10, 18, "SUGARY"),
-        new Level(10, 18, "PEAKED"),
-        new Level(10, 18, "SUNDRY"),
-        new Level(10, 18, "TUCKER"),
-        new Level(10, 18, "DUFFEL"),
-        new Level(10, 18, "FACADE"),
+        new Level(10, 18, "BEFORE"),
+        new Level(10, 18, "WAXING"),
+        new Level(10, 18, "PEOPLE"),
+        new Level(10, 18, "LOVELY"),
+        new Level(10, 18, "SQUARE"),
+        new Level(10, 18, "JOKING"),
     };
 
     static Level[] m_Zone2_Levels =
     {
-        new Level(10, 18, "REBELS"),
-        new Level(10, 18, "ADDLED"),
-        new Level(10, 18, "BARMAN"),
-        new Level(10, 18, "LOOTER"),
-        new Level(10, 18, "RETIRE"),
-        new Level(10, 18, "ECHOED"),
+        new Level(10, 18, "LITTLE"),
+        new Level(10, 18, "THOUGH"),
+        new Level(10, 18, "SYNTAX"),
+        new Level(10, 18, "ZOOMED"),
+        new Level(10, 18, "POTATO"),
+        new Level(10, 18, "RHYTHM"),
     };
 
     static Level[] m_Zone3_Levels =
     {
+        new Level(10, 18, "SHOULD"),
+        new Level(10, 18, "APPEAR"),
+        new Level(10, 18, "BURGER"),
+        new Level(10, 18, "IMPALA"),
+        new Level(10, 18, "PHLEGM"),
         new Level(10, 18, "FLORID"),
-        new Level(10, 18, "ROSILY"),
-        new Level(10, 18, "WAVING"),
-        new Level(10, 18, "COLLAR"),
-        new Level(10, 18, "AFRAID"),
-        new Level(10, 18, "HURDLE"),
     };
 
     static Level[] m_Zone4_Levels =
     {
-        new Level(10, 18, "BASICS"),
-        new Level(10, 18, "MIDWAY"),
-        new Level(10, 18, "CHIEFS"),
-        new Level(10, 18, "EXHORT"),
-        new Level(10, 18, "CLOUDY"),
-        new Level(10, 18, "MOULDS"),
+        new Level(10, 18, "KISSED"),
+        new Level(10, 18, "NUMBER"),
+        new Level(10, 18, "PLAQUE"),
+        new Level(10, 18, "SORREL"),
+        new Level(10, 18, "WAGGLY"),
+        new Level(10, 18, "JINXED"),
     };
 
     static Level[] m_Zone5_Levels =
     {
-        new Level(10, 18, "MAINLY"),
-        new Level(10, 18, "KINDLY"),
-        new Level(10, 18, "COAXES"),
-        new Level(10, 18, "MUCKED"),
-        new Level(10, 18, "MENDED"),
-        new Level(10, 18, "INBORN"),
+        new Level(10, 18, "ADDING"),
+        new Level(10, 18, "STICKY"),
+        new Level(10, 18, "CREEPS"),
+        new Level(10, 18, "SUGARY"),
+        new Level(10, 18, "HASHED"),
+        new Level(10, 18, "ECZEMA"),
     };
 
     static Level[] m_Zone6_Levels =
     {
-        new Level(10, 18, "BABIES"),
-        new Level(10, 18, "HITHER"),
-        new Level(10, 18, "CREOLE"),
         new Level(10, 18, "QUAINT"),
-        new Level(10, 18, "BESETS"),
-        new Level(10, 18, "GRAVER"),
+        new Level(10, 18, "SCREWS"),
+        new Level(10, 18, "SPONGY"),
+        new Level(10, 18, "DRAMAS"),
+        new Level(10, 18, "WOBBLE"),
+        new Level(10, 18, "DINGHY"),
     };
 
     public ZoneData[] m_Zones =

@@ -1,4 +1,7 @@
 ﻿using UnityEngine;
+using System;
+using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -26,7 +29,8 @@ public class DictionaryManager : MonoBehaviour
 	// array of first-letter indexes for fast searching
 	int[] m_FirstLetterIndex;
 
-	public class MaxWordIndices
+    [Serializable]
+    public class MaxWordIndices
 	{
 		public int Index;
 		// index into the Words array for this max word
@@ -48,6 +52,8 @@ public class DictionaryManager : MonoBehaviour
 	MaxWordIndices[] m_MaxWords;
 
     List<List<string>> m_Levels;
+
+    string m_MaxWordsFilename = "MaxWords.dat";
 
 	// load the dictionary.txt file and create a list of strings
 	void LoadFile ()
@@ -173,26 +179,54 @@ public class DictionaryManager : MonoBehaviour
 	// make an array of the max length words in the Words array
 	void FindMaxWords ()
 	{
-		List<MaxWordIndices> TempMaxWords = new List<MaxWordIndices> ();
+        SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
 
-		// go through all the words
-        for (int i = 0; i < m_Words.Length; i++)
+        if (Session.m_GenerateMaxWords)
         {
-			// is this the right length word
-            if (m_Words[i].Length == m_MaxWordSize)
+            List<MaxWordIndices> TempMaxWords = new List<MaxWordIndices>();
+
+            // go through all the words
+            for (int i = 0; i < m_Words.Length; i++)
             {
-				// create a new max word
-				MaxWordIndices Word = new MaxWordIndices ();
-				Word.Index = i;
-				Word.Words = FindWordsInMaxWord (i);
+                // is this the right length word
+                if (m_Words[i].Length == m_MaxWordSize)
+                {
+                    // create a new max word
+                    MaxWordIndices Word = new MaxWordIndices();
+                    Word.Index = i;
+                    Word.Words = FindWordsInMaxWord(i);
 
-				// does the word list meet the min/max requirements
-				if (Word.Words.Length >= m_MinWordsRequired && Word.Words.Length <= m_MaxWordsRequired)
-					TempMaxWords.Add (Word);
-			}
-		}
+                    // does the word list meet the min/max requirements
+                    if (Word.Words.Length >= m_MinWordsRequired && Word.Words.Length <= m_MaxWordsRequired)
+                        TempMaxWords.Add(Word);
+                }
+            }
 
-        m_MaxWords = TempMaxWords.ToArray();
+            m_MaxWords = TempMaxWords.ToArray();
+
+            // save the list out
+            FileStream file = File.Create(Application.persistentDataPath + "/" + m_MaxWordsFilename);
+            file.Close();
+            Debug.Log("Dictionary CREATED -> " + Application.persistentDataPath + "/" + m_MaxWordsFilename);
+
+            BinaryFormatter bf = new BinaryFormatter();
+            file = File.Open(Application.persistentDataPath + "/" + m_MaxWordsFilename, FileMode.Open);
+            bf.Serialize(file, m_MaxWords);
+            file.Close();
+            Debug.Log("Dictionary SAVED -> " + Application.persistentDataPath + "/" + m_MaxWordsFilename);
+        }
+        else
+        {
+            // load the list in
+            BinaryFormatter bf = new BinaryFormatter();
+            FileStream file;
+            if (BitConverter.IsLittleEndian)
+                file = File.Open("Assets/Resources/MaxWordsLittle.dat", FileMode.Open);
+            else
+                file = File.Open("Assets/Resources/MaxWordsBig.dat" + m_MaxWordsFilename, FileMode.Open);
+            m_MaxWords = (MaxWordIndices[]) bf.Deserialize(file);
+            file.Close();
+        }
 	}
 
 	// get the max word for the current zone/level
@@ -270,7 +304,7 @@ public class DictionaryManager : MonoBehaviour
         do
         {
             Again = false;
-            MaxWordIndex = Random.Range(0, m_MaxWords.Length - 1);
+            MaxWordIndex = UnityEngine.Random.Range(0, m_MaxWords.Length - 1);
 
             // make sure the chosen word is within min-max
             int Count = m_MaxWords[MaxWordIndex].Words.Length;
@@ -379,7 +413,7 @@ public class DictionaryManager : MonoBehaviour
 
     void InitLevels()
     {
-        Random.seed = 123457;
+        UnityEngine.Random.seed = 123457;
 
         // pre-plan which words are used for the levels so we don't get duplications.
         // This will just be used initially but I'll need to save this list at some point so it can be
