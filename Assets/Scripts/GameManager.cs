@@ -818,10 +818,15 @@ public class GameManager : MonoBehaviour {
             // remove the coins
             Session.m_SaveData.AddCoins(-Amount);
 
+            // double the next cost until it's 1000
+            AmountOut *= 2;
+            if (AmountOut > 1000)
+                AmountOut = 1000;
+
             // increase the cost until it's x10 original value
-            AmountOut += BaseAmount;
+/*            AmountOut += BaseAmount;
             if (AmountOut > BaseAmount * 10)
-                AmountOut = BaseAmount * 10;
+                AmountOut = BaseAmount * 10;*/
             UpdateCosts();
 
             return true;
