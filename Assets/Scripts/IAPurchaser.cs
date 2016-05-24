@@ -4,247 +4,262 @@ using UnityEngine;
 using UnityEngine.Purchasing;
 
 //TODO
-//Add in real IDs
-//Allow init
-//Add in purchase product with function callback
-//Feature callback to function when purchase complete
+//Add each item
+//We need google IDs
+
 
 // Deriving the Purchaser class from IStoreListener enables it to receive messages from Unity Purchasing.
 public class IAPurchaser : MonoBehaviour, IStoreListener
 {
-	private static IStoreController m_StoreController;
-	// Reference to the Purchasing system.
-	private static IExtensionProvider m_StoreExtensionProvider;
-	// Reference to store-specific Purchasing subsystems.
+    //Reference to the Purchasing system.
+    private static IStoreController m_StoreController;
 
-	// Product identifiers for all products capable of being purchased: "convenience" general identifiers for use with Purchasing, and their store-specific identifier counterparts
-	// for use with and outside of Unity Purchasing. Define store-specific identifiers also on each platform's publisher dashboard (iTunes Connect, Google Play Developer Console, etc.)
+    //Reference to store-specific Purchasing subsystems.
+    private static IExtensionProvider m_StoreExtensionProvider;
 
-	//TODO Add in real IDs
-	/*
-	private static string kProductIDConsumable = "consumable";
-	// General handle for the consumable product.
-	private static string kProductIDNonConsumable = "nonconsumable";
-	// General handle for the non-consumable product.
-	private static string kProductIDSubscription = "subscription";
-	// General handle for the subscription product.
+    //Callback for the product desired
+    private Action<bool> m_Callback;
 
-	private static string kProductNameAppleConsumable = "com.unity3d.test.services.purchasing.consumable";
-	// Apple App Store identifier for the consumable product.
-	private static string kProductNameAppleNonConsumable = "com.unity3d.test.services.purchasing.nonconsumable";
-	// Apple App Store identifier for the non-consumable product.
-	private static string kProductNameAppleSubscription = "com.unity3d.test.services.purchasing.subscription";
-	// Apple App Store identifier for the subscription product.
+    //Are we currently busy purchasing?
+    private bool m_CurrentlyPurchasing = false;
 
-	private static string kProductNameGooglePlayConsumable = "com.unity3d.test.services.purchasing.consumable";
-	// Google Play Store identifier for the consumable product.
-	private static string kProductNameGooglePlayNonConsumable = "com.unity3d.test.services.purchasing.nonconsumable";
-	// Google Play Store identifier for the non-consumable product.
-	private static string kProductNameGooglePlaySubscription = "com.unity3d.test.services.purchasing.subscription";
-	// Google Play Store identifier for the subscription product.
-	*/
+    //Type of IAP
+    public enum IAPItems
+    {
+        IAP_100Coins,
+        IAP_LEN,
+    };
 
-	void Start ()
-	{
-		// If we haven't set up the Unity Purchasing reference
-		if (m_StoreController == null) {
-			// Begin to configure our connection to Purchasing
-			InitializePurchasing ();
-		}
-	}
+    //Struct to hold the details for each IAP
+    private struct IAPInfo
+    {
+        public IAPItems type;
+        public string identifier;
+        public string appleID;
+        public string androidID;
+        public ProductType productType;
+    };
 
-	public void InitializePurchasing ()
-	{
-		// If we have already connected to Purchasing ...
-		if (IsInitialized ()) {
-			// ... we are done here.
-			return;
-		}
+    //Product identifiers
+    IAPInfo[] m_SellableItems;
 
-		// Create a builder, first passing in a suite of Unity provided stores.
-		var builder = ConfigurationBuilder.Instance (StandardPurchasingModule.Instance ());
-
-		//TODO
-		/*
-		// Add a product to sell / restore by way of its identifier, associating the general identifier with its store-specific identifiers.
-		builder.AddProduct (kProductIDConsumable, ProductType.Consumable, new IDs () {
-			 {
-				kProductNameAppleConsumable,
-				AppleAppStore.Name
-			},
-			 {
-				kProductNameGooglePlayConsumable,
-				GooglePlay.Name
-			},
-		});// Continue adding the non-consumable product.
-		builder.AddProduct (kProductIDNonConsumable, ProductType.NonConsumable, new IDs () {
-			 {
-				kProductNameAppleNonConsumable,
-				AppleAppStore.Name
-			},
-			 {
-				kProductNameGooglePlayNonConsumable,
-				GooglePlay.Name
-			},
-		});// And finish adding the subscription product.
-		builder.AddProduct (kProductIDSubscription, ProductType.Subscription, new IDs () {
-			 {
-				kProductNameAppleSubscription,
-				AppleAppStore.Name
-			},
-			 {
-				kProductNameGooglePlaySubscription,
-				GooglePlay.Name
-			},
-		});// Kick off the remainder of the set-up with an asynchrounous call, passing the configuration and this class' instance. Expect a response either in OnInitialized or OnInitializeFailed.
-		UnityPurchasing.Initialize (this, builder);
-		*/
-	}
+    //Currently purchasing ID
+    IAPInfo m_ItemBeingPurchased;
 
 
-	private bool IsInitialized ()
-	{
-		// Only say we are initialized if both the Purchasing references are set.
-		return m_StoreController != null && m_StoreExtensionProvider != null;
-	}
+    void Start()
+    {
+        // If we haven't set up the Unity Purchasing reference
+        if (m_StoreController == null)
+        {
+            //Setup IAPs
+            m_SellableItems = new IAPInfo[(int)IAPItems.IAP_LEN];
 
+            //100 Coins
+            m_SellableItems[0].type = IAPItems.IAP_100Coins;
+            m_SellableItems[0].identifier = "Consumable100Coins";
+            m_SellableItems[0].appleID = "WordChain.100Coins";
+            m_SellableItems[0].androidID = "com.unity3d.test.services.purchasing.consumable";
+            m_SellableItems[0].productType = ProductType.Consumable;
 
-	public void BuyConsumable ()
-	{
-		// Buy the consumable product using its general identifier. Expect a response either through ProcessPurchase or OnPurchaseFailed asynchronously.
-		//BuyProductID (kProductIDConsumable);
-	}
+            //TODO
+            /*
+            IAPInfo Consumable250Coins;
+            IAPInfo Consumable600Coins;
+            IAPInfo NonConsumable250CoinsRemoveAllAds;
+            IAPInfo NonConsumable100CoinsRemoveStatics;
+            */
 
+            //Init Callback
+            m_Callback = null;
+            m_ItemBeingPurchased = new IAPInfo();
 
-	public void BuyNonConsumable ()
-	{
-		// Buy the non-consumable product using its general identifier. Expect a response either through ProcessPurchase or OnPurchaseFailed asynchronously.
-		//BuyProductID (kProductIDNonConsumable);
-	}
+            // Begin to configure our connection to Purchasing
+            InitializePurchasing();
+        }
+    }
 
+    public void InitializePurchasing()
+    {
+        // If we have already connected to Purchasing ...
+        if (IsInitialized())
+        {
+            // ... we are done here.
+            return;
+        }
 
-	public void BuySubscription ()
-	{
-		// Buy the subscription product using its the general identifier. Expect a response either through ProcessPurchase or OnPurchaseFailed asynchronously.
-		//BuyProductID (kProductIDSubscription);
-	}
+        // Create a builder, first passing in a suite of Unity provided stores.
+        var builder = ConfigurationBuilder.Instance(StandardPurchasingModule.Instance());
 
+        // Add all products to sell / restore by way of its identifier, associating the general identifier with its store-specific identifiers.
+        for (int i = 0; i < (int)IAPItems.IAP_LEN; ++i)
+        {
+            builder.AddProduct(m_SellableItems[i].identifier, m_SellableItems[i].productType, new IDs() {
+                {
+                    m_SellableItems[i].appleID,
+                    AppleAppStore.Name
+                },
+                {
+                    m_SellableItems[i].androidID,
+                    GooglePlay.Name
+                },
+            });
+        }
 
-	void BuyProductID (string productId)
-	{
-		// If the stores throw an unexpected exception, use try..catch to protect my logic here.
-		try {
-			// If Purchasing has been initialized ...
-			if (IsInitialized ()) {
-				// ... look up the Product reference with the general product identifier and the Purchasing system's products collection.
-				Product product = m_StoreController.products.WithID (productId);
+        // Kick off the remainder of the set-up with an asynchrounous call, passing the configuration and this class' instance. Expect a response either in OnInitialized or OnInitializeFailed.
+        UnityPurchasing.Initialize(this, builder);
+    }
 
-				// If the look up found a product for this device's store and that product is ready to be sold ... 
-				if (product != null && product.availableToPurchase) {
-					Debug.Log (string.Format ("Purchasing product asychronously: '{0}'", product.definition.id));// ... buy the product. Expect a response either through ProcessPurchase or OnPurchaseFailed asynchronously.
-					m_StoreController.InitiatePurchase (product);
-				}
-					// Otherwise ...
-					else {
-					// ... report the product look-up failure situation  
-					Debug.Log ("BuyProductID: FAIL. Not purchasing product, either is not found or is not available for purchase");
-				}
-			}
-				// Otherwise ...
-				else {
-				// ... report the fact Purchasing has not succeeded initializing yet. Consider waiting longer or retrying initiailization.
-				Debug.Log ("BuyProductID FAIL. Not initialized.");
-			}
-		}
-			// Complete the unexpected exception handling ...
-			catch (Exception e) {
-			// ... by reporting any unexpected exception for later diagnosis.
-			Debug.Log ("BuyProductID: FAIL. Exception during purchase. " + e);
-		}
-	}
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Public Section (Callable)
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+    public void BuyItem(IAPItems _item, Action<bool> _callback)
+    {
+        //In purchase mode?
+        if (m_CurrentlyPurchasing) { return; }
 
-	// Restore purchases previously made by this customer. Some platforms automatically restore purchases. Apple currently requires explicit purchase restoration for IAP.
-	public void RestorePurchases ()
-	{
-		// If Purchasing has not yet been set up ...
-		if (!IsInitialized ()) {
-			// ... report the situation and stop restoring. Consider either waiting longer, or retrying initialization.
-			Debug.Log ("RestorePurchases FAIL. Not initialized.");
-			return;
-		}
+        //Hold callback
+        m_Callback = _callback;
 
-		// If we are running on an Apple device ... 
-		if (Application.platform == RuntimePlatform.IPhonePlayer ||
-		     Application.platform == RuntimePlatform.OSXPlayer) {
-			// ... begin restoring purchases
-			Debug.Log ("RestorePurchases started ...");
+        //Find the correct ID
+        for (int i = 0; i < (int)IAPItems.IAP_LEN; ++i)
+        {
+            if (m_SellableItems[i].type == _item)
+            {
+                //Buy product
+                BuyProductID(m_SellableItems[i].identifier);
+                //Hold a reference
+                m_ItemBeingPurchased = m_SellableItems[i];
+                //Set to purchase mode
+                m_CurrentlyPurchasing = true;
+                return;
+            }
+        }
+    }
 
-			// Fetch the Apple store-specific subsystem.
-			var apple = m_StoreExtensionProvider.GetExtension<IAppleExtensions> ();
-			// Begin the asynchronous process of restoring purchases. Expect a confirmation response in the Action<bool> below, and ProcessPurchase if there are previously purchased products to restore.
-			apple.RestoreTransactions ((result) => {
-				// The first phase of restoration. If no more responses are received on ProcessPurchase then no purchases are available to be restored.
-				Debug.Log ("RestorePurchases continuing: " + result + ". If no further messages, no purchases available to restore.");
-			});
-		}
-			// Otherwise ...
-			else {
-			// We are not running on an Apple device. No work is necessary to restore purchases.
-			Debug.Log ("RestorePurchases FAIL. Not supported on this platform. Current = " + Application.platform);
-		}
-	}
+    // Restore purchases previously made by this customer. Some platforms automatically restore purchases. Apple currently requires explicit purchase restoration for IAP.
+    public void RestorePurchases()
+    {
+        // If Purchasing has not yet been set up ...
+        if (!IsInitialized())
+        {
+            // ... report the situation and stop restoring. Consider either waiting longer, or retrying initialization.
+            Debug.Log("RestorePurchases FAIL. Not initialized.");
+            return;
+        }
 
+        // If we are running on an Apple device ... 
+        if (Application.platform == RuntimePlatform.IPhonePlayer ||
+             Application.platform == RuntimePlatform.OSXPlayer)
+        {
+            // ... begin restoring purchases
+            Debug.Log("RestorePurchases started ...");
 
-	//
-	// --- IStoreListener
-	//
+            // Fetch the Apple store-specific subsystem.
+            var apple = m_StoreExtensionProvider.GetExtension<IAppleExtensions>();
+            // Begin the asynchronous process of restoring purchases. Expect a confirmation response in the Action<bool> below, and ProcessPurchase if there are previously purchased products to restore.
+            apple.RestoreTransactions((result) =>
+            {
+                // The first phase of restoration. If no more responses are received on ProcessPurchase then no purchases are available to be restored.
+                Debug.Log("RestorePurchases continuing: " + result + ". If no further messages, no purchases available to restore.");
+            });
+        }
+        // Otherwise ...
+        else
+        {
+            // We are not running on an Apple device. No work is necessary to restore purchases.
+            Debug.Log("RestorePurchases FAIL. Not supported on this platform. Current = " + Application.platform);
+        }
+    }
 
-	public void OnInitialized (IStoreController controller, IExtensionProvider extensions)
-	{
-		// Purchasing has succeeded initializing. Collect our Purchasing references.
-		Debug.Log ("OnInitialized: PASS");
+    public PurchaseProcessingResult ProcessPurchase(PurchaseEventArgs args)
+    {
+        m_CurrentlyPurchasing = false;
 
-		// Overall Purchasing system, configured with products for this application.
-		m_StoreController = controller;
-		// Store specific subsystem, for accessing device-specific store features.
-		m_StoreExtensionProvider = extensions;
-	}
+        if (String.Equals(args.purchasedProduct.definition.id, m_ItemBeingPurchased.identifier, StringComparison.Ordinal))
+        {
+            Debug.Log(string.Format("ProcessPurchase: PASS. Product: '{0}'", args.purchasedProduct.definition.id));//If the consumable item has been successfully purchased, add 100 coins to the player's in-game score.
+            m_Callback(true);
+        }
+        else
+        {
+            Debug.Log(string.Format("ProcessPurchase: FAIL. Unrecognized product: '{0}'", args.purchasedProduct.definition.id));
+            m_Callback(false);
+        }
 
+        return PurchaseProcessingResult.Complete;
+    }
 
-	public void OnInitializeFailed (InitializationFailureReason error)
-	{
-		// Purchasing set-up has not succeeded. Check error for reason. Consider sharing this reason with the user.
-		Debug.Log ("OnInitializeFailed InitializationFailureReason:" + error);
-	}
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// Private Section
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	public void OnPurchaseFailed (Product product, PurchaseFailureReason failureReason)
-	{
-		// A product purchase attempt did not succeed. Check failureReason for more detail. Consider sharing this reason with the user.
-		Debug.Log (string.Format ("OnPurchaseFailed: FAIL. Product: '{0}', PurchaseFailureReason: {1}", product.definition.storeSpecificId, failureReason));
-	}
+    private bool IsInitialized()
+    {
+        // Only say we are initialized if both the Purchasing references are set.
+        return m_StoreController != null && m_StoreExtensionProvider != null;
+    }
 
-	public PurchaseProcessingResult ProcessPurchase (PurchaseEventArgs args)
-	{
-		//TODO
-		/*
-		// A consumable product has been purchased by this user.
-		if (String.Equals (args.purchasedProduct.definition.id, kProductIDConsumable, StringComparison.Ordinal)) {
-			Debug.Log (string.Format ("ProcessPurchase: PASS. Product: '{0}'", args.purchasedProduct.definition.id));//If the consumable item has been successfully purchased, add 100 coins to the player's in-game score.
-			ScoreManager.score += 100;
-		}
-		// Or ... a non-consumable product has been purchased by this user.
-		else if (String.Equals (args.purchasedProduct.definition.id, kProductIDNonConsumable, StringComparison.Ordinal)) {
-			Debug.Log (string.Format ("ProcessPurchase: PASS. Product: '{0}'", args.purchasedProduct.definition.id));
-		}// Or ... a subscription product has been purchased by this user.
-		else if (String.Equals (args.purchasedProduct.definition.id, kProductIDSubscription, StringComparison.Ordinal)) {
-			Debug.Log (string.Format ("ProcessPurchase: PASS. Product: '{0}'", args.purchasedProduct.definition.id));
-		}// Or ... an unknown product has been purchased by this user. Fill in additional products here.
-		else {
-			Debug.Log (string.Format ("ProcessPurchase: FAIL. Unrecognized product: '{0}'", args.purchasedProduct.definition.id));
-		}// Return a flag indicating wither this product has completely been received, or if the application needs to be reminded of this purchase at next app launch. Is useful when saving purchased products to the cloud, and when that save is delayed.
-		*/
+    private void BuyProductID(string productId)
+    {
+        // If the stores throw an unexpected exception, use try..catch to protect my logic here.
+        try
+        {
+            // If Purchasing has been initialized ...
+            if (IsInitialized())
+            {
+                // ... look up the Product reference with the general product identifier and the Purchasing system's products collection.
+                Product product = m_StoreController.products.WithID(productId);
 
-		return PurchaseProcessingResult.Complete;
-	}
+                // If the look up found a product for this device's store and that product is ready to be sold ... 
+                if (product != null && product.availableToPurchase)
+                {
+                    Debug.Log(string.Format("Purchasing product asychronously: '{0}'", product.definition.id));// ... buy the product. Expect a response either through ProcessPurchase or OnPurchaseFailed asynchronously.
+                    m_StoreController.InitiatePurchase(product);
+                }
+                // Otherwise ...
+                else
+                {
+                    // ... report the product look-up failure situation  
+                    Debug.Log("BuyProductID: FAIL. Not purchasing product, either is not found or is not available for purchase");
+                }
+            }
+            // Otherwise ...
+            else
+            {
+                // ... report the fact Purchasing has not succeeded initializing yet. Consider waiting longer or retrying initiailization.
+                Debug.Log("BuyProductID FAIL. Not initialized.");
+            }
+        }
+        // Complete the unexpected exception handling ...
+        catch (Exception e)
+        {
+            // ... by reporting any unexpected exception for later diagnosis.
+            Debug.Log("BuyProductID: FAIL. Exception during purchase. " + e);
+        }
+    }
+
+    public void OnInitialized(IStoreController controller, IExtensionProvider extensions)
+    {
+        // Purchasing has succeeded initializing. Collect our Purchasing references.
+        Debug.Log("OnInitialized: PASS");
+
+        // Overall Purchasing system, configured with products for this application.
+        m_StoreController = controller;
+        // Store specific subsystem, for accessing device-specific store features.
+        m_StoreExtensionProvider = extensions;
+    }
+
+    public void OnInitializeFailed(InitializationFailureReason error)
+    {
+        // Purchasing set-up has not succeeded. Check error for reason. Consider sharing this reason with the user.
+        Debug.Log("OnInitializeFailed InitializationFailureReason:" + error);
+    }
+
+    public void OnPurchaseFailed(Product product, PurchaseFailureReason failureReason)
+    {
+        // A product purchase attempt did not succeed. Check failureReason for more detail. Consider sharing this reason with the user.
+        Debug.Log(string.Format("OnPurchaseFailed: FAIL. Product: '{0}', PurchaseFailureReason: {1}", product.definition.storeSpecificId, failureReason));
+    }
 }
