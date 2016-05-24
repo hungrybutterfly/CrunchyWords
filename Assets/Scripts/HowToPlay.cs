@@ -25,8 +25,9 @@ public class HowToPlay : MonoBehaviour
         if (Session.m_DictionaryObject == null)
         {
             m_BackButton = GameObject.Find("Back");
+            Text String = m_BackButton.GetComponentInChildren<Text>();
+            String.text = "PLAY";
             m_BackButton.SetActive(false);
-            m_BackButton.GetComponent<Text>().text = "PLAY";
 
             m_DictionaryLoading = true;
         }
