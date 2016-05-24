@@ -33,9 +33,9 @@ public class LevelData : MonoBehaviour
 
     static Level[] m_Zone1_Levels =
     {
-        new Level(10, 18, "BEFORE"),
-        new Level(10, 18, "WAXING"),
         new Level(10, 18, "PEOPLE"),
+        new Level(10, 18, "WAXING"),
+        new Level(10, 18, "BEFORE"),
         new Level(10, 18, "LOVELY"),
         new Level(10, 18, "SQUARE"),
         new Level(10, 18, "JOKING"),

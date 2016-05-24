@@ -225,6 +225,11 @@ public class CeremonyManager : MonoBehaviour
 
     public void Win(bool _Perfect)
     {
+        StartCoroutine(PlayWin(_Perfect));
+    }
+
+    IEnumerator PlayWin(bool _Perfect)
+    {
         m_Type = eCeremonyType.Win;
 
         // create and attach the ceremony
@@ -233,11 +238,29 @@ public class CeremonyManager : MonoBehaviour
         GameObject CeremonyObject = Instantiate(Prefab) as GameObject;
         CeremonyObject.transform.SetParent(Root.transform, false);
 
+        Text You = CeremonyObject.transform.Find("You").gameObject.GetComponent<Text>();
+        You.gameObject.SetActive(false);
+        Text Made = CeremonyObject.transform.Find("Made").gameObject.GetComponent<Text>();
+        Made.gameObject.SetActive(false);
+        Text All = CeremonyObject.transform.Find("All").gameObject.GetComponent<Text>();
+        All.gameObject.SetActive(false);
+        Text The = CeremonyObject.transform.Find("The").gameObject.GetComponent<Text>();
+        The.gameObject.SetActive(false);
+        Text Words = CeremonyObject.transform.Find("Words").gameObject.GetComponent<Text>();
+        Words.gameObject.SetActive(false);
+
+        Text Perfect = CeremonyObject.transform.Find("Perfect").gameObject.GetComponent<Text>();
+        Perfect.gameObject.SetActive(false);
+
+        Button Next = CeremonyObject.transform.Find("Button").gameObject.GetComponent<Button>();
+        Next.gameObject.SetActive(false);
+
+        float Delay = 0.5f;
+
+        yield return new WaitForSeconds(Delay);
+
         if (_Perfect)
         {
-            Text CeremonyText = CeremonyObject.transform.Find("Text").gameObject.GetComponent<Text>();
-            CeremonyText.text = "PERFECT!";
-
             SessionManager.PlaySound("Level_Complete_More");
         }
         else
@@ -245,8 +268,25 @@ public class CeremonyManager : MonoBehaviour
             SessionManager.PlaySound("Level_Complete");
         }
 
+        You.gameObject.SetActive(true);
+        yield return new WaitForSeconds(Delay);
+        Made.gameObject.SetActive(true);
+        yield return new WaitForSeconds(Delay);
+        All.gameObject.SetActive(true);
+        yield return new WaitForSeconds(Delay);
+        The.gameObject.SetActive(true);
+        yield return new WaitForSeconds(Delay);
+        Words.gameObject.SetActive(true);
+        yield return new WaitForSeconds(Delay);
+
+        if (_Perfect)
+        {
+            Perfect.gameObject.SetActive(true);
+            yield return new WaitForSeconds(Delay);
+        }
+
         GameManager Game = GameObject.Find("GameManager").GetComponent<GameManager>();
-        Button TheButton = CeremonyObject.GetComponent<Button>();
-        TheButton.onClick.AddListener(() => { Game.EndClicked(); });
+        Next.onClick.AddListener(() => { Game.EndClicked(); });
+        Next.gameObject.SetActive(true);
     }
 }

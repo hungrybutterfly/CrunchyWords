@@ -25,6 +25,10 @@ public class GameManager : MonoBehaviour {
     public int m_StartHintCost;
     public int m_StartRevealWordsCost;
 
+    GameObject m_JumbleCostText;
+    GameObject m_LockCostText;
+    GameObject m_HintCostText;
+
     int m_ShuffleCost;
     int m_CheckWordCost;
     int m_LockCost;
@@ -56,6 +60,7 @@ public class GameManager : MonoBehaviour {
     int m_BestPossibleScore;                // to determin if player for a perfect score
     int m_WordsRightCombo;
     Text m_ComboText;
+    Color m_ComboTextColour;
     int m_BestChain;
 
     int m_JumblesUsed;
@@ -160,7 +165,7 @@ public class GameManager : MonoBehaviour {
         }
 
         //Get a reference to the Coins text.
-        m_ScoreText = GameObject.Find("CoinCounter").GetComponentInChildren<Text>();
+        m_ScoreText = GameObject.Find("CoinCounter").GetComponent<Text>();
 
         //Hide the win text for now
         m_ShowWinTimer = 0;
@@ -176,7 +181,13 @@ public class GameManager : MonoBehaviour {
 
         // get some objects
         m_ComboText = GameObject.Find("Combo").GetComponent<Text>();
+        m_ComboTextColour = m_ComboText.GetComponent<Text>().color;
 //        m_FinishButton = GameObject.Find("Finish").GetComponent<Button>();
+
+        // grab pointers to costs of things
+        m_JumbleCostText = GameObject.Find("Jumble Cost");
+        m_LockCostText = GameObject.Find("Lock Cost");
+        m_HintCostText = GameObject.Find("Hint Cost");
 
         // set the initial cost of things
         m_ShuffleCost = m_StartShuffleCost;
@@ -224,7 +235,7 @@ public class GameManager : MonoBehaviour {
             {
                 m_BadScoreTimer--;
                 if ((m_BadScoreTimer & 8) < 4)
-                    m_ComboText.GetComponent<Text>().color = new Color(0.66f, 0.66f, 0);
+                    m_ComboText.GetComponent<Text>().color = m_ComboTextColour;
                 else
                     m_ComboText.GetComponent<Text>().color = new Color(1, 0, 0);
             }
@@ -233,22 +244,33 @@ public class GameManager : MonoBehaviour {
 
     void UpdateCosts()
     {
+        SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
+
         // set the total coins text
-        GameObject Object = GameObject.Find("Jumble Cost");
-        Text Value = Object.GetComponentInChildren<Text>();
+        Text Value = m_JumbleCostText.GetComponentInChildren<Text>();
         Value.text = m_ShuffleCost.ToString();
+        if (Session.m_SaveData.sd_TotalScore >= m_ShuffleCost)
+            m_JumbleCostText.gameObject.SetActive(true);
+        else
+            m_JumbleCostText.gameObject.SetActive(false);
 
 /*        Object = GameObject.Find("Check Cost");
         Value = Object.GetComponentInChildren<Text>();
         Value.text = m_CheckWordCost.ToString();*/
 
-        Object = GameObject.Find("Lock Cost");
-        Value = Object.GetComponentInChildren<Text>();
+        Value = m_LockCostText.GetComponentInChildren<Text>();
         Value.text = m_LockCost.ToString();
+        if (Session.m_SaveData.sd_TotalScore >= m_LockCost)
+            m_LockCostText.gameObject.SetActive(true);
+        else
+            m_LockCostText.gameObject.SetActive(false);
 
-        Object = GameObject.Find("Hint Cost");
-        Value = Object.GetComponentInChildren<Text>();
+        Value = m_HintCostText.GetComponentInChildren<Text>();
         Value.text = m_HintCost.ToString();
+        if (Session.m_SaveData.sd_TotalScore >= m_HintCost)
+            m_HintCostText.gameObject.SetActive(true);
+        else
+            m_HintCostText.gameObject.SetActive(false);
     }
 
     // get the scren position for a given letter when idle
@@ -424,7 +446,7 @@ public class GameManager : MonoBehaviour {
     {
         SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
         string Number = Session.FormatNumberString(m_TotalScore.ToString());
-        m_ScoreText.text = Number;
+        m_ScoreText.text = "Score " + Number;
 
         m_ComboText.text = "Chain x" + m_WordsRightCombo.ToString();
     }
@@ -577,6 +599,7 @@ public class GameManager : MonoBehaviour {
 
                     // reset the combo
                     m_WordsRightCombo = 1;
+                    UpdateScore();
 
                     // flash the score for 2 seconds
                     if (m_BadScore)
@@ -613,10 +636,12 @@ public class GameManager : MonoBehaviour {
 
     void Win()
     {
+        SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
+
         // show the win text
         CeremonyManager Ceremony = GameObject.Find("GameManager").GetComponent<CeremonyManager>();
         bool Perfect = false;
-        if (m_TotalScore == m_BestPossibleScore)
+        if (Session.m_BestChain == Session.m_WordsAvailable)
             Perfect = true;
         Ceremony.Win(Perfect);
 
@@ -642,7 +667,6 @@ public class GameManager : MonoBehaviour {
         }
 
         //Add to the save data
-        SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
         bool AlreadyDone = Session.m_SaveData.LevelComplete(Session.m_CurrentZone, Session.m_CurrentLevel, BestWord, m_TotalScore);
         Session.Save();
 
@@ -829,6 +853,9 @@ public class GameManager : MonoBehaviour {
                 AmountOut = BaseAmount * 10;*/
             UpdateCosts();
 
+            TotalCoins Coins = GameObject.Find("TotalCoins").GetComponent<TotalCoins>();
+            Coins.StartFlash();
+
             return true;
         }
         else
@@ -972,18 +999,27 @@ public class GameManager : MonoBehaviour {
     {
         SessionManager.PlaySound("Option_Select");
 
+        SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
+
         if (!m_SelectedWord && !m_RandomHint)
         {
             SessionManager.MetricsLogEvent("HintReady");
 
-            m_HintButton.SetReady(!m_HintButton.GetReady());
-
-            // turn on nudge on all words
-            for (int i = 0; i < m_WordList.Length; i++)
+            if (Session.m_SaveData.sd_TotalScore < m_LockCost)
             {
-                m_WordList[i].SetNudge(m_HintButton.GetReady());
+                // send the player to the shop
+                Session.ChangeScene("Shop", LoadSceneMode.Additive);
             }
+            else
+            {
+                m_HintButton.SetReady(!m_HintButton.GetReady());
 
+                // turn on nudge on all words
+                for (int i = 0; i < m_WordList.Length; i++)
+                {
+                    m_WordList[i].SetNudge(m_HintButton.GetReady());
+                }
+            }
         }
         else
         {

@@ -8,11 +8,11 @@ public class ShopManager : MonoBehaviour
 {
     enum eOption
     {
-        Coins1000,
-        Coins2500,
-        Coins6000,
-        Coins1000Static,
-        Coins1000ALL,
+        Coins100,
+        Coins250,
+        Coins600,
+        Coins100Static,
+        Coins100ALL,
         Watch,
     }
 
@@ -36,6 +36,12 @@ public class ShopManager : MonoBehaviour
             Button Option = GameObject.Find("ShopOption5").GetComponentInChildren<Button>();
             Option.interactable = false;
         }
+
+        TotalCoins[] Coins = GameObject.FindObjectsOfType<TotalCoins>();
+        for (int i = 0; i < Coins.Length; i++)
+        {
+            Coins[i].UpdateCoins();
+        }
     }
 
     // process a successful purchase
@@ -45,25 +51,25 @@ public class ShopManager : MonoBehaviour
 
         switch (Option)
         {
-        case eOption.Coins1000:
-            Session.m_SaveData.AddCoins(1000);
+        case eOption.Coins100:
+            Session.m_SaveData.AddCoins(100);
             break;
-        case eOption.Coins2500:
-            Session.m_SaveData.AddCoins(2500);
+        case eOption.Coins250:
+            Session.m_SaveData.AddCoins(250);
             break;
-        case eOption.Coins6000:
-            Session.m_SaveData.AddCoins(6000);
+        case eOption.Coins600:
+            Session.m_SaveData.AddCoins(600);
             break;
-        case eOption.Coins1000Static:
-            Session.m_SaveData.AddCoins(1000);
+        case eOption.Coins100Static:
+            Session.m_SaveData.AddCoins(100);
             Session.m_SaveData.sd_RemoveStaticAds = 1;
             break;
-        case eOption.Coins1000ALL:
-            Session.m_SaveData.AddCoins(2500);
+        case eOption.Coins100ALL:
+            Session.m_SaveData.AddCoins(250);
             Session.m_SaveData.sd_RemoveALLAds = 1;
             break;
         case eOption.Watch:
-            Session.m_SaveData.AddCoins(100);
+            Session.m_SaveData.AddCoins(10);
             break;
         }
 
