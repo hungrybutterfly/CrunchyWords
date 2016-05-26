@@ -136,6 +136,15 @@ public class ShopManager : MonoBehaviour
         OptionPurchasedSuccess(OptionIndex);
     }
 
+    ////////////////////////////////////////////////////////////////////////////////////////
+    // Real IAP option - Return callback
+    ////////////////////////////////////////////////////////////////////////////////////////
+    public void RestorePurchases()
+    {
+        IAPurchaser PurchaseManager = GetComponent<IAPurchaser>();
+        PurchaseManager.RestorePurchases();
+    }
+
 
     public void BackClicked()
     {
