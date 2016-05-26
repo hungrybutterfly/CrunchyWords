@@ -19,26 +19,15 @@ public class LevelContent : MonoBehaviour
         LevelData.ZoneData Zone = Data.m_Zones[ZoneIndex];
 
         // set the zone title
-        Text ZoneTitle = GameObject.Find("ZoneTitle").GetComponent<Text>();
+        Text ZoneTitle = GameObject.Find("TitleBar").GetComponentInChildren<Text>();
         ZoneTitle.text = Data.m_Zones[ZoneIndex].m_Name;
-
-        // set the zone bg colour
-        Color Colour;
-        MyMisc.HexToColour(Data.m_Zones[ZoneIndex].m_Colour, out Colour);
-        GameObject.Find("Main Camera").GetComponent<Camera>().backgroundColor = Colour;
-
-        // set the zone panel colour
-        Colour.r *= 0.85f;
-        Colour.g *= 0.85f;
-        Colour.b *= 0.85f;
-        GameObject.Find("ZonePanel").GetComponent<Image>().color = Colour;
 
         DictionaryManager Dictionary = GameObject.Find("DictionaryManager").GetComponent<DictionaryManager>();
 
         GameObject Root = GameObject.Find("Root");
 
         // create a button for each zone
-        float Spacing = 105;
+        float Spacing = 101;
         GameObject ButtonPrefab = (GameObject)Resources.Load("Prefabs/LevelSelector", typeof(GameObject));
         for (int i = 0; i < Zone.m_Levels.Length; i++)
         {

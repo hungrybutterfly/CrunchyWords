@@ -42,6 +42,12 @@ public class ShopManager : MonoBehaviour
         {
             Coins[i].UpdateCoins();
         }
+
+        // hide the debug buttons if this is an external version
+        if (Session.m_ExternalVersion)
+        {
+            GameObject.Find("Add Coins").SetActive(false);
+        }
     }
 
     // process a successful purchase

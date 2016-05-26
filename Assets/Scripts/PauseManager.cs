@@ -11,6 +11,12 @@ public class PauseManager : MonoBehaviour
 
 	void Start () 
     {
+        SceneSettings Scene = GameObject.Find("SceneSettings").GetComponent<SceneSettings>();
+        Color PanelColour = Scene.GetPanelColour();
+
+        // recolour things to the zone
+        Image Panel = m_Root.gameObject.transform.Find("Image").GetComponent<Image>();
+        Panel.color = PanelColour;
     }
 
     public void SetIsEnabled(bool Active)

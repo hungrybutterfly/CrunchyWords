@@ -238,6 +238,13 @@ public class CeremonyManager : MonoBehaviour
         GameObject CeremonyObject = Instantiate(Prefab) as GameObject;
         CeremonyObject.transform.SetParent(Root.transform, false);
 
+        SceneSettings Scene = GameObject.Find("SceneSettings").GetComponent<SceneSettings>();
+        Color PanelColour = Scene.GetPanelColour();
+
+        // recolour things to the zone
+        Image Panel = CeremonyObject.transform.Find("Image").GetComponent<Image>();
+        Panel.color = PanelColour;
+
         Text You = CeremonyObject.transform.Find("You").gameObject.GetComponent<Text>();
         You.gameObject.SetActive(false);
         Text Made = CeremonyObject.transform.Find("Made").gameObject.GetComponent<Text>();
@@ -255,7 +262,7 @@ public class CeremonyManager : MonoBehaviour
         Button Next = CeremonyObject.transform.Find("Button").gameObject.GetComponent<Button>();
         Next.gameObject.SetActive(false);
 
-        float Delay = 0.5f;
+        float Delay = 0.25f;
 
         yield return new WaitForSeconds(Delay);
 

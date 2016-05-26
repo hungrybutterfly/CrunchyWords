@@ -129,13 +129,17 @@ public class GameManager : MonoBehaviour {
 
         // create the letter slots
         GameObject LetterSlot = (GameObject)Resources.Load("Prefabs/LetterSlot", typeof(GameObject));
+        GameObject[] Slots1 = new GameObject[m_MaxLetters];
+        GameObject[] Slots2 = new GameObject[m_MaxLetters];
         for (int i = 0; i < m_MaxLetters; i++)
         {
             GameObject NewSlot = Instantiate(LetterSlot, GetLetterIdlePosition(i), Quaternion.identity) as GameObject;
             NewSlot.transform.SetParent(m_LetterParent, false);
+            Slots2[i] = NewSlot;
 
             NewSlot = Instantiate(LetterSlot, GetLetterUsedPosition(i), Quaternion.identity) as GameObject;
             NewSlot.transform.SetParent(m_LetterParent, false);
+            Slots1[i] = NewSlot;
         }
 
         // create the letter buttons
@@ -203,6 +207,29 @@ public class GameManager : MonoBehaviour {
 
         // start the first new word off
         NewWord();
+
+        SceneSettings Scene = GameObject.Find("SceneSettings").GetComponent<SceneSettings>();
+        Color PanelColour = Scene.GetPanelColour();
+
+        // recolour things to the zone
+        Image Panel = GameObject.Find("TitlePanel").GetComponent<Image>();
+        Panel.color = PanelColour;
+        Panel = GameObject.Find("TopPanel").GetComponent<Image>();
+        Panel.color = PanelColour;
+        Panel = GameObject.Find("Panel").GetComponent<Image>();
+        Panel.color = PanelColour;
+        PauseManager Pause = GetComponent<PauseManager>();
+        Panel = Pause.m_Root.gameObject.transform.Find("OptionsPanel").GetComponent<Image>();
+        PanelColour.r *= 0.85f;
+        PanelColour.g *= 0.85f;
+        PanelColour.b *= 0.85f;
+        for (int i = 0; i < m_MaxLetters; i++)
+        {
+            Panel = Slots1[i].GetComponent<Image>();
+            Panel.color = PanelColour;
+            Panel = Slots2[i].GetComponent<Image>();
+            Panel.color = PanelColour;
+        }
     }
 
     void OnDestroy()
@@ -641,7 +668,7 @@ public class GameManager : MonoBehaviour {
         // show the win text
         CeremonyManager Ceremony = GameObject.Find("GameManager").GetComponent<CeremonyManager>();
         bool Perfect = false;
-        if (Session.m_BestChain == Session.m_WordsAvailable)
+        if (m_BestChain == Session.m_WordsAvailable)
             Perfect = true;
         Ceremony.Win(Perfect);
 
@@ -724,6 +751,9 @@ public class GameManager : MonoBehaviour {
                 m_WordList[i].SetFound(m_CurrentWord.FitWords[i], true);
             }
         }
+
+        // hide the options button
+        GameObject.Find("Pause").SetActive(false);
     }
 
     void ResetHint()
