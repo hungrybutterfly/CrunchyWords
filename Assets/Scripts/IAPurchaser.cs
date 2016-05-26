@@ -3,12 +3,18 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Purchasing;
 
+///////////////////////////////////////////////////
+/// IAPurchaser.cs
+/// Chris Dawson 2016
+/// 
+/// Allows the actual IAP of products
+/// Deriving the Purchaser class from IStoreListener enables it to receive messages from Unity Purchasing.
+/// 
+///////////////////////////////////////////////////
+
 //TODO
-//Add each item
 //We need google IDs
 
-
-// Deriving the Purchaser class from IStoreListener enables it to receive messages from Unity Purchasing.
 public class IAPurchaser : MonoBehaviour, IStoreListener
 {
     //Reference to the Purchasing system.
@@ -18,22 +24,26 @@ public class IAPurchaser : MonoBehaviour, IStoreListener
     private static IExtensionProvider m_StoreExtensionProvider;
 
     //Callback for the product desired
-    private Action<bool> m_Callback;
+    private Action<bool, eIAPItems> m_Callback;
 
     //Are we currently busy purchasing?
     private bool m_CurrentlyPurchasing = false;
 
     //Type of IAP
-    public enum IAPItems
+    public enum eIAPItems
     {
         IAP_100Coins,
+        IAP_250Coins,
+        IAP_600Coins,
+        IAP_100CoinsRemoveStatics,
+        IAP_250CoinsRemoveAllAds,
         IAP_LEN,
     };
 
     //Struct to hold the details for each IAP
     private struct IAPInfo
     {
-        public IAPItems type;
+        public eIAPItems type;
         public string identifier;
         public string appleID;
         public string androidID;
@@ -46,29 +56,48 @@ public class IAPurchaser : MonoBehaviour, IStoreListener
     //Currently purchasing ID
     IAPInfo m_ItemBeingPurchased;
 
-
     void Start()
     {
         // If we haven't set up the Unity Purchasing reference
         if (m_StoreController == null)
         {
             //Setup IAPs
-            m_SellableItems = new IAPInfo[(int)IAPItems.IAP_LEN];
+            m_SellableItems = new IAPInfo[(int)eIAPItems.IAP_LEN];
 
             //100 Coins
-            m_SellableItems[0].type = IAPItems.IAP_100Coins;
+            m_SellableItems[0].type = eIAPItems.IAP_100Coins;
             m_SellableItems[0].identifier = "Consumable100Coins";
             m_SellableItems[0].appleID = "WordChain.100Coins";
             m_SellableItems[0].androidID = "com.unity3d.test.services.purchasing.consumable";
             m_SellableItems[0].productType = ProductType.Consumable;
 
-            //TODO
-            /*
-            IAPInfo Consumable250Coins;
-            IAPInfo Consumable600Coins;
-            IAPInfo NonConsumable250CoinsRemoveAllAds;
-            IAPInfo NonConsumable100CoinsRemoveStatics;
-            */
+            //250 Coins
+            m_SellableItems[1].type = eIAPItems.IAP_250Coins;
+            m_SellableItems[1].identifier = "Consumable250Coins";
+            m_SellableItems[1].appleID = "WordChain.250Coins";
+            m_SellableItems[1].androidID = "com.unity3d.test.services.purchasing.consumable";
+            m_SellableItems[1].productType = ProductType.Consumable;
+
+            //600 Coins
+            m_SellableItems[2].type = eIAPItems.IAP_600Coins;
+            m_SellableItems[2].identifier = "Consumable600Coins";
+            m_SellableItems[2].appleID = "WordChain.600Coins";
+            m_SellableItems[2].androidID = "com.unity3d.test.services.purchasing.consumable";
+            m_SellableItems[2].productType = ProductType.Consumable;
+
+            //100 Coins - Remove Statics
+            m_SellableItems[2].type = eIAPItems.IAP_100CoinsRemoveStatics;
+            m_SellableItems[2].identifier = "NonConsumable100CoinsRemoveStatics";
+            m_SellableItems[2].appleID = "WordChain.100CoinRemoveStatics";
+            m_SellableItems[2].androidID = "com.unity3d.test.services.purchasing.nonconsumable";
+            m_SellableItems[2].productType = ProductType.NonConsumable;
+
+            //250 Coins - Remove Ads
+            m_SellableItems[2].type = eIAPItems.IAP_250CoinsRemoveAllAds;
+            m_SellableItems[2].identifier = "NonConsumable250CoinsRemoveAllAds";
+            m_SellableItems[2].appleID = "WordChain.250CoinRemoveAllAds";
+            m_SellableItems[2].androidID = "com.unity3d.test.services.purchasing.nonconsumable";
+            m_SellableItems[2].productType = ProductType.NonConsumable;
 
             //Init Callback
             m_Callback = null;
@@ -92,7 +121,7 @@ public class IAPurchaser : MonoBehaviour, IStoreListener
         var builder = ConfigurationBuilder.Instance(StandardPurchasingModule.Instance());
 
         // Add all products to sell / restore by way of its identifier, associating the general identifier with its store-specific identifiers.
-        for (int i = 0; i < (int)IAPItems.IAP_LEN; ++i)
+        for (int i = 0; i < (int)eIAPItems.IAP_LEN; ++i)
         {
             builder.AddProduct(m_SellableItems[i].identifier, m_SellableItems[i].productType, new IDs() {
                 {
@@ -114,7 +143,7 @@ public class IAPurchaser : MonoBehaviour, IStoreListener
     /// Public Section (Callable)
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    public void BuyItem(IAPItems _item, Action<bool> _callback)
+    public void BuyItem(eIAPItems _item, Action<bool, eIAPItems> _callback)
     {
         //In purchase mode?
         if (m_CurrentlyPurchasing) { return; }
@@ -123,7 +152,7 @@ public class IAPurchaser : MonoBehaviour, IStoreListener
         m_Callback = _callback;
 
         //Find the correct ID
-        for (int i = 0; i < (int)IAPItems.IAP_LEN; ++i)
+        for (int i = 0; i < (int)eIAPItems.IAP_LEN; ++i)
         {
             if (m_SellableItems[i].type == _item)
             {
@@ -180,12 +209,12 @@ public class IAPurchaser : MonoBehaviour, IStoreListener
         if (String.Equals(args.purchasedProduct.definition.id, m_ItemBeingPurchased.identifier, StringComparison.Ordinal))
         {
             Debug.Log(string.Format("ProcessPurchase: PASS. Product: '{0}'", args.purchasedProduct.definition.id));//If the consumable item has been successfully purchased, add 100 coins to the player's in-game score.
-            m_Callback(true);
+            m_Callback(true, m_ItemBeingPurchased.type);
         }
         else
         {
             Debug.Log(string.Format("ProcessPurchase: FAIL. Unrecognized product: '{0}'", args.purchasedProduct.definition.id));
-            m_Callback(false);
+            m_Callback(false, m_ItemBeingPurchased.type);
         }
 
         return PurchaseProcessingResult.Complete;

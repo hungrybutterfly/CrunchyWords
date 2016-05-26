@@ -4,7 +4,7 @@ using UnityEngine.SceneManagement;
 using System.Collections;
 using System.Collections.Generic;
 
-public class ShopManager : MonoBehaviour 
+public class ShopManager : MonoBehaviour
 {
     enum eOption
     {
@@ -12,7 +12,7 @@ public class ShopManager : MonoBehaviour
         Coins250,
         Coins600,
         Coins100Static,
-        Coins100ALL,
+        Coins250ALL,
         Watch,
     }
 
@@ -57,26 +57,26 @@ public class ShopManager : MonoBehaviour
 
         switch (Option)
         {
-        case eOption.Coins100:
-            Session.m_SaveData.AddCoins(100);
-            break;
-        case eOption.Coins250:
-            Session.m_SaveData.AddCoins(250);
-            break;
-        case eOption.Coins600:
-            Session.m_SaveData.AddCoins(600);
-            break;
-        case eOption.Coins100Static:
-            Session.m_SaveData.AddCoins(100);
-            Session.m_SaveData.sd_RemoveStaticAds = 1;
-            break;
-        case eOption.Coins100ALL:
-            Session.m_SaveData.AddCoins(250);
-            Session.m_SaveData.sd_RemoveALLAds = 1;
-            break;
-        case eOption.Watch:
-            Session.m_SaveData.AddCoins(10);
-            break;
+            case eOption.Coins100:
+                Session.m_SaveData.AddCoins(100);
+                break;
+            case eOption.Coins250:
+                Session.m_SaveData.AddCoins(250);
+                break;
+            case eOption.Coins600:
+                Session.m_SaveData.AddCoins(600);
+                break;
+            case eOption.Coins100Static:
+                Session.m_SaveData.AddCoins(100);
+                Session.m_SaveData.sd_RemoveStaticAds = 1;
+                break;
+            case eOption.Coins250ALL:
+                Session.m_SaveData.AddCoins(250);
+                Session.m_SaveData.sd_RemoveALLAds = 1;
+                break;
+            case eOption.Watch:
+                Session.m_SaveData.AddCoins(10);
+                break;
         }
 
         Session.Save();
@@ -103,6 +103,54 @@ public class ShopManager : MonoBehaviour
             Session.ChangeScene("Advert", LoadSceneMode.Additive);
         }
     }
+
+    ////////////////////////////////////////////////////////////////////////////////////////
+    // Real IAP option
+    ////////////////////////////////////////////////////////////////////////////////////////
+    public void OptionClickedReal(string Option)
+    {
+#if (!UNITY_IOS)
+        return;
+#else
+        SessionManager.MetricsLogEventWithParameters("ShopOptionClicked", new Dictionary<string, string>() { { "Option", Option } });
+        SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
+        SessionManager.PlaySound("Option_Select");
+
+        IAPurchaser.eIAPItems OptionIndex = (IAPurchaser.eIAPItems)int.Parse(Option);
+
+        //Buy the correct item
+        IAPurchaser PurchaseManager = GetComponent<IAPurchaser>();
+        PurchaseManager.BuyItem(OptionIndex, IAPReturn);
+#endif
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////////////
+    // Real IAP option - Return callback
+    ////////////////////////////////////////////////////////////////////////////////////////
+    public void IAPReturn(bool _success, IAPurchaser.eIAPItems _item)
+    {
+        //Take the item
+        eOption OptionIndex = (eOption)((int)_item);
+
+        //Not a success? go to fail...
+        if (!_success)
+        {
+            OptionPurchasedFail((int)_item);
+        }
+
+        //Unlock/Purchase item
+        OptionPurchasedSuccess(OptionIndex);
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////////////
+    // Real IAP option - Return callback
+    ////////////////////////////////////////////////////////////////////////////////////////
+    public void RestorePurchases()
+    {
+        IAPurchaser PurchaseManager = GetComponent<IAPurchaser>();
+        PurchaseManager.RestorePurchases();
+    }
+
 
     public void BackClicked()
     {

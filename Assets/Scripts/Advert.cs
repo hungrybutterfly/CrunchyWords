@@ -2,12 +2,8 @@
 /// Advert.cs
 /// Chris Dawson 2016
 /// 
-/// Handles both static/interstatial ads(Google AdMob) and Video ads(UnityAds)
-/// For AdMob schemes see - https://apps.admob.com/#home
-/// For Unity - see Services in Unity - https://dashboard.unityads.unity3d.com/
+/// Basic scene script to trigger ads
 /// 
-/// Things to remember :
-/// iOS - You must take the admob framework into xcode build, also it must be in the folder itself
 ///////////////////////////////////////////////////
 
 
