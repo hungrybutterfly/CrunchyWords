@@ -387,7 +387,7 @@ public class GameManager : MonoBehaviour {
         }
         else
         {
-            SessionManager.MetricsLogEvent("LetterClickedRemoveFailed");
+           SessionManager.MetricsLogEvent("LetterClickedRemoveFailed");
         }
 
         UpdateLettersNotReady();
@@ -670,7 +670,7 @@ public class GameManager : MonoBehaviour {
         bool Perfect = false;
         if (m_BestChain == Session.m_WordsAvailable)
             Perfect = true;
-        Ceremony.Win(Perfect);
+        Ceremony.Win(Perfect, m_CurrentWord.Word);
 
         // start a count down before going to the result screen
         m_ShowWinTimer = 30;
@@ -912,6 +912,9 @@ public class GameManager : MonoBehaviour {
     {
         m_Locked = true;
         m_LockImage.SetActive(true);
+
+        CeremonyManager Ceremony = GameObject.Find("GameManager").GetComponent<CeremonyManager>();
+        Ceremony.Lock();
     }
 
     private void ResetLock()
@@ -1106,13 +1109,14 @@ public class GameManager : MonoBehaviour {
         }
     }
 
-    public void CompleteWordCorrect()
+    public void CompleteWordCorrect(bool _CerermonyInterrupted)
     {
         // mark the word as correct
         m_CorrectWord.SetFound(m_WordFound, false);
 
         // return the letters to idle
-        ClearUsedLetters();
+        if (!_CerermonyInterrupted)
+            ClearUsedLetters();
 
         // did the player find all the words
         if (m_WordsRight == m_CurrentWord.FitWords.Length)
@@ -1154,10 +1158,18 @@ public class GameManager : MonoBehaviour {
     public int CorrectWordNextLetter(int Index)
     {
         LetterButton Letter = m_LetterList[m_LetterUsedList[Index]];
-        Letter.SetVisible(false);
+
+        CeremonyManager Ceremony = GetComponent<CeremonyManager>();
+        if (!Ceremony.m_CerermonyInterrupted)
+            Letter.SetVisible(false);
 
         m_CorrectWord.SetLetter(Index, Letter.m_Letter);
 
         return Letter.m_Value;
+    }
+
+    public void CeremonyBlockerClicked()
+    {
+        GetComponent<CeremonyManager>().BlockerClicked();
     }
 }

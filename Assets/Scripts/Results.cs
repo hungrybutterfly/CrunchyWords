@@ -78,6 +78,8 @@ public class Results : MonoBehaviour {
     float m_fLongDelay;
     float m_fTinyDelay;
 
+    GameObject m_Next, m_Skip;
+
 	void Start () 
     {
         SessionManager.MetricsLogEvent("Results");
@@ -123,6 +125,9 @@ public class Results : MonoBehaviour {
         Text Lock = GameObject.Find("LockCount").GetComponent<Text>();
         Lock.text = Session.m_LocksUsed.ToString();
 
+        m_Next = GameObject.Find("Next");
+        m_Skip = GameObject.Find("Skip");
+
         // grab all the parts and hide them
         m_Parts = new GameObject[(int)eParts.Total];
         for (int i = 0; i < (int)eParts.Total; i++)
@@ -131,6 +136,8 @@ public class Results : MonoBehaviour {
             m_Parts[i] = (GameObject.Find(Name));
             m_Parts[i].SetActive(false);
         }
+        m_Next.SetActive(false);
+        m_Skip.SetActive(false);
 
         m_bCeremonyStarted = false;
         m_bCeremonyActive = true;
@@ -166,7 +173,7 @@ public class Results : MonoBehaviour {
         m_Parts[(int) eParts.EqualCoinsValue].SetActive(true);
         if (m_bCeremonyActive) yield return new WaitForSeconds(m_fLongDelay);
 
-        int NumFrames = 120;
+        int NumFrames = 60;
         int CoinsToAdd = (int)((float)Session.m_LastScore / Session.m_ScoreToCoins);
         int CoinsTarget = Session.m_SaveData.sd_TotalScore + CoinsToAdd;
         float Coins = Session.m_SaveData.sd_TotalScore;
@@ -225,6 +232,13 @@ public class Results : MonoBehaviour {
         m_Parts[(int) eParts.LockCount].SetActive(true);
         if (m_bCeremonyActive) yield return new WaitForSeconds(m_fNormalDelay);
 
+        m_Next.SetActive(true);
+
+        // hide the SkipAd button if necessary
+        if ((!Session.m_ZoneComplete && (Session.m_SaveData.sd_RemoveStaticAds == 0 && Session.m_SaveData.sd_RemoveALLAds == 0)) ||
+            (Session.m_ZoneComplete && Session.m_SaveData.sd_RemoveALLAds == 0))
+            m_Skip.SetActive(true);
+
         m_bCeremonyActive = false;
     }
 
@@ -242,11 +256,8 @@ public class Results : MonoBehaviour {
         if ((!Session.m_ZoneComplete && (Session.m_SaveData.sd_RemoveStaticAds != 0 || Session.m_SaveData.sd_RemoveALLAds != 0)) ||
             (Session.m_ZoneComplete && Session.m_SaveData.sd_RemoveALLAds != 0))
         {
-            if (GameObject.Find("Skip"))
-            {
-                Button Skip = GameObject.Find("Skip").GetComponent<Button>();
-                Skip.gameObject.SetActive(false);
-            }
+            if (m_Skip)
+                m_Skip.SetActive(false);
         }
     }
 	
@@ -266,40 +277,41 @@ public class Results : MonoBehaviour {
         }
     }
 
-    public void NextClicked()
+    public void SkipCeremonyClicked()
     {
         if (m_bCeremonyActive)
         {
-            SessionManager.MetricsLogEvent("ResultsNextFinish");
+            SessionManager.MetricsLogEvent("ResultsSkipCeremony");
             m_bCeremonyActive = false;
         }
+    }
+
+    public void NextClicked()
+    {
+        SessionManager.MetricsLogEvent("ResultsNext");
+
+        SessionManager.PlaySound("Option_Select");
+
+        SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
+
+        SessionManager.MetricsLogEventWithParameters("SaveData", new Dictionary<string, string>() 
+        { 
+            { "BestChain", Session.m_SaveData.sd_BestChain.ToString() }, 
+            { "CorrectSubmits", Session.m_SaveData.sd_CorrectSubmits.ToString() }, 
+            { "IncorrectSubmits", Session.m_SaveData.sd_IncorrectSubmits.ToString() }, 
+            { "LevelsComplete", Session.m_SaveData.sd_LevelsComplete.Count.ToString() }, 
+            { "TotalScore", Session.m_SaveData.sd_TotalScore.ToString() }, 
+        });
+
+        // move to the next level
+        Session.m_SaveData.sd_CurrentLevel++;
+        Session.Save();
+
+        Session.m_WatchAd = true;
+        if (!Session.m_ZoneComplete)
+            Session.ChangeScene("Level");
         else
-        {
-            SessionManager.MetricsLogEvent("ResultsNext");
-
-            SessionManager.PlaySound("Option_Select");
-
-            SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
-
-            SessionManager.MetricsLogEventWithParameters("SaveData", new Dictionary<string, string>() 
-            { 
-                { "BestChain", Session.m_SaveData.sd_BestChain.ToString() }, 
-                { "CorrectSubmits", Session.m_SaveData.sd_CorrectSubmits.ToString() }, 
-                { "IncorrectSubmits", Session.m_SaveData.sd_IncorrectSubmits.ToString() }, 
-                { "LevelsComplete", Session.m_SaveData.sd_LevelsComplete.ToString() }, 
-                { "TotalScore", Session.m_SaveData.sd_TotalScore.ToString() }, 
-            });
-
-            // move to the next level
-            Session.m_SaveData.sd_CurrentLevel++;
-            Session.Save();
-
-            Session.m_WatchAd = true;
-            if (!Session.m_ZoneComplete)
-                Session.ChangeScene("Level");
-            else
-                Session.ChangeScene("Zone");
-        }
+            Session.ChangeScene("Zone");
     }
 
     public void StatsClicked()

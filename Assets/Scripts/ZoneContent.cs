@@ -130,11 +130,27 @@ public class ZoneContent : MonoBehaviour
         GameObject CeremonyObject = Instantiate(Prefab) as GameObject;
         CeremonyObject.transform.SetParent(Root.transform, false);
 
-//        SessionManager.PlaySound("Fanfare_Wrong");
+        GameObject String = CeremonyObject.transform.Find("Text").gameObject;
+        for (int i = 0; i < 4;i++)
+        {
+            String.SetActive(false);
+            yield return new WaitForSeconds(0.1f);
+            String.SetActive(true);
+            yield return new WaitForSeconds(0.2f);
+        }
+            //        SessionManager.PlaySound("Fanfare_Wrong");
 
-        yield return new WaitForSeconds(3.0f);
+        yield return new WaitForSeconds(1.75f);
 
         // delete the object
         Destroy(CeremonyObject.gameObject);
+    }
+
+    public void ShopClicked()
+    {
+        SessionManager.MetricsLogEvent("ZoneContentShop");
+        SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
+        Session.ChangeScene("Shop", LoadSceneMode.Additive);
+        SessionManager.PlaySound("Option_Select");
     }
 }

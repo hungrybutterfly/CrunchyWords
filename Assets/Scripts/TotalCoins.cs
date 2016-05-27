@@ -28,6 +28,15 @@ public class TotalCoins : MonoBehaviour
     {
         if (m_FlashTimer > 0)
         {
+            if (m_FlashTimer % 20 == 19)
+            {
+                GameObject Prefab = (GameObject)Resources.Load("Prefabs/CoinAnimation", typeof(GameObject));
+                GameObject Root = GameObject.Find("Root");
+                GameObject CeremonyObject = Instantiate(Prefab) as GameObject;
+                CeremonyObject.transform.SetParent(Root.transform, false);
+                Destroy(CeremonyObject, 0.3f);
+            }
+
             m_FlashTimer--;
             if (m_FlashTimer % 20 < 14)
             {

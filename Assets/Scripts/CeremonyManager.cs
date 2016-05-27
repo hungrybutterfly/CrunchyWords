@@ -15,6 +15,7 @@ public enum eCeremonyType
     All5Found,
     All6Found,
     AlreadyFound,
+    Lock,
 
     Total
 };
@@ -27,6 +28,9 @@ public class CeremonyManager : MonoBehaviour
 
     eCeremonyType m_Type;
 
+    bool m_CeremonyActive;
+    public bool m_CerermonyInterrupted;
+
     static string[] m_Strings =
     {
         "GOOD!",
@@ -38,11 +42,19 @@ public class CeremonyManager : MonoBehaviour
         "All 4 letter words found!",
         "All 5 letter words found!",
         "All 6 letter words found!",
-        "Already Found!"
+        "Already Found!",
+        "Lock",
     };
+
+    void Start()
+    {
+        SetIsEnabled(false);
+    }
 
     public void SetIsEnabled(bool _Active)
     {
+        m_CeremonyActive = _Active;
+        m_CerermonyInterrupted = false;
         m_Root.gameObject.SetActive(_Active);
     }
 
@@ -80,6 +92,11 @@ public class CeremonyManager : MonoBehaviour
             SessionManager.PlaySound("All_6_Complete");
         }
 
+        if (_Type == eCeremonyType.AlreadyFound)
+            Object.transform.localScale = new Vector3(1.5f, 1.5f, 1);
+        else
+            Object.transform.localScale = new Vector3(1, 1, 1);
+
         GameObject Blocker = GameObject.Find("Ceremony Panel Blocker");
 
         // disable raycasting so player can click
@@ -91,9 +108,15 @@ public class CeremonyManager : MonoBehaviour
 	
 	void Update () 
     {
-        m_Timer -= Time.deltaTime;
-        if (m_Timer <= 0)
-            SetIsEnabled(false);
+        if (m_Timer > 0)
+        {
+            m_Timer -= Time.deltaTime;
+            if (m_Timer <= 0)
+            {
+                m_Timer = 0;
+                SetIsEnabled(false);
+            }
+        }
 	}
 
     public void CorrectWord(int _WordLength, int _Multiplier)
@@ -104,6 +127,14 @@ public class CeremonyManager : MonoBehaviour
     IEnumerator PlayCorrectWord(int _WordLength, int _Multiplier)
     {
         m_Type = eCeremonyType.WordGood;
+        m_CeremonyActive = true;
+        m_CerermonyInterrupted = false;
+
+        m_Root.gameObject.SetActive(true);
+        GameObject Blocker = GameObject.Find("Ceremony Panel Blocker");
+        Blocker.GetComponent<Image>().raycastTarget = true;
+        Text Object = GameObject.Find("Ceremony Text").GetComponent<Text>();
+        Object.text = "";
 
         // create and attach the ceremony
         GameObject Prefab = (GameObject)Resources.Load("Prefabs/Ceremonies/CeremonySubmitGood", typeof(GameObject));
@@ -137,7 +168,7 @@ public class CeremonyManager : MonoBehaviour
 
         yield return new WaitForSeconds(0.5f);
 
-        Game.CompleteWordCorrect();
+        Game.CompleteWordCorrect(m_CerermonyInterrupted);
 
         // disable raycasting on the big panel so player can start clicking again
         CeremonyObject.GetComponent<Image>().raycastTarget = false;
@@ -171,6 +202,8 @@ public class CeremonyManager : MonoBehaviour
         // delete the object
         Destroy(CeremonyObject.gameObject);
 
+        m_Root.gameObject.SetActive(false);
+        m_CeremonyActive = false;
     }
 
     public void IncorrectWord(int _WordsRightCombo)
@@ -181,6 +214,8 @@ public class CeremonyManager : MonoBehaviour
     IEnumerator PlayIncorrectWord(int _WordsRightCombo)
     {
         m_Type = eCeremonyType.WordGood;
+        m_CeremonyActive = true;
+        m_CerermonyInterrupted = false;
 
         // create and attach the ceremony
         GameObject Prefab = (GameObject)Resources.Load("Prefabs/Ceremonies/CeremonySubmitBad", typeof(GameObject));
@@ -190,47 +225,47 @@ public class CeremonyManager : MonoBehaviour
 
         SessionManager.PlaySound("Fanfare_Wrong");
 
+        // reveal the cross
+        Image CeremonyImage = CeremonyObject.transform.Find("Image").gameObject.GetComponent<Image>();
+        CeremonyImage.gameObject.SetActive(true);
+
         if (_WordsRightCombo == 1)
-        {
-            // reveal the cross
-            Image CeremonyImage = CeremonyObject.transform.Find("Image").gameObject.GetComponent<Image>();
-            CeremonyImage.gameObject.SetActive(true);
-        }
+            yield return new WaitForSeconds(1.0f);
         else
+            yield return new WaitForSeconds(0.5f);
+
+        // hide the cross
+        CeremonyImage.gameObject.SetActive(false);
+
+        if (_WordsRightCombo > 1)
         {
             // reveal the text
             Text CeremonyText = CeremonyObject.transform.Find("Text").gameObject.GetComponent<Text>();
             CeremonyText.text = "X" + _WordsRightCombo.ToString() + " CHAIN BROKEN!";
             CeremonyText.gameObject.SetActive(true);
-        }
 
-        yield return new WaitForSeconds(1.0f);
+            yield return new WaitForSeconds(1.0f);
 
-        if (_WordsRightCombo == 1)
-        {
-            // hide the cross
-            Image CeremonyImage = CeremonyObject.transform.Find("Image").gameObject.GetComponent<Image>();
-            CeremonyImage.gameObject.SetActive(false);
-        }
-        else
-        {
             // hide the text
-            Text CeremonyText = CeremonyObject.transform.Find("Text").gameObject.GetComponent<Text>();
             CeremonyText.gameObject.SetActive(false);
         }
 
         // delete the object
         Destroy(CeremonyObject.gameObject);
+
+        m_CeremonyActive = false;
     }
 
-    public void Win(bool _Perfect)
+    public void Win(bool _Perfect, string _Word)
     {
-        StartCoroutine(PlayWin(_Perfect));
+        StartCoroutine(PlayWin(_Perfect, _Word));
     }
 
-    IEnumerator PlayWin(bool _Perfect)
+    IEnumerator PlayWin(bool _Perfect, string _Word)
     {
         m_Type = eCeremonyType.Win;
+        m_CeremonyActive = true;
+        m_CerermonyInterrupted = false;
 
         // create and attach the ceremony
         GameObject Prefab = (GameObject)Resources.Load("Prefabs/Ceremonies/CeremonyWin", typeof(GameObject));
@@ -255,6 +290,11 @@ public class CeremonyManager : MonoBehaviour
         The.gameObject.SetActive(false);
         Text Words = CeremonyObject.transform.Find("Words").gameObject.GetComponent<Text>();
         Words.gameObject.SetActive(false);
+        Text In = CeremonyObject.transform.Find("In").gameObject.GetComponent<Text>();
+        In.gameObject.SetActive(false);
+        Text Word = CeremonyObject.transform.Find("Word").gameObject.GetComponent<Text>();
+        Word.gameObject.SetActive(false);
+        Word.text = _Word + "!";
 
         Text Perfect = CeremonyObject.transform.Find("Perfect").gameObject.GetComponent<Text>();
         Perfect.gameObject.SetActive(false);
@@ -262,7 +302,7 @@ public class CeremonyManager : MonoBehaviour
         Button Next = CeremonyObject.transform.Find("Button").gameObject.GetComponent<Button>();
         Next.gameObject.SetActive(false);
 
-        float Delay = 0.25f;
+        float Delay = 0.2f;
 
         yield return new WaitForSeconds(Delay);
 
@@ -285,6 +325,10 @@ public class CeremonyManager : MonoBehaviour
         yield return new WaitForSeconds(Delay);
         Words.gameObject.SetActive(true);
         yield return new WaitForSeconds(Delay);
+        In.gameObject.SetActive(true);
+        yield return new WaitForSeconds(Delay);
+        Word.gameObject.SetActive(true);
+        yield return new WaitForSeconds(Delay);
 
         if (_Perfect)
         {
@@ -295,5 +339,49 @@ public class CeremonyManager : MonoBehaviour
         GameManager Game = GameObject.Find("GameManager").GetComponent<GameManager>();
         Next.onClick.AddListener(() => { Game.EndClicked(); });
         Next.gameObject.SetActive(true);
+
+        m_CeremonyActive = false;
+    }
+
+    public void Lock()
+    {
+        StartCoroutine(PlayLock());
+    }
+
+    IEnumerator PlayLock()
+    {
+        m_Type = eCeremonyType.Lock;
+
+        // create and attach the ceremony
+        GameObject Prefab = (GameObject)Resources.Load("Prefabs/Ceremonies/CeremonyLock", typeof(GameObject));
+        GameObject Root = GameObject.Find("Ceremony Root");
+        GameObject CeremonyObject = Instantiate(Prefab) as GameObject;
+        CeremonyObject.transform.SetParent(Root.transform, false);
+
+/*        GameObject Image = CeremonyObject.transform.Find("Image").gameObject;
+        Image.SetActive(false);
+        GameObject Text1 = CeremonyObject.transform.Find("Text").gameObject;
+        Text1.SetActive(false);
+        GameObject Text2 = CeremonyObject.transform.Find("Text2").gameObject;
+        Text2.SetActive(false);*/
+
+        yield return new WaitForSeconds(1.0f);
+
+         // delete the object
+        Destroy(CeremonyObject.gameObject);
+    }
+
+    public void BlockerClicked()
+    {
+        if (m_CeremonyActive)
+        {
+            if (m_Type == eCeremonyType.WordGood)
+            {
+                GameManager Game = GameObject.Find("GameManager").GetComponent<GameManager>();
+                Game.ClearUsedLetters();
+                m_Root.gameObject.SetActive(false);
+                m_CerermonyInterrupted = true;
+            }
+        }
     }
 }

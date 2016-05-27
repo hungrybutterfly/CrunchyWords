@@ -108,6 +108,9 @@ public class SessionManager : MonoBehaviour
     // conversion rate from score to coins
     public float m_ScoreToCoins = 10.0f;
 
+    [HideInInspector]
+    public Color m_HintColour = new Color(0.5f, 1, 1);
+
     void LoadDictionary()
     {
         m_DictionaryObject = (GameObject)Instantiate(Resources.Load("Prefabs/DictionaryManager"));
@@ -165,28 +168,15 @@ public class SessionManager : MonoBehaviour
     void Start()
     {
         LoadSettings();
-        if (m_Settings.m_HowToSeen == 0)
-        {
-            m_Settings.m_HowToSeen = 1;
-            SaveSettings();
-            ChangeScene("HowToPlay");
-        }
     }
 
     void Update()
     {
-        // if we're on the loading screen wait 5 game frames, load the dictionary then transition to the cover
-        if (SceneManager.GetActiveScene().name == "Start" || SceneManager.GetActiveScene().name == "HowToPlay")
+        if (m_FirstTimeInit == 5)
         {
-            if (m_FirstTimeInit == 5)
-            {
-                LoadDictionary();
-
-                if (SceneManager.GetActiveScene().name == "Start")
-                    ChangeScene("Cover");
-            }
-            m_FirstTimeInit++;
+            LoadDictionary();
         }
+        m_FirstTimeInit++;
     }
 
     public void ChangeScene(string SceneName, LoadSceneMode Mode = LoadSceneMode.Single)

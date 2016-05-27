@@ -28,7 +28,10 @@ public class HintButton : MonoBehaviour
         if (!Ready)
             GetComponent<Image>().color = m_OriginalColour;
         else
-            GetComponent<Image>().color = new Color(1, 0, 0, 1);
+        {
+            Color Colour = GameObject.Find("SessionManager").GetComponent<SessionManager>().m_HintColour;
+            GetComponent<Image>().color = Colour;
+        }
     }
 
     public bool GetReady()
@@ -50,7 +53,13 @@ public class HintButton : MonoBehaviour
         {
             m_NudgeTimer += Time.deltaTime;
             if (((int)(m_NudgeTimer * 60)) % 30 < 20)
-                GetComponent<Image>().color = new Color(1, 0.75f, 0.75f, 1);
+            {
+                Color Colour = GameObject.Find("SessionManager").GetComponent<SessionManager>().m_HintColour;
+                Colour.r = 1 - ((1 - Colour.r) * 0.5f);
+                Colour.g = 1 - ((1 - Colour.g) * 0.5f);
+                Colour.b = 1 - ((1 - Colour.b) * 0.5f);
+                GetComponent<Image>().color = Colour;
+            }
             else
                 GetComponent<Image>().color = m_OriginalColour;
         }
