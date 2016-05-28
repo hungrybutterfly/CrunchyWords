@@ -100,6 +100,11 @@ public class GameManager : MonoBehaviour {
     // the time when Start() is called
     float m_StartTime;
 
+    // this button is hidden initially and revealed if the player breaks a chain of 20 or more
+    GameObject m_UndoButton;
+    int m_UndoChainSession;
+    int m_UndoChain;
+
     private void SetASize(RectTransform _trans, Vector2 _newSize)
     {
         Vector2 oldSize = _trans.rect.size;
@@ -161,9 +166,9 @@ public class GameManager : MonoBehaviour {
         for (int i = 0; i < m_MaxWords; i++)
         {
             float x = (i / m_WordRows) * WordWidth + (WordWidth / 2);
-            float y = 854 - ((i % m_WordRows) * WordHeight) - (WordHeight / 2);
+            float y = 857 - ((i % m_WordRows) * (WordHeight + 2)) - (WordHeight / 2);
             m_WordList[i] = Instantiate(m_WordPrefab, new Vector3(x, y, 0), Quaternion.identity) as Word;
-            SetASize(m_WordList[i].GetComponent<RectTransform>(), new Vector2(WordWidth, WordHeight));
+            SetASize(m_WordList[i].GetComponent<RectTransform>(), new Vector2(WordWidth - 2, WordHeight));
             m_WordList[i].transform.SetParent(m_WordParent, false);
             m_WordList[i].m_ID = i;
         }
@@ -203,7 +208,11 @@ public class GameManager : MonoBehaviour {
 
         m_JumblesUsed = 0;
         m_HintsUsed = 0;
-        m_LocksUsed = 0;    
+        m_LocksUsed = 0;
+
+        // get the undo button and hide it
+        m_UndoButton = GameObject.Find("Undo");
+        m_UndoButton.SetActive(false);
 
         // start the first new word off
         NewWord();
@@ -546,6 +555,9 @@ public class GameManager : MonoBehaviour {
             SessionManager.MetricsLogEventWithParameters("SubmitTooSmall", new Dictionary<string, string>() { { "Word", Word } });
             return;
         }
+
+        // hide the UNDO button just incase it's not already
+        m_UndoButton.SetActive(false);
 	
         SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
 
@@ -594,20 +606,30 @@ public class GameManager : MonoBehaviour {
                 SessionManager.MetricsLogEventWithParameters("SubmitGood", new Dictionary<string, string>() { { "Word", Word } });
 
                 m_WordsRight++;
+                Debug.Log(m_WordsRight.ToString());
                 ++Session.m_SaveData.sd_CorrectSubmits;
                 Session.m_SaveData.IncreaseChain();
 
                 // update the score (add word Score * combo)
                 m_TargetScore = m_TotalScore + Score * m_WordsRightCombo;
 
+                // has the player not yet finished 
+                if (m_WordsRight < m_CurrentWord.FitWords.Length)
+                {
+                    // increase the combo
+                    m_WordsRightCombo++;
+                    if (m_BestChain < m_WordsRightCombo - 1)
+                        m_BestChain = m_WordsRightCombo - 1;
+                }
+                else
+                {
+                    if (m_BestChain < m_WordsRightCombo)
+                        m_BestChain = m_WordsRightCombo;
+                }
+
                 // start the CorrectWord ceremony
                 CeremonyManager Ceremony = GetComponent<CeremonyManager>();
                 Ceremony.CorrectWord(Word.Length, m_WordsRightCombo);
-
-                // increase the combo
-                m_WordsRightCombo++;
-                if (m_BestChain < m_WordsRightCombo - 1)
-                    m_BestChain = m_WordsRightCombo - 1;
             }
             else
             {
@@ -616,11 +638,25 @@ public class GameManager : MonoBehaviour {
 
                 // start the IncorrectWord ceremony
                 CeremonyManager Ceremony = GetComponent<CeremonyManager>();
-                Ceremony.IncorrectWord(m_WordsRightCombo);
 
                 if (!m_Locked)
                 {
                     SessionManager.MetricsLogEventWithParameters("SubmitBadChainBroken", new Dictionary<string, string>() { { "Word", Word } });
+
+                    // display the UNDO button if the chain >= 20
+                    if (Session.m_SaveData.sd_CurrentChain >= 20)
+                    {
+                        m_UndoButton.SetActive(true);
+                        m_UndoChainSession = Session.m_SaveData.sd_CurrentChain;
+                        m_UndoChain = m_WordsRightCombo;
+
+                        // start the SaveChain ceremony
+                        Ceremony.SaveChain(Session.m_SaveData.sd_CurrentChain);
+                    }
+                    else
+                    {
+                        Ceremony.IncorrectWord(m_WordsRightCombo);
+                    }
 
                     Session.m_SaveData.BreakChain();
 
@@ -635,6 +671,7 @@ public class GameManager : MonoBehaviour {
                 else
                 {
                     SessionManager.MetricsLogEventWithParameters("SubmitBadChainLocked", new Dictionary<string, string>() { { "Word", Word } });
+                    Ceremony.Lock();
                 }
             }
         }
@@ -668,7 +705,7 @@ public class GameManager : MonoBehaviour {
         // show the win text
         CeremonyManager Ceremony = GameObject.Find("GameManager").GetComponent<CeremonyManager>();
         bool Perfect = false;
-        if (m_BestChain == Session.m_WordsAvailable)
+        if (m_BestChain == m_CurrentWord.FitWords.Length)
             Perfect = true;
         Ceremony.Win(Perfect, m_CurrentWord.Word);
 
@@ -912,9 +949,6 @@ public class GameManager : MonoBehaviour {
     {
         m_Locked = true;
         m_LockImage.SetActive(true);
-
-        CeremonyManager Ceremony = GameObject.Find("GameManager").GetComponent<CeremonyManager>();
-        Ceremony.Lock();
     }
 
     private void ResetLock()
@@ -1038,7 +1072,7 @@ public class GameManager : MonoBehaviour {
         {
             SessionManager.MetricsLogEvent("HintReady");
 
-            if (Session.m_SaveData.sd_TotalScore < m_LockCost)
+            if (Session.m_SaveData.sd_TotalScore < m_HintCost)
             {
                 // send the player to the shop
                 Session.ChangeScene("Shop", LoadSceneMode.Additive);
@@ -1171,5 +1205,23 @@ public class GameManager : MonoBehaviour {
     public void CeremonyBlockerClicked()
     {
         GetComponent<CeremonyManager>().BlockerClicked();
+    }
+
+    public void UndoClicked()
+    {
+        m_UndoButton.SetActive(false);
+
+        // kick off a video ad
+        SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
+        Session.m_AdvertStatic = true;
+        Session.ChangeScene("Advert", LoadSceneMode.Additive);
+
+        // revert the combo
+        m_WordsRightCombo = m_UndoChain;
+        UpdateScore();
+
+        // Revert the save data
+        Session.m_SaveData.sd_CurrentChain = m_UndoChainSession;
+        Session.Save();
     }
 }

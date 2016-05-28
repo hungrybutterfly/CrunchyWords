@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 using System.Collections;
 
 public class PauseManager : MonoBehaviour 
@@ -85,5 +86,15 @@ public class PauseManager : MonoBehaviour
         GameManager Game = GameObject.Find("GameManager").GetComponent<GameManager>();
         Game.Finish();
         SetIsEnabled(false);
+    }
+
+    public void ShopClicked()
+    {
+        SessionManager.MetricsLogEvent("PauseShop");
+
+        SessionManager.PlaySound("Option_Select");
+
+        SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
+        Session.ChangeScene("Shop", LoadSceneMode.Additive);
     }
 }

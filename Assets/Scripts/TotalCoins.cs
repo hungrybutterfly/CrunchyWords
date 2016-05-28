@@ -21,24 +21,24 @@ public class TotalCoins : MonoBehaviour
 
     public void StartFlash()
     {
-        m_FlashTimer = 120;
+        m_FlashTimer = 60;
     }
 
     void Update()
     {
         if (m_FlashTimer > 0)
         {
-            if (m_FlashTimer % 20 == 19)
+            if (m_FlashTimer % 10 == 9)
             {
                 GameObject Prefab = (GameObject)Resources.Load("Prefabs/CoinAnimation", typeof(GameObject));
                 GameObject Root = GameObject.Find("Root");
                 GameObject CeremonyObject = Instantiate(Prefab) as GameObject;
                 CeremonyObject.transform.SetParent(Root.transform, false);
-                Destroy(CeremonyObject, 0.3f);
+                Destroy(CeremonyObject, 0.18f);
             }
 
             m_FlashTimer--;
-            if (m_FlashTimer % 20 < 14)
+            if (m_FlashTimer % 10 < 7)
             {
                 //GetComponentInChildren<Text>().color = m_Colour;
                 //GetComponentInChildren<Image>().color = new Color(1, 1, 1);

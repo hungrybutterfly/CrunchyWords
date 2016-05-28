@@ -293,6 +293,9 @@ public class SessionManager : MonoBehaviour
 
             m_Settings.LoadDataFromJSON();
             Debug.Log("LOADED Settings -> " + Application.persistentDataPath + m_SettingsFileName2);
+
+            GetComponent<SoundManager>().UpdateSFX(m_Settings.m_SFXEnabled);
+            GetComponent<SoundManager>().UpdateMusic(m_Settings.m_MusicEnabled);
         }
         else
         {
@@ -319,6 +322,20 @@ public class SessionManager : MonoBehaviour
         }
 
         return Out;
+    }
+
+    public void ToggleSFX()
+    {
+        m_Settings.m_SFXEnabled = 1 - m_Settings.m_SFXEnabled;
+        GetComponent<SoundManager>().UpdateSFX(m_Settings.m_SFXEnabled);
+        Save();
+    }
+
+    public void ToggleMusic()
+    {
+        m_Settings.m_MusicEnabled = 1 - m_Settings.m_MusicEnabled;
+        GetComponent<SoundManager>().UpdateMusic(m_Settings.m_MusicEnabled);
+        Save();
     }
 
     static public void MetricsLogEvent(string _EventName)

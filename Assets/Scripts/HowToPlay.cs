@@ -75,5 +75,7 @@ public class HowToPlay : MonoBehaviour
 
         SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
         Session.ChangeScene("Cover");
+
+        SessionManager.PlaySound("Option_Back");
     }
 }

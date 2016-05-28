@@ -94,7 +94,7 @@ public class ZoneContent : MonoBehaviour
                 // has all ads been paid for
                 if (Session.m_SaveData.sd_RemoveALLAds == 0)
                 {
-                    Session.m_AdvertStatic = true;
+                    Session.m_AdvertStatic = false;
                     Session.ChangeScene("Advert", LoadSceneMode.Additive);
                 }
             }

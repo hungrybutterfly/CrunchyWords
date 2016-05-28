@@ -164,7 +164,7 @@ public class CeremonyManager : MonoBehaviour
 
         // display the multiplier
         yield return new WaitForSeconds(0.25f);
-        CeremonyText.text = TotalScore.ToString() + " x " + _Multiplier.ToString();
+        CeremonyText.text = TotalScore.ToString() + " x " + _Multiplier.ToString() + " Chain";
 
         yield return new WaitForSeconds(0.5f);
 
@@ -241,7 +241,7 @@ public class CeremonyManager : MonoBehaviour
         {
             // reveal the text
             Text CeremonyText = CeremonyObject.transform.Find("Text").gameObject.GetComponent<Text>();
-            CeremonyText.text = "X" + _WordsRightCombo.ToString() + " CHAIN BROKEN!";
+            CeremonyText.text = "x" + _WordsRightCombo.ToString() + " CHAIN\nBROKEN!";
             CeremonyText.gameObject.SetActive(true);
 
             yield return new WaitForSeconds(1.0f);
@@ -302,7 +302,7 @@ public class CeremonyManager : MonoBehaviour
         Button Next = CeremonyObject.transform.Find("Button").gameObject.GetComponent<Button>();
         Next.gameObject.SetActive(false);
 
-        float Delay = 0.2f;
+        float Delay = 0.1f;
 
         yield return new WaitForSeconds(Delay);
 
@@ -358,16 +358,64 @@ public class CeremonyManager : MonoBehaviour
         GameObject CeremonyObject = Instantiate(Prefab) as GameObject;
         CeremonyObject.transform.SetParent(Root.transform, false);
 
-/*        GameObject Image = CeremonyObject.transform.Find("Image").gameObject;
-        Image.SetActive(false);
+        SessionManager.PlaySound("Fanfare_Wrong");
+
+        GameObject Image = CeremonyObject.transform.Find("Image").gameObject;
         GameObject Text1 = CeremonyObject.transform.Find("Text").gameObject;
         Text1.SetActive(false);
-        GameObject Text2 = CeremonyObject.transform.Find("Text2").gameObject;
-        Text2.SetActive(false);*/
 
-        yield return new WaitForSeconds(1.0f);
+        Image.SetActive(true);
+        yield return new WaitForSeconds(0.5f);
+        Image.SetActive(false);
+        Text1.SetActive(true);
+        yield return new WaitForSeconds(2.0f);
+        Text1.SetActive(false);
 
          // delete the object
+        Destroy(CeremonyObject.gameObject);
+    }
+
+    public void SaveChain(int _CurrentChain)
+    {
+        StartCoroutine(PlaySaveChain(_CurrentChain));
+    }
+
+    IEnumerator PlaySaveChain(int _CurrentChain)
+    {
+        m_Type = eCeremonyType.Lock;
+
+        // create and attach the ceremony
+        GameObject Prefab = (GameObject)Resources.Load("Prefabs/Ceremonies/CeremonySaveChain", typeof(GameObject));
+        GameObject Root = GameObject.Find("Ceremony Root");
+        GameObject CeremonyObject = Instantiate(Prefab) as GameObject;
+        CeremonyObject.transform.SetParent(Root.transform, false);
+
+        GameObject Image = CeremonyObject.transform.Find("Image").gameObject;
+        GameObject Text1 = CeremonyObject.transform.Find("Text").gameObject;
+        Text1.SetActive(false);
+        string NewString = "Save your X" + _CurrentChain + "\nChain with UNDO!";
+        Text1.GetComponent<Text>().text = NewString;
+
+        // show cross
+        Image.SetActive(true);
+        yield return new WaitForSeconds(0.5f);
+        Image.SetActive(false);
+
+        // flash text
+        for(int i = 0;i < 3;i++)
+        {
+            Text1.SetActive(true);
+            yield return new WaitForSeconds(0.2f);
+            Text1.SetActive(false);
+            yield return new WaitForSeconds(0.1f);
+        }
+
+        // show text
+        Text1.SetActive(true);
+        yield return new WaitForSeconds(2.0f);
+        Text1.SetActive(false);
+
+        // delete the object
         Destroy(CeremonyObject.gameObject);
     }
 

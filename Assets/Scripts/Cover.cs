@@ -5,6 +5,11 @@ using System.Collections;
 
 public class Cover : MonoBehaviour 
 {
+    public Sprite m_SFXOn;
+    public Sprite m_SFXOff;
+    public Sprite m_MusicOn;
+    public Sprite m_MusicOff;
+
     void Start()
     {
         SessionManager.MetricsLogEvent("Cover");
@@ -55,6 +60,25 @@ public class Cover : MonoBehaviour
 				Button.SetActive (false);
 			}
         }
+
+        UpdateButtons();
+    }
+
+    void UpdateButtons()
+    {
+        SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
+
+        Image Sprite = GameObject.Find("SFX").transform.Find("Image").GetComponent<Image>();
+        if (Session.m_Settings.m_SFXEnabled == 1)
+            Sprite.sprite = m_SFXOn;
+        else
+            Sprite.sprite = m_SFXOff;
+
+        Sprite = GameObject.Find("Music").transform.Find("Image").GetComponent<Image>();
+        if (Session.m_Settings.m_MusicEnabled == 1)
+            Sprite.sprite = m_MusicOn;
+        else
+            Sprite.sprite = m_MusicOff;
     }
 
     public void StartClicked()
@@ -102,5 +126,23 @@ public class Cover : MonoBehaviour
         SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
         Session.m_SaveData.AddCoins(1000);
         SessionManager.PlaySound("Option_Select");
+    }
+
+    public void SFXClicked()
+    {
+        SessionManager.MetricsLogEvent("SFXClicked");
+
+        SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
+        Session.ToggleSFX();
+        UpdateButtons();
+    }
+
+    public void MusicClicked()
+    {
+        SessionManager.MetricsLogEvent("SFXClicked");
+
+        SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
+        Session.ToggleMusic();
+        UpdateButtons();
     }
 }

@@ -74,4 +74,23 @@ public class SoundManager : MonoBehaviour
             }
         }
     }
+
+    public void UpdateSFX(int Enabled)
+    {
+        float volume = 0;
+        if (Enabled == 1)
+            volume = 1;
+        for (int i = 0; i < m_MaxSoundSources; i++)
+        {
+            m_SoundSources[i].volume = volume;
+        }
+    }
+
+    public void UpdateMusic(int Enabled)
+    {
+        if (Enabled == 0)
+            m_MusicSource.volume = 0;
+        else
+            m_MusicSource.volume = 1;
+    }
 }

@@ -17,6 +17,8 @@ public class Settings
     //Save variables
     public int m_Version = m_CurrentVersion;
     public int m_HowToSeen = 0;
+    public int m_SFXEnabled;
+    public int m_MusicEnabled;
 
     //Reset and Initialise
     public void Init()
@@ -24,6 +26,8 @@ public class Settings
         SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
 
         m_HowToSeen = 0;
+        m_SFXEnabled = 1;
+        m_MusicEnabled = 0;
     }
 
     //Take all the savedata and convert it into a Dictionary (Ready for saving)
@@ -34,6 +38,8 @@ public class Settings
         //Save Data
         m_Dictionary.Add("m_Version", m_Version);
         m_Dictionary.Add("m_HowToSeen", m_HowToSeen);
+        m_Dictionary.Add("m_SFXEnabled", m_SFXEnabled);
+        m_Dictionary.Add("m_MusicEnabled", m_MusicEnabled);
     }
 
     //Take the serialised dictionary, convert it and restore the values (After Loading)
@@ -43,5 +49,7 @@ public class Settings
 
         //Now find it and load each key
         if (m_Dictionary.ContainsKey("m_HowToSeen")) { m_HowToSeen = (int)m_Dictionary["m_HowToSeen"]; }
+        if (m_Dictionary.ContainsKey("m_SFXEnabled")) { m_SFXEnabled = (int)m_Dictionary["m_SFXEnabled"]; }
+        if (m_Dictionary.ContainsKey("m_MusicEnabled")) { m_MusicEnabled = (int)m_Dictionary["m_MusicEnabled"]; }
     }
 }
