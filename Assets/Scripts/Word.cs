@@ -81,11 +81,18 @@ public class Word : MonoBehaviour
                 break;
 
             case eState.Possible:
-                GetComponent<Image>().color = new Color(1, 1, 0.5f);
+                {
+                    SceneSettings Scene = GameObject.Find("SceneSettings").GetComponent<SceneSettings>();
+                    Color Colour = Scene.GetBGColour();
+                    Colour.r = 1 - (1 - Colour.r) * 0.75f;
+                    Colour.g = 1 - (1 - Colour.g) * 0.75f;
+                    Colour.b = 1 - (1 - Colour.b) * 0.75f;
+                    GetComponent<Image>().color = Colour;
+                }
                 break;
 
             case eState.Found:
-                GetComponent<Image>().color = new Color(1, 1, 1, 0.5f);
+                GetComponent<Image>().color = new Color(0.5f, 0.5f, 0.5f, 1);
                 break;
 
             case eState.Ended:

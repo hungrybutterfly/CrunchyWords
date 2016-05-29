@@ -18,9 +18,7 @@ public class Loading : MonoBehaviour
             SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
             if (Session.m_Settings.m_HowToSeen == 0)
             {
-                Session.m_Settings.m_HowToSeen = 1;
-                Session.SaveSettings();
-                Session.ChangeScene("HowToPlay");
+                Session.ChangeScene("ChooseIcon");
             }
             else
             {

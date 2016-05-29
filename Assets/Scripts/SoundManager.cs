@@ -11,6 +11,9 @@ public class SoundManager : MonoBehaviour
     public int m_MaxSoundSources;
     List<AudioSource> m_SoundSources;
 
+    float m_MasterMusicVolume = 0;
+    float m_MusicVolume = 1;
+
     void Start() 
     {
         SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
@@ -37,7 +40,8 @@ public class SoundManager : MonoBehaviour
 
     public void SetMusicVolume(float _Volume)
     {
-        m_MusicSource.volume = _Volume;
+        m_MusicVolume = _Volume;
+        m_MusicSource.volume = m_MasterMusicVolume * m_MusicVolume;
     }
 
     void InitSounds()
@@ -89,8 +93,10 @@ public class SoundManager : MonoBehaviour
     public void UpdateMusic(int Enabled)
     {
         if (Enabled == 0)
-            m_MusicSource.volume = 0;
+            m_MasterMusicVolume = 0;
         else
-            m_MusicSource.volume = 1;
+            m_MasterMusicVolume = 1;
+
+        m_MusicSource.volume = m_MasterMusicVolume * m_MusicVolume;
     }
 }

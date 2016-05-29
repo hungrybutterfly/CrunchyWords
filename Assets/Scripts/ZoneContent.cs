@@ -86,24 +86,24 @@ public class ZoneContent : MonoBehaviour
                 string Number = Session.FormatNumberString(TotalBestScore.ToString());
                 NumberText.text = "Score " + Number;
             }
-
-            if (Session.m_WatchAd)
-            {
-                Session.m_WatchAd = false;
-
-                // has all ads been paid for
-                if (Session.m_SaveData.sd_RemoveALLAds == 0)
-                {
-                    Session.m_AdvertStatic = false;
-                    Session.ChangeScene("Advert", LoadSceneMode.Additive);
-                }
-            }
         }
 
         // make the Content panel big enough for the zone buttons
         Vector2 Size = GetComponent<RectTransform>().sizeDelta;
         Size.y = Spacing * Data.m_Zones.Length;
         GetComponent<RectTransform>().sizeDelta = Size;
+
+            if (Session.m_WatchAd)
+        {
+            Session.m_WatchAd = false;
+
+            // has all ads been paid for
+            if (Session.m_SaveData.sd_RemoveALLAds == 0)
+            {
+                Session.m_AdvertStatic = false;
+                Session.ChangeScene("Advert", LoadSceneMode.Additive);
+            }
+        }
 
         if (Session.m_ZoneComplete)
         {
@@ -129,6 +129,18 @@ public class ZoneContent : MonoBehaviour
         GameObject Root = GameObject.Find("Root");
         GameObject CeremonyObject = Instantiate(Prefab) as GameObject;
         CeremonyObject.transform.SetParent(Root.transform, false);
+
+        bool AdActive = false;
+        do
+        {
+            AdActive = false;
+            Scene Advert = SceneManager.GetSceneByName("Advert");
+            if (Advert != null && Advert.IsValid())
+            {
+                AdActive = true;
+                yield return new WaitForSeconds(0.1f);
+            }
+        } while (AdActive);
 
         GameObject String = CeremonyObject.transform.Find("Text").gameObject;
         for (int i = 0; i < 4;i++)

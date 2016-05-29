@@ -10,7 +10,12 @@ public class PauseManager : MonoBehaviour
     [HideInInspector]
     public bool m_PauseEnabled = false;
 
-	void Start () 
+    public Sprite m_SFXOn;
+    public Sprite m_SFXOff;
+    public Sprite m_MusicOn;
+    public Sprite m_MusicOff;
+
+    void Start() 
     {
         SceneSettings Scene = GameObject.Find("SceneSettings").GetComponent<SceneSettings>();
         Color PanelColour = Scene.GetPanelColour();
@@ -18,6 +23,25 @@ public class PauseManager : MonoBehaviour
         // recolour things to the zone
         Image Panel = m_Root.gameObject.transform.Find("Image").GetComponent<Image>();
         Panel.color = PanelColour;
+
+        UpdateButtons();
+    }
+
+    void UpdateButtons()
+    {
+        SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
+
+        Image Sprite = m_Root.transform.Find("SFX").transform.Find("Image").GetComponent<Image>();
+        if (Session.m_Settings.m_SFXEnabled == 1)
+            Sprite.sprite = m_SFXOn;
+        else
+            Sprite.sprite = m_SFXOff;
+
+        Sprite = m_Root.transform.Find("Music").transform.Find("Image").GetComponent<Image>();
+        if (Session.m_Settings.m_MusicEnabled == 1)
+            Sprite.sprite = m_MusicOn;
+        else
+            Sprite.sprite = m_MusicOff;
     }
 
     public void SetIsEnabled(bool Active)
@@ -96,5 +120,23 @@ public class PauseManager : MonoBehaviour
 
         SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
         Session.ChangeScene("Shop", LoadSceneMode.Additive);
+    }
+
+    public void SFXClicked()
+    {
+        SessionManager.MetricsLogEvent("PauseSFXClicked");
+
+        SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
+        Session.ToggleSFX();
+        UpdateButtons();
+    }
+
+    public void MusicClicked()
+    {
+        SessionManager.MetricsLogEvent("PauseSFXClicked");
+
+        SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
+        Session.ToggleMusic();
+        UpdateButtons();
     }
 }

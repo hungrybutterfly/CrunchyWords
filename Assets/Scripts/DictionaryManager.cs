@@ -462,6 +462,30 @@ public class DictionaryManager : MonoBehaviour
         }
     }
 
+    void PrintWordsUsed()
+    {
+        SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
+
+        LevelData Data = GameObject.Find("SessionManager").GetComponent<LevelData>();
+        for(int i = 0;i < Data.m_Zones.Length;i++)
+        {
+            for (int j = 0; j < Data.m_Zones[i].m_Levels.Length; j++)
+            {
+                // set the random seed based on current zone/level
+                Session.m_CurrentZone = i;
+                Session.m_CurrentLevel = j;
+                MaxWord Word = GetLevelWord();
+
+                for (int k = 0; k < Word.FitWords.Length; k++)
+                {
+                    String FitWord = Word.FitWords[k];
+                    Console.WriteLine(FitWord + "\n");
+                }
+            }
+
+        }
+    }
+
 	public void Init ()
 	{
 		// load the data file
@@ -475,6 +499,8 @@ public class DictionaryManager : MonoBehaviour
         //PrintStats();
 
 //        InitLevels();
+
+        //PrintWordsUsed();
 	}
 
 	void Update ()

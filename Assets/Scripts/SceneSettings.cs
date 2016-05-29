@@ -6,7 +6,7 @@ public class SceneSettings : MonoBehaviour
 {
     public bool m_UseZoneColour = false;
 
-    public Color GetPanelColour()
+    public Color GetBGColour()
     {
         // get the current zone data
         SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
@@ -18,6 +18,13 @@ public class SceneSettings : MonoBehaviour
         // set the bg colour
         Color Colour;
         MyMisc.HexToColour(Data.m_Zones[ZoneIndex].m_Colour, out Colour);
+
+        return Colour;
+    }
+
+    public Color GetPanelColour()
+    {
+        Color Colour = GetBGColour();
 
         // set the zone panel colour
         Colour.r *= 0.85f;

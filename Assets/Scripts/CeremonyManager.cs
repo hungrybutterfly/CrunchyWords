@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -16,6 +17,7 @@ public enum eCeremonyType
     All6Found,
     AlreadyFound,
     Lock,
+    MoreCoins,
 
     Total
 };
@@ -417,6 +419,32 @@ public class CeremonyManager : MonoBehaviour
 
         // delete the object
         Destroy(CeremonyObject.gameObject);
+    }
+
+
+    public void MoreCoins()
+    {
+        StartCoroutine(PlayMoreCoins());
+    }
+
+    IEnumerator PlayMoreCoins()
+    {
+        m_Type = eCeremonyType.MoreCoins;
+
+        // create and attach the ceremony
+        GameObject Prefab = (GameObject)Resources.Load("Prefabs/Ceremonies/CeremonyMoreCoins", typeof(GameObject));
+        GameObject Root = GameObject.Find("Ceremony Root");
+        GameObject CeremonyObject = Instantiate(Prefab) as GameObject;
+        CeremonyObject.transform.SetParent(Root.transform, false);
+
+        yield return new WaitForSeconds(1.0f);
+
+        // delete the object
+        Destroy(CeremonyObject.gameObject);
+
+        // send the player to the shop
+        SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
+        Session.ChangeScene("Shop", LoadSceneMode.Additive);
     }
 
     public void BlockerClicked()

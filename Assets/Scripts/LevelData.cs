@@ -1,4 +1,6 @@
 ﻿using UnityEngine;
+using System;
+using System.Collections.Generic;
 using System.Collections;
 
 public class LevelData : MonoBehaviour 
@@ -100,4 +102,10 @@ public class LevelData : MonoBehaviour
         new ZoneData("PACK #5", m_Zone5_Levels, "B4A7D6ff"),
         new ZoneData("PACK #6", m_Zone6_Levels, "F9CB9Cff"),
     };
+
+    public Dictionary<string, string> m_Definitions = new Dictionary<string, string>() 
+    {
+        {"TEST", "DEFINITION"},
+    };
 }
+

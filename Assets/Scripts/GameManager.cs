@@ -929,8 +929,8 @@ public class GameManager : MonoBehaviour {
         {
             SessionManager.MetricsLogEventWithParameters("CoinsSpentFailed", new Dictionary<string, string>() { { "Coins", AmountOut.ToString() } });
 
-            // send the player to the shop
-            Session.ChangeScene("Shop", LoadSceneMode.Additive);
+            CeremonyManager Ceremony = GetComponent<CeremonyManager>();
+            Ceremony.MoreCoins();
         }
 
         return false;

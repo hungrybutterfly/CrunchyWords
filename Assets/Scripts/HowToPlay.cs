@@ -22,8 +22,11 @@ public class HowToPlay : MonoBehaviour
 
         // is the dictionary loading
         SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
-        if (Session.m_DictionaryObject == null)
+        if (Session.m_Settings.m_HowToSeen == 0)
         {
+            Session.m_Settings.m_HowToSeen = 1;
+            Session.SaveSettings();
+
             m_BackButton = GameObject.Find("Back");
             Text String = m_BackButton.GetComponentInChildren<Text>();
             String.text = "PLAY";
