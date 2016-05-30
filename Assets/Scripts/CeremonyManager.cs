@@ -395,7 +395,7 @@ public class CeremonyManager : MonoBehaviour
         GameObject Image = CeremonyObject.transform.Find("Image").gameObject;
         GameObject Text1 = CeremonyObject.transform.Find("Text").gameObject;
         Text1.SetActive(false);
-        string NewString = "Save your X" + _CurrentChain + "\nChain with UNDO!";
+        string NewString = "Save your Chain\nwith UNDO!";
         Text1.GetComponent<Text>().text = NewString;
 
         // show cross
