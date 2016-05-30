@@ -979,9 +979,10 @@ public class GameManager : MonoBehaviour {
         SessionManager.PlaySound("Option_Select");
 
         // attempt to spend coins
+        int ShuffleCost = m_StartShuffleCost;
         if (SpendCoins(m_ShuffleCost, m_StartShuffleCost, out m_ShuffleCost))
         {
-            SessionManager.MetricsLogEventWithParameters("JumbleSuccess", new Dictionary<string, string>() { { "Cost", m_StartShuffleCost.ToString() } });
+            SessionManager.MetricsLogEventWithParameters("JumbleSuccess", new Dictionary<string, string>() { { "Cost", ShuffleCost.ToString() } });
 
             ClearUsedLetters();
             JumbleLetters();
@@ -989,31 +990,13 @@ public class GameManager : MonoBehaviour {
         }
         else
         {
-            SessionManager.MetricsLogEventWithParameters("JumbleFailed", new Dictionary<string, string>() { { "Cost", m_StartShuffleCost.ToString() } });
+            SessionManager.MetricsLogEventWithParameters("JumbleFailed", new Dictionary<string, string>() { { "Cost", ShuffleCost.ToString() } });
         }
     }
 
     public void SubmitClicked()
     {
         SubmitWord();
-    }
-
-    public void CheckClicked()
-    {
-        SessionManager.PlaySound("Option_Select");
-
-        // does the player have any letters used
-        if (m_LettersUsedIndex >= 3)
-        {
-            // attempt to spend coins
-            if (SpendCoins(m_CheckWordCost, m_StartCheckWordCost, out m_CheckWordCost))
-            {
-                if (IsValidWord())
-                    BeginCeremony(eCeremonyType.CheckGood);
-                else
-                    BeginCeremony(eCeremonyType.CheckBad);
-            }
-        }
     }
 
     public void LockClicked()
@@ -1024,16 +1007,17 @@ public class GameManager : MonoBehaviour {
         SessionManager.PlaySound("Option_Select");
 
         // attempt to spend coins
+        int LockCost = m_StartLockCost;
         if (SpendCoins(m_LockCost, m_StartLockCost, out m_LockCost))
         {
-            SessionManager.MetricsLogEventWithParameters("LockSuccess", new Dictionary<string, string>() { { "Cost", m_StartLockCost.ToString() } });
+            SessionManager.MetricsLogEventWithParameters("LockSuccess", new Dictionary<string, string>() { { "Cost", LockCost.ToString() } });
 
             Lock();
             m_LocksUsed++;
         }
         else
         {
-            SessionManager.MetricsLogEventWithParameters("LockFailed", new Dictionary<string, string>() { { "Cost", m_StartLockCost.ToString() } });
+            SessionManager.MetricsLogEventWithParameters("LockFailed", new Dictionary<string, string>() { { "Cost", LockCost.ToString() } });
         }
     }
 
@@ -1090,6 +1074,8 @@ public class GameManager : MonoBehaviour {
         }
         else
         {
+            SessionManager.MetricsLogEventWithParameters("HintButtonUsed", new Dictionary<string, string>() { { "Word", m_SelectedWord.m_Word } });
+
             AttemptHint();
         }
     }
@@ -1120,6 +1106,8 @@ public class GameManager : MonoBehaviour {
         if (m_HintButton.GetReady())
         {
             m_HintButton.SetReady(false);
+
+            SessionManager.MetricsLogEventWithParameters("HintWordUsed", new Dictionary<string, string>() { { "Word", WordObject.m_Word } });
 
             AttemptHint();
         }
@@ -1209,6 +1197,8 @@ public class GameManager : MonoBehaviour {
 
     public void UndoClicked()
     {
+        SessionManager.MetricsLogEvent("UndoClicked");
+
         m_UndoButton.SetActive(false);
 
         // kick off a video ad

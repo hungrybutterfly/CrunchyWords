@@ -2,6 +2,7 @@
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using System.Collections;
+using System.Collections.Generic;
 
 public class PauseManager : MonoBehaviour 
 {
@@ -93,13 +94,6 @@ public class PauseManager : MonoBehaviour
 
         SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
 
-        // keep the player's score
-/*        GameManager Game = GameObject.Find("GameManager").GetComponent<GameManager>();
-        Session.m_SaveData.AddCoins(Game.m_TotalScore);
-
-        // move to the next puzzle
-        Session.m_SaveData.sd_CurrentLevel++;
-        Session.Save();*/
         Session.ChangeScene("Level");
     }
 
@@ -124,18 +118,20 @@ public class PauseManager : MonoBehaviour
 
     public void SFXClicked()
     {
-        SessionManager.MetricsLogEvent("PauseSFXClicked");
-
         SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
+
+        SessionManager.MetricsLogEventWithParameters("PauseSFXClicked", new Dictionary<string, string>() { { "On", Session.m_Settings.m_SFXEnabled.ToString() } });
+
         Session.ToggleSFX();
         UpdateButtons();
     }
 
     public void MusicClicked()
     {
-        SessionManager.MetricsLogEvent("PauseSFXClicked");
-
         SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
+
+        SessionManager.MetricsLogEventWithParameters("PauseMusicClicked", new Dictionary<string, string>() { { "On", Session.m_Settings.m_MusicEnabled.ToString() } });
+
         Session.ToggleMusic();
         UpdateButtons();
     }

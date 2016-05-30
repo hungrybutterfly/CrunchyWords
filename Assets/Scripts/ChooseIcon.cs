@@ -3,6 +3,10 @@ using System.Collections;
 
 public class ChooseIcon : MonoBehaviour 
 {
+    void Start()
+    {
+        SessionManager.MetricsLogEvent("ChooseIcon");
+    }
 
     public void IconClicked(string Number)
     {
