@@ -18,6 +18,8 @@ public class ZoneContent : MonoBehaviour
         float Spacing = 125;
         GameObject ButtonPrefab = (GameObject)Resources.Load("Prefabs/ZoneSelector", typeof(GameObject));
         GameObject ZoneScore = (GameObject)Resources.Load("Prefabs/ZoneScore", typeof(GameObject));
+        int NumLevels;
+        int j;
         for (int i = 0; i < Data.m_Zones.Length; i++)
         {
             GameObject ButtonObject = Instantiate(ButtonPrefab, new Vector3(-20, -i * Spacing - (Spacing * 0.5f), 0), Quaternion.identity) as GameObject;
@@ -41,13 +43,13 @@ public class ZoneContent : MonoBehaviour
             ZoneSelector Button = TheButton.GetComponent<ZoneSelector>();
             Button.Init(false, i);
 
-            int NumLevels = Data.m_Zones[i].m_Levels.Length;
+            NumLevels = Data.m_Zones[i].m_Levels.Length;
 
             bool Active = true;
             if (i != 0)
             {
                 // see if there's any incomplete levels in the previous zone
-                int j = 0;
+                j = 0;
                 for (;j < NumLevels;j++)
                 {
                     if (Session.m_SaveData.FindLevelComplete(i - 1, j) == -1)
@@ -70,7 +72,7 @@ public class ZoneContent : MonoBehaviour
             {
                 // tally a best score for the zone
                 int TotalBestScore = 0;
-                for (int j = 0; j < NumLevels; j++)
+                for (j = 0; j < NumLevels; j++)
                 {
                     int Index = Session.m_SaveData.FindLevelComplete(i, j);
                     if (Index != -1)
@@ -93,7 +95,7 @@ public class ZoneContent : MonoBehaviour
         Size.y = Spacing * Data.m_Zones.Length;
         GetComponent<RectTransform>().sizeDelta = Size;
 
-            if (Session.m_WatchAd)
+        if (Session.m_WatchAd)
         {
             Session.m_WatchAd = false;
 

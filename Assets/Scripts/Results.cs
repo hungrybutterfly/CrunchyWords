@@ -311,7 +311,14 @@ public class Results : MonoBehaviour {
         if (!Session.m_ZoneComplete)
             Session.ChangeScene("Level");
         else
-            Session.ChangeScene("Zone");
+        {
+            LevelData Data = GameObject.Find("SessionManager").GetComponent<LevelData>();
+            // was this the last zone
+            if (Session.m_CurrentZone == Data.m_Zones.Length - 1)
+                Session.ChangeScene("AllComplete");
+            else
+                Session.ChangeScene("Zone");
+        }
     }
 
     public void StatsClicked()
