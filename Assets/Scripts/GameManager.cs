@@ -105,6 +105,8 @@ public class GameManager : MonoBehaviour {
     int m_UndoChainSession;
     int m_UndoChain;
 
+    PauseManager m_Pause;
+
     private void SetASize(RectTransform _trans, Vector2 _newSize)
     {
         Vector2 oldSize = _trans.rect.size;
@@ -188,6 +190,10 @@ public class GameManager : MonoBehaviour {
         m_LockImage = GameObject.Find("LockImage");
         m_LockImage.SetActive(false);
 
+        //get the pause manager
+        m_Pause = gameObject.GetComponent<PauseManager>();
+        m_Pause.SetIsEnabled(false);
+
         // get some objects
         m_ComboText = GameObject.Find("Combo").GetComponent<Text>();
         m_ComboTextColour = m_ComboText.GetComponent<Text>().color;
@@ -227,8 +233,7 @@ public class GameManager : MonoBehaviour {
         Panel.color = PanelColour;
         Panel = GameObject.Find("Panel").GetComponent<Image>();
         Panel.color = PanelColour;
-        PauseManager Pause = GetComponent<PauseManager>();
-        Panel = Pause.m_Root.gameObject.transform.Find("OptionsPanel").GetComponent<Image>();
+        Panel = m_Pause.m_Root.gameObject.transform.Find("OptionsPanel").GetComponent<Image>();
         PanelColour.r *= 0.85f;
         PanelColour.g *= 0.85f;
         PanelColour.b *= 0.85f;
@@ -1088,14 +1093,11 @@ public class GameManager : MonoBehaviour {
 
         Debug.Log("1");
 
-        PauseManager Pause = GameObject.Find("GameManager").GetComponent<PauseManager>();
-        Debug.Log("2");
-
-        Pause.SetIsEnabled(!Pause.m_PauseEnabled);
+        m_Pause.SetIsEnabled(!m_Pause.m_PauseEnabled);
         Debug.Log("3");
 
 
-        if (Pause.m_PauseEnabled)
+        if (m_Pause.m_PauseEnabled)
             SessionManager.MetricsLogEvent("Paused");
         else
             SessionManager.MetricsLogEvent("Unpaused");
