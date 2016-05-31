@@ -24,6 +24,16 @@ public class PauseManager : MonoBehaviour
         // recolour things to the zone
         Image Panel = m_Root.gameObject.transform.Find("Image").GetComponent<Image>();
         Panel.color = PanelColour;
+        Panel = m_Root.gameObject.transform.Find("ScorePanel").GetComponent<Image>();
+        Panel.color = PanelColour;
+
+        PanelColour = Scene.GetBGColour();
+        PanelColour.r = (1 - PanelColour.r) * 0.5f + PanelColour.r;
+        PanelColour.g = (1 - PanelColour.g) * 0.5f + PanelColour.g;
+        PanelColour.b = (1 - PanelColour.b) * 0.5f + PanelColour.b;
+        PanelColour.a = 0.8f;
+        Panel = m_Root.gameObject.transform.Find("OptionsPanel").GetComponent<Image>();
+        Panel.color = PanelColour;
 
         UpdateButtons();
     }

@@ -185,6 +185,12 @@ public class SavePlayerData
         {
             Coins.UpdateCoins();
         }
+        // look for an object called TotalCoins and update it
+        Coins = GameObject.Find("TotalCoins2").GetComponent<TotalCoins>();
+        if (Coins != null)
+        {
+            Coins.UpdateCoins();
+        }
     }
 
     public int FindLevelComplete(int _Zone, int _Level)

@@ -77,7 +77,7 @@ public class Word : MonoBehaviour
                 break;
 
             case eState.Idle:
-                GetComponent<Image>().color = new Color(1, 1, 1);
+                GetComponent<Image>().color = new Color(0.75f, 0.75f, 0.75f, 1);
                 break;
 
             case eState.Possible:
@@ -92,7 +92,7 @@ public class Word : MonoBehaviour
                 break;
 
             case eState.Found:
-                GetComponent<Image>().color = new Color(0.5f, 0.5f, 0.5f, 1);
+                GetComponent<Image>().color = new Color(1, 1, 1);
                 break;
 
             case eState.Ended:
