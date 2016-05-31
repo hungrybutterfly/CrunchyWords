@@ -19,6 +19,14 @@ public class ShopManager : MonoBehaviour
     public void Start()
     {
         SessionManager.MetricsLogEvent("ShopManager");
+
+        SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
+
+        // hide the debug buttons if this is an external version
+        if (Session.m_ExternalVersion)
+        {
+            GameObject.Find("Add Coins").SetActive(false);
+        }
     }
 
     public void Update()
@@ -41,12 +49,6 @@ public class ShopManager : MonoBehaviour
         for (int i = 0; i < Coins.Length; i++)
         {
             Coins[i].UpdateCoins();
-        }
-
-        // hide the debug buttons if this is an external version
-        if (Session.m_ExternalVersion)
-        {
-            GameObject.Find("Add Coins").SetActive(false);
         }
     }
 

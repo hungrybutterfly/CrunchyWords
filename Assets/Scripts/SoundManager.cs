@@ -13,6 +13,7 @@ public class SoundManager : MonoBehaviour
 
     float m_MasterMusicVolume = 0;
     float m_MusicVolume = 1;
+    float m_SFXVolume = 1;
 
     void Start() 
     {
@@ -74,6 +75,7 @@ public class SoundManager : MonoBehaviour
                 {
                     m_SoundSources[i].clip = m_Sounds[Index];
                     m_SoundSources[i].Play();
+                    m_SoundSources[i].volume = m_SFXVolume;
                     break;
                 }
             }
@@ -85,9 +87,13 @@ public class SoundManager : MonoBehaviour
         float volume = 0;
         if (Enabled == 1)
             volume = 1;
-        for (int i = 0; i < m_MaxSoundSources; i++)
+        m_SFXVolume = volume;
+        if (m_SoundSources != null)
         {
-            m_SoundSources[i].volume = volume;
+            for (int i = 0; i < m_MaxSoundSources; i++)
+            {
+                m_SoundSources[i].volume = volume;
+            }
         }
     }
 
@@ -98,6 +104,7 @@ public class SoundManager : MonoBehaviour
         else
             m_MasterMusicVolume = 1;
 
-        m_MusicSource.volume = m_MasterMusicVolume * m_MusicVolume;
+        if (m_MusicSource != null)
+            m_MusicSource.volume = m_MasterMusicVolume * m_MusicVolume;
     }
 }
