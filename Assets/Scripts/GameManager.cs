@@ -1082,19 +1082,31 @@ public class GameManager : MonoBehaviour {
 
     public void PauseClicked()
     {
+        Debug.Log("PauseClicked");
+
         SessionManager.PlaySound("Option_Select");
 
+        Debug.Log("1");
+
         PauseManager Pause = GameObject.Find("GameManager").GetComponent<PauseManager>();
+        Debug.Log("2");
+
         Pause.SetIsEnabled(!Pause.m_PauseEnabled);
+        Debug.Log("3");
+
 
         if (Pause.m_PauseEnabled)
             SessionManager.MetricsLogEvent("Paused");
         else
             SessionManager.MetricsLogEvent("Unpaused");
+        Debug.Log("4");
+
     }
 
     public void WordClicked(Word WordObject)
     {
+        Debug.Log("WordClicked");
+
         // can't select words when random hint is used
         if (m_RandomHint)
             return;
