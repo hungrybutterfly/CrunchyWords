@@ -36,6 +36,7 @@ public class SoundManager : MonoBehaviour
     {
         m_MusicSource.clip = m_AmbientMusic;
         m_MusicSource.Play();
+        m_MusicSource.volume = m_MasterMusicVolume * m_MusicVolume;
     }
 
     public void SetMusicVolume(float _Volume)
