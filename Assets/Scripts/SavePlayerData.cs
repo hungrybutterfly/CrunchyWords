@@ -180,16 +180,22 @@ public class SavePlayerData
         sd_TotalScore += _Value;
 
         // look for an object called TotalCoins and update it
-        TotalCoins Coins = GameObject.Find("TotalCoins").GetComponent<TotalCoins>();
-        if (Coins != null)
+        if (GameObject.Find("TotalCoins"))
         {
-            Coins.UpdateCoins();
+            TotalCoins Coins = GameObject.Find("TotalCoins").GetComponent<TotalCoins>();
+            if (Coins != null)
+            {
+                Coins.UpdateCoins();
+            }
         }
         // look for an object called TotalCoins and update it
-        Coins = GameObject.Find("TotalCoins2").GetComponent<TotalCoins>();
-        if (Coins != null)
+        if (GameObject.Find("TotalCoins2"))
         {
-            Coins.UpdateCoins();
+            TotalCoins Coins = GameObject.Find("TotalCoins2").GetComponent<TotalCoins>();
+            if (Coins != null)
+            {
+                Coins.UpdateCoins();
+            }
         }
     }
 
