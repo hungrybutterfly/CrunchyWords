@@ -64,7 +64,7 @@ public class PauseManager : MonoBehaviour
         if (Active)
         {
             // set the total coins text
-            GameObject Object = GameObject.Find("End Cost"); 
+			GameObject Object = m_Root.gameObject.transform.Find("End Cost").gameObject; 
             Text Value = Object.GetComponentInChildren<Text>();
             GameManager Game = GameObject.Find("GameManager").GetComponent<GameManager>();
             Value.text = Game.m_RevealWordsCost.ToString();
@@ -73,9 +73,9 @@ public class PauseManager : MonoBehaviour
         // hide debug buttons for external release
         if (Session.m_ExternalVersion)
         {
-            GameObject Object = GameObject.Find("End");
+			GameObject Object = m_Root.gameObject.transform.Find("End").gameObject;
             Object.SetActive(false);
-            Object = GameObject.Find("End Cost");
+			Object = m_Root.gameObject.transform.Find("End Cost").gameObject;
             Object.SetActive(false);
         }
 
