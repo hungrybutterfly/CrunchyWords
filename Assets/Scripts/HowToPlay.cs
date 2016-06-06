@@ -13,12 +13,16 @@ public class HowToPlay : MonoBehaviour
     float m_StartTime;
 
     GameObject m_BackButton;
+    GameObject m_PlayButton;
 
 	void Start () 
     {
         SessionManager.MetricsLogEvent("HowToPlay");
 
         m_FlashTimer = 0;
+
+        m_BackButton = GameObject.Find("Back");
+        m_PlayButton = GameObject.Find("Play");
 
         // is the dictionary loading
         SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
@@ -27,10 +31,8 @@ public class HowToPlay : MonoBehaviour
             Session.m_Settings.m_HowToSeen = 1;
             Session.SaveSettings();
 
-            m_BackButton = GameObject.Find("Back");
-            Text String = m_BackButton.GetComponentInChildren<Text>();
-            String.text = "PLAY";
             m_BackButton.SetActive(false);
+            m_PlayButton.SetActive(false);
 
             m_DictionaryLoading = true;
         }
@@ -38,6 +40,8 @@ public class HowToPlay : MonoBehaviour
         {
             if (GameObject.Find("Tap"))
                 GameObject.Find("Tap").SetActive(false);
+
+            m_PlayButton.SetActive(false);
 
             m_DictionaryLoading = false;
         }
@@ -58,7 +62,7 @@ public class HowToPlay : MonoBehaviour
                 if (GameObject.Find("Tap"))
                     GameObject.Find("Tap").SetActive(false);
 
-                m_BackButton.SetActive(true);
+                m_PlayButton.SetActive(true);
             }
         }
     }

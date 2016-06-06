@@ -81,8 +81,9 @@ public class SessionManager : MonoBehaviour
     public AdvertManager m_AdvertManager = null;
 	// what kind of advert to show when launching ads
 	public bool m_AdvertStatic;
-	// has player just come from the results screen
-	public bool m_WatchAd = false;
+    public int m_AdvertCount;
+    // which scene to go to after an advert. null means stay where you are
+    public string m_AdvertNextScene;
 
     //Flurry
     public bool m_AllowFlurry = false;

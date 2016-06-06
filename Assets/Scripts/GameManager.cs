@@ -107,6 +107,9 @@ public class GameManager : MonoBehaviour {
 
     PauseManager m_Pause;
 
+    // count how many undos are used in this game so we can display an increasing number of ads
+    int m_UndosUsed;
+
     private void SetASize(RectTransform _trans, Vector2 _newSize)
     {
         Vector2 oldSize = _trans.rect.size;
@@ -244,6 +247,8 @@ public class GameManager : MonoBehaviour {
             Panel = Slots2[i].GetComponent<Image>();
             Panel.color = PanelColour;
         }
+
+        m_UndosUsed = 0;
     }
 
     void OnDestroy()
@@ -618,6 +623,10 @@ public class GameManager : MonoBehaviour {
                 // update the score (add word Score * combo)
                 m_TargetScore = m_TotalScore + Score * m_WordsRightCombo;
 
+                // start the CorrectWord ceremony
+                CeremonyManager Ceremony = GetComponent<CeremonyManager>();
+                Ceremony.CorrectWord(Word.Length, m_WordsRightCombo);
+
                 // has the player not yet finished 
                 if (m_WordsRight < m_CurrentWord.FitWords.Length)
                 {
@@ -631,10 +640,6 @@ public class GameManager : MonoBehaviour {
                     if (m_BestChain < m_WordsRightCombo)
                         m_BestChain = m_WordsRightCombo;
                 }
-
-                // start the CorrectWord ceremony
-                CeremonyManager Ceremony = GetComponent<CeremonyManager>();
-                Ceremony.CorrectWord(Word.Length, m_WordsRightCombo);
             }
             else
             {
@@ -649,7 +654,7 @@ public class GameManager : MonoBehaviour {
                     SessionManager.MetricsLogEventWithParameters("SubmitBadChainBroken", new Dictionary<string, string>() { { "Word", Word } });
 
                     // display the UNDO button if the chain >= 20
-                    if (Session.m_SaveData.sd_CurrentChain >= 20)
+                    if (Session.m_SaveData.sd_CurrentChain >= 1)
                     {
                         m_UndoButton.SetActive(true);
                         m_UndoChainSession = Session.m_SaveData.sd_CurrentChain;
@@ -1186,7 +1191,8 @@ public class GameManager : MonoBehaviour {
 
                 // start the ceremony
                 CeremonyManager Ceremony = GetComponent<CeremonyManager>();
-                Ceremony.Init(eCeremonyType.All3Found + (Length - 3));
+                // taken out for now
+//                Ceremony.Init(eCeremonyType.All3Found + (Length - 3));
             }
         }
     }
@@ -1213,11 +1219,15 @@ public class GameManager : MonoBehaviour {
     {
         SessionManager.MetricsLogEvent("UndoClicked");
 
+        SessionManager.PlaySound("Undo");
+
         m_UndoButton.SetActive(false);
+        m_UndosUsed++;
 
         // kick off a video ad
         SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
-        Session.m_AdvertStatic = true;
+        Session.m_AdvertStatic = false;
+        Session.m_AdvertCount = m_UndosUsed;
         Session.ChangeScene("Advert", LoadSceneMode.Additive);
 
         // revert the combo

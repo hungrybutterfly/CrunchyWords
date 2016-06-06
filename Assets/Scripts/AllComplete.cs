@@ -9,17 +9,9 @@ public class AllComplete : MonoBehaviour
         SessionManager.MetricsLogEvent("AllComplete");
 
         SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
-        Session.m_WatchAd = false;
 
         // make sure we don't see the 'zone complete' ceremony
         Session.m_ZoneComplete = false;
-
-        // have all ads been paid for
-        if (Session.m_SaveData.sd_RemoveALLAds == 0)
-        {
-            Session.m_AdvertStatic = false;
-            Session.ChangeScene("Advert", LoadSceneMode.Additive);
-        }
     }
 
     public void EmailUsClicked()

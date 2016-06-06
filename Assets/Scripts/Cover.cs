@@ -6,11 +6,6 @@ using System.Collections.Generic;
 
 public class Cover : MonoBehaviour 
 {
-    public Sprite m_SFXOn;
-    public Sprite m_SFXOff;
-    public Sprite m_MusicOn;
-    public Sprite m_MusicOff;
-
     void Start()
     {
         SessionManager.MetricsLogEvent("Cover");
@@ -34,25 +29,6 @@ public class Cover : MonoBehaviour
 				Button.SetActive (false);
 			}
         }
-
-        UpdateButtons();
-    }
-
-    void UpdateButtons()
-    {
-        SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
-
-        Image Sprite = GameObject.Find("SFX").transform.Find("Image").GetComponent<Image>();
-        if (Session.m_Settings.m_SFXEnabled == 1)
-            Sprite.sprite = m_SFXOn;
-        else
-            Sprite.sprite = m_SFXOff;
-
-        Sprite = GameObject.Find("Music").transform.Find("Image").GetComponent<Image>();
-        if (Session.m_Settings.m_MusicEnabled == 1)
-            Sprite.sprite = m_MusicOn;
-        else
-            Sprite.sprite = m_MusicOff;
     }
 
     public void StartClicked()
@@ -92,23 +68,13 @@ public class Cover : MonoBehaviour
         SessionManager.PlaySound("Option_Select");
     }
 
-    public void SFXClicked()
+    public void SettingsClicked()
     {
-        SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
+        SessionManager.MetricsLogEvent("CoverSettingsClicked");
 
-        SessionManager.MetricsLogEventWithParameters("SFXClicked", new Dictionary<string, string>() { { "On", Session.m_Settings.m_SFXEnabled.ToString() } });
+        SessionManager.PlaySound("Option_Select");
 
-        Session.ToggleSFX();
-        UpdateButtons();
-    }
-
-    public void MusicClicked()
-    {
-        SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
-
-        SessionManager.MetricsLogEventWithParameters("MusicClicked", new Dictionary<string, string>() { { "On", Session.m_Settings.m_MusicEnabled.ToString() } });
-
-        Session.ToggleMusic();
-        UpdateButtons();
+        PlayerSettings Settings = GameObject.Find("Canvas").transform.Find("SettingsRoot").GetComponent<PlayerSettings>();
+        Settings.SetIsActive(true);
     }
 }

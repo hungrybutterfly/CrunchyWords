@@ -30,13 +30,13 @@ public class Results : MonoBehaviour {
         BestEver,
         IsWords2,
         BestUnbrokenChain,
-        YouUsed,
+/*        YouUsed,
         Jumble,
         JumbleCount,
         Hint,
         HintCount,
         Lock,
-        LockCount,
+        LockCount,*/
         Total
     };
 
@@ -59,13 +59,13 @@ public class Results : MonoBehaviour {
         "best ever",
         "is words2",
         "BestUnbrokenChain",
-        "You used",
+/*        "You used",
         "Jumble",
         "JumbleCount",
         "Hint",
         "HintCount",
         "Lock",
-        "LockCount",
+        "LockCount",*/
     };
 
     GameObject[] m_Parts;
@@ -116,7 +116,7 @@ public class Results : MonoBehaviour {
         Text BestUnbrokenChain = GameObject.Find("BestUnbrokenChain").GetComponent<Text>();
         BestUnbrokenChain.text = Session.m_SaveData.sd_BestChain.ToString();
 
-        Text Jumble = GameObject.Find("JumbleCount").GetComponent<Text>();
+/*        Text Jumble = GameObject.Find("JumbleCount").GetComponent<Text>();
         Jumble.text = Session.m_JumblesUsed.ToString();
 
         Text Hint = GameObject.Find("HintCount").GetComponent<Text>();
@@ -124,7 +124,7 @@ public class Results : MonoBehaviour {
 
         Text Lock = GameObject.Find("LockCount").GetComponent<Text>();
         Lock.text = Session.m_LocksUsed.ToString();
-
+        */
         m_Next = GameObject.Find("Next");
         m_Skip = GameObject.Find("Skip");
 
@@ -217,7 +217,7 @@ public class Results : MonoBehaviour {
         m_Parts[(int) eParts.BestUnbrokenChain].SetActive(true);
         if (m_bCeremonyActive) yield return new WaitForSeconds(m_fNormalDelay);
 
-        m_Parts[(int) eParts.YouUsed].SetActive(true);
+/*        m_Parts[(int) eParts.YouUsed].SetActive(true);
         if (m_bCeremonyActive) yield return new WaitForSeconds(m_fNormalDelay);
 
         m_Parts[(int) eParts.Jumble].SetActive(true);
@@ -230,7 +230,7 @@ public class Results : MonoBehaviour {
 
         m_Parts[(int) eParts.Lock].SetActive(true);
         m_Parts[(int) eParts.LockCount].SetActive(true);
-        if (m_bCeremonyActive) yield return new WaitForSeconds(m_fNormalDelay);
+        if (m_bCeremonyActive) yield return new WaitForSeconds(m_fNormalDelay);*/
 
         m_Next.SetActive(true);
 
@@ -272,6 +272,8 @@ public class Results : MonoBehaviour {
         {
             SessionManager.MetricsLogEvent("ResultsSkipAd");
 
+            SessionManager.PlaySound("Option_Select");
+
             SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
             Session.ChangeScene("Shop", LoadSceneMode.Additive);
         }
@@ -307,17 +309,54 @@ public class Results : MonoBehaviour {
         Session.m_SaveData.sd_CurrentLevel++;
         Session.Save();
 
-        Session.m_WatchAd = true;
         if (!Session.m_ZoneComplete)
-            Session.ChangeScene("Level");
+        {
+            if (Session.m_SaveData.sd_RemoveStaticAds == 0 && Session.m_SaveData.sd_RemoveALLAds == 0)
+            {
+                Session.m_AdvertStatic = true;
+                Session.m_AdvertCount = 1;
+                Session.m_AdvertNextScene = "Level";
+                Session.ChangeScene("Advert");
+            }
+            else
+            {
+                Session.ChangeScene("Level");
+            }
+        }
         else
         {
             LevelData Data = GameObject.Find("SessionManager").GetComponent<LevelData>();
             // was this the last zone
             if (Session.m_CurrentZone == Data.m_Zones.Length - 1)
-                Session.ChangeScene("AllComplete");
+            {
+                // has all ads been paid for
+                if (Session.m_SaveData.sd_RemoveALLAds == 0)
+                {
+                    Session.m_AdvertStatic = false;
+                    Session.m_AdvertCount = 1;
+                    Session.m_AdvertNextScene = "AllComplete";
+                    Session.ChangeScene("Advert");
+                }
+                else
+                {
+                    Session.ChangeScene("AllComplete");
+                }
+            }
             else
-                Session.ChangeScene("Zone");
+            {
+                // has all ads been paid for
+                if (Session.m_SaveData.sd_RemoveALLAds == 0)
+                {
+                    Session.m_AdvertStatic = false;
+                    Session.m_AdvertCount = 1;
+                    Session.m_AdvertNextScene = "Zone";
+                    Session.ChangeScene("Advert");
+                }
+                else
+                {
+                    Session.ChangeScene("Zone");
+                }
+            }
         }
     }
 

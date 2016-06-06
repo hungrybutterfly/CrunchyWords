@@ -18,8 +18,16 @@ using GoogleMobileAds.Api;
 
 public class Advert : MonoBehaviour
 {
+    int m_AdsSeen;
+
     //Initial Call
     void Start()
+    {
+        m_AdsSeen = 0;
+        StartAd();
+    }
+
+    void StartAd()
     {
         SessionManager _session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
         //Not online - allow skip...
@@ -36,6 +44,8 @@ public class Advert : MonoBehaviour
             //Set the advert callback
             _session.m_AdvertManager.m_Callback = AdvertReturn;
 #endif
+
+            m_AdsSeen++;
         }
     }
 
@@ -50,6 +60,19 @@ public class Advert : MonoBehaviour
     public void Clicked()
     {
         SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
-        Session.ReturnScene("Advert");
+
+        // have we seen enough ads
+        if (m_AdsSeen != Session.m_AdvertCount)
+        {
+            // start a new ad
+            StartAd();
+        }
+        else
+        {
+            if (Session.m_AdvertNextScene != "")
+                Session.ChangeScene(Session.m_AdvertNextScene);
+            else
+                Session.ReturnScene("Advert");
+        }
     }
 }

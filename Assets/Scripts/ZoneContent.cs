@@ -5,6 +5,10 @@ using System.Collections;
 
 public class ZoneContent : MonoBehaviour 
 {
+    GameObject[] m_ZoneButtons;
+
+    int m_HighestZone;
+
 	void Start () 
     {
         SessionManager.MetricsLogEvent("ZoneContent");
@@ -20,10 +24,12 @@ public class ZoneContent : MonoBehaviour
         GameObject ZoneScore = (GameObject)Resources.Load("Prefabs/ZoneScore", typeof(GameObject));
         int NumLevels;
         int j;
+        m_ZoneButtons = new GameObject[Data.m_Zones.Length];
         for (int i = 0; i < Data.m_Zones.Length; i++)
         {
             GameObject ButtonObject = Instantiate(ButtonPrefab, new Vector3(-20, -i * Spacing - (Spacing * 0.5f), 0), Quaternion.identity) as GameObject;
             ButtonObject.transform.SetParent(transform, false);
+            m_ZoneButtons[i] = ButtonObject;
 
             // set the number of the button
             Text NumberText = ButtonObject.GetComponent<Text>();
@@ -87,6 +93,8 @@ public class ZoneContent : MonoBehaviour
                 NumberText = ScoreObject.GetComponentInChildren<Text>();
                 string Number = Session.FormatNumberString(TotalBestScore.ToString());
                 NumberText.text = "Score " + Number;
+
+                m_HighestZone = i;
             }
         }
 
@@ -94,18 +102,6 @@ public class ZoneContent : MonoBehaviour
         Vector2 Size = GetComponent<RectTransform>().sizeDelta;
         Size.y = Spacing * Data.m_Zones.Length;
         GetComponent<RectTransform>().sizeDelta = Size;
-
-        if (Session.m_WatchAd)
-        {
-            Session.m_WatchAd = false;
-
-            // has all ads been paid for
-            if (Session.m_SaveData.sd_RemoveALLAds == 0)
-            {
-                Session.m_AdvertStatic = false;
-                Session.ChangeScene("Advert", LoadSceneMode.Additive);
-            }
-        }
 
         if (Session.m_ZoneComplete)
         {
@@ -145,16 +141,13 @@ public class ZoneContent : MonoBehaviour
         } while (AdActive);
 
         GameObject String = CeremonyObject.transform.Find("Text").gameObject;
-        for (int i = 0; i < 4;i++)
+        for (int i = 0; i < 8;i++)
         {
-            String.SetActive(false);
+            m_ZoneButtons[m_HighestZone].gameObject.SetActive(false);
             yield return new WaitForSeconds(0.1f);
-            String.SetActive(true);
+            m_ZoneButtons[m_HighestZone].gameObject.SetActive(true);
             yield return new WaitForSeconds(0.2f);
         }
-            //        SessionManager.PlaySound("Fanfare_Wrong");
-
-        yield return new WaitForSeconds(1.75f);
 
         // delete the object
         Destroy(CeremonyObject.gameObject);

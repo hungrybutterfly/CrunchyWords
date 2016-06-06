@@ -102,6 +102,7 @@ public class ShopManager : MonoBehaviour
         if (OptionIndex == eOption.Watch)
         {
             Session.m_AdvertStatic = false;
+            Session.m_AdvertCount = 1;
             Session.ChangeScene("Advert", LoadSceneMode.Additive);
         }
     }

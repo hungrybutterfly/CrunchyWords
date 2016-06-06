@@ -246,6 +246,8 @@ public class CeremonyManager : MonoBehaviour
             CeremonyText.text = "x" + _WordsRightCombo.ToString() + " CHAIN\nBROKEN!";
             CeremonyText.gameObject.SetActive(true);
 
+            SessionManager.PlaySound("Fanfare_Chain_Broken");
+
             yield return new WaitForSeconds(1.0f);
 
             // hide the text
