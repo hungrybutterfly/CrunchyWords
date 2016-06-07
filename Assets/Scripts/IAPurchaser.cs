@@ -24,10 +24,10 @@ public class IAPurchaser : MonoBehaviour, IStoreListener
     private static IExtensionProvider m_StoreExtensionProvider;
 
     //Callback for the product desired
-    private Action<bool, eIAPItems> m_Callback;
+	public Action<bool, eIAPItems> m_Callback { get; set; }
 
     //Are we currently busy purchasing?
-    private bool m_CurrentlyPurchasing = false;
+	private bool m_CurrentlyPurchasing = false;
 
     //Type of IAP
     public enum eIAPItems
@@ -86,18 +86,18 @@ public class IAPurchaser : MonoBehaviour, IStoreListener
             m_SellableItems[2].productType = ProductType.Consumable;
 
             //100 Coins - Remove Statics
-            m_SellableItems[2].type = eIAPItems.IAP_100CoinsRemoveStatics;
-            m_SellableItems[2].identifier = "NonConsumable100CoinsRemoveStatics";
-            m_SellableItems[2].appleID = "WordChain.100CoinRemoveStatics";
-            m_SellableItems[2].androidID = "com.unity3d.test.services.purchasing.nonconsumable";
-            m_SellableItems[2].productType = ProductType.NonConsumable;
+            m_SellableItems[3].type = eIAPItems.IAP_100CoinsRemoveStatics;
+            m_SellableItems[3].identifier = "NonConsumable100CoinsRemoveStatics";
+            m_SellableItems[3].appleID = "WordChain.100CoinRemoveStatics";
+            m_SellableItems[3].androidID = "com.unity3d.test.services.purchasing.nonconsumable";
+            m_SellableItems[3].productType = ProductType.NonConsumable;
 
             //250 Coins - Remove Ads
-            m_SellableItems[2].type = eIAPItems.IAP_250CoinsRemoveAllAds;
-            m_SellableItems[2].identifier = "NonConsumable250CoinsRemoveAllAds";
-            m_SellableItems[2].appleID = "WordChain.250CoinRemoveAllAds";
-            m_SellableItems[2].androidID = "com.unity3d.test.services.purchasing.nonconsumable";
-            m_SellableItems[2].productType = ProductType.NonConsumable;
+            m_SellableItems[4].type = eIAPItems.IAP_250CoinsRemoveAllAds;
+            m_SellableItems[4].identifier = "NonConsumable250CoinsRemoveAllAds";
+            m_SellableItems[4].appleID = "WordChain.250CoinRemoveAllAds";
+            m_SellableItems[4].androidID = "com.unity3d.test.services.purchasing.nonconsumable";
+            m_SellableItems[4].productType = ProductType.NonConsumable;
 
             //Init Callback
             m_Callback = null;
@@ -123,7 +123,7 @@ public class IAPurchaser : MonoBehaviour, IStoreListener
         // Add all products to sell / restore by way of its identifier, associating the general identifier with its store-specific identifiers.
         for (int i = 0; i < (int)eIAPItems.IAP_LEN; ++i)
         {
-            builder.AddProduct(m_SellableItems[i].identifier, m_SellableItems[i].productType, new IDs() {
+			builder.AddProduct(m_SellableItems[i].identifier, m_SellableItems[i].productType, new IDs() {
                 {
                     m_SellableItems[i].appleID,
                     AppleAppStore.Name
@@ -143,25 +143,22 @@ public class IAPurchaser : MonoBehaviour, IStoreListener
     /// Public Section (Callable)
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    public void BuyItem(eIAPItems _item, Action<bool, eIAPItems> _callback)
+    public void BuyItem(eIAPItems _item)
     {
         //In purchase mode?
-        if (m_CurrentlyPurchasing) { return; }
-
-        //Hold callback
-        m_Callback = _callback;
+		if (m_CurrentlyPurchasing) { return; }
 
         //Find the correct ID
         for (int i = 0; i < (int)eIAPItems.IAP_LEN; ++i)
         {
             if (m_SellableItems[i].type == _item)
             {
+				//Set to purchase mode
+				m_CurrentlyPurchasing = true;
                 //Buy product
                 BuyProductID(m_SellableItems[i].identifier);
                 //Hold a reference
-                m_ItemBeingPurchased = m_SellableItems[i];
-                //Set to purchase mode
-                m_CurrentlyPurchasing = true;
+                m_ItemBeingPurchased = m_SellableItems[i];                
                 return;
             }
         }
@@ -288,6 +285,8 @@ public class IAPurchaser : MonoBehaviour, IStoreListener
 
     public void OnPurchaseFailed(Product product, PurchaseFailureReason failureReason)
     {
+		m_CurrentlyPurchasing = false;
+
         // A product purchase attempt did not succeed. Check failureReason for more detail. Consider sharing this reason with the user.
         Debug.Log(string.Format("OnPurchaseFailed: FAIL. Product: '{0}', PurchaseFailureReason: {1}", product.definition.storeSpecificId, failureReason));
     }

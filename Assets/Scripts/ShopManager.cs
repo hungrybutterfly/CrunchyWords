@@ -122,8 +122,9 @@ public class ShopManager : MonoBehaviour
         IAPurchaser.eIAPItems OptionIndex = (IAPurchaser.eIAPItems)int.Parse(Option);
 
         //Buy the correct item
-        IAPurchaser PurchaseManager = GetComponent<IAPurchaser>();
-        PurchaseManager.BuyItem(OptionIndex, IAPReturn);
+		IAPurchaser PurchaseManager = Session.m_IAPManager;
+		PurchaseManager.m_Callback = IAPReturn;
+        PurchaseManager.BuyItem(OptionIndex);
 #endif
     }
 
@@ -132,6 +133,12 @@ public class ShopManager : MonoBehaviour
     ////////////////////////////////////////////////////////////////////////////////////////
     public void IAPReturn(bool _success, IAPurchaser.eIAPItems _item)
     {
+		if (_item == null) 
+		{
+			Debug.Log ("Issue - Item is null");
+			return;
+		}
+
         //Take the item
         eOption OptionIndex = (eOption)((int)_item);
 
