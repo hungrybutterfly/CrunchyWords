@@ -1224,11 +1224,15 @@ public class GameManager : MonoBehaviour {
         m_UndoButton.SetActive(false);
         m_UndosUsed++;
 
-        // kick off a video ad
         SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
-        Session.m_AdvertStatic = false;
-        Session.m_AdvertCount = m_UndosUsed;
-        Session.ChangeScene("Advert", LoadSceneMode.Additive);
+
+        if (m_UndoChainSession > 20)
+        {
+            // kick off a video ad
+            Session.m_AdvertStatic = false;
+            Session.m_AdvertCount = 1;
+            Session.ChangeScene("Advert", LoadSceneMode.Additive);
+        }
 
         // revert the combo
         m_WordsRightCombo = m_UndoChain;
