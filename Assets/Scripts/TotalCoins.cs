@@ -61,6 +61,10 @@ public class TotalCoins : MonoBehaviour
 
         Text NumberText = GetComponentInChildren<Text>();
         string Number = Session.FormatNumberString(Coins.ToString());
+        if (Session.m_SaveData.sd_InfinteCoins != 0)
+        {
+            Number = "Unlimited";
+        }
         NumberText.text = Number;
     }
 }

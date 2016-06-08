@@ -295,7 +295,7 @@ public class GameManager : MonoBehaviour {
         // set the total coins text
         Text Value = m_JumbleCostText.GetComponentInChildren<Text>();
         Value.text = m_ShuffleCost.ToString();
-        if (Session.m_SaveData.sd_TotalScore >= m_ShuffleCost)
+        if (Session.m_SaveData.sd_TotalScore >= m_ShuffleCost || Session.m_SaveData.sd_InfinteCoins != 0)
             m_JumbleCostText.gameObject.SetActive(true);
         else
             m_JumbleCostText.gameObject.SetActive(false);
@@ -306,14 +306,14 @@ public class GameManager : MonoBehaviour {
 
         Value = m_LockCostText.GetComponentInChildren<Text>();
         Value.text = m_LockCost.ToString();
-        if (Session.m_SaveData.sd_TotalScore >= m_LockCost)
+        if (Session.m_SaveData.sd_TotalScore >= m_LockCost || Session.m_SaveData.sd_InfinteCoins != 0)
             m_LockCostText.gameObject.SetActive(true);
         else
             m_LockCostText.gameObject.SetActive(false);
 
         Value = m_HintCostText.GetComponentInChildren<Text>();
         Value.text = m_HintCost.ToString();
-        if (Session.m_SaveData.sd_TotalScore >= m_HintCost)
+        if (Session.m_SaveData.sd_TotalScore >= m_HintCost || Session.m_SaveData.sd_InfinteCoins != 0)
             m_HintCostText.gameObject.SetActive(true);
         else
             m_HintCostText.gameObject.SetActive(false);
@@ -912,7 +912,7 @@ public class GameManager : MonoBehaviour {
         AmountOut = Amount;
 
         // does the player have enough coins
-        if (Session.m_SaveData.sd_TotalScore >= Amount)
+        if (Session.m_SaveData.sd_TotalScore >= Amount || Session.m_SaveData.sd_InfinteCoins != 0)
         {
             SessionManager.MetricsLogEventWithParameters("CoinsSpentSuccess", new Dictionary<string, string>() { { "Coins", AmountOut.ToString() } });
 
@@ -1066,7 +1066,7 @@ public class GameManager : MonoBehaviour {
         {
             SessionManager.MetricsLogEvent("HintReady");
 
-            if (Session.m_SaveData.sd_TotalScore < m_HintCost)
+            if (Session.m_SaveData.sd_TotalScore < m_HintCost && Session.m_SaveData.sd_InfinteCoins == 0)
             {
                 // send the player to the shop
                 Session.ChangeScene("Shop", LoadSceneMode.Additive);
