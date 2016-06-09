@@ -203,9 +203,21 @@ public class IAPurchaser : MonoBehaviour, IStoreListener
     {
         m_CurrentlyPurchasing = false;
 
+		//Handle Restore having no ID
+		if (m_ItemBeingPurchased.identifier == null) 
+		{
+			Debug.Log ("Restoring Item in Purchase");
+			for (int i = 0; i < (int)eIAPItems.IAP_LEN; ++i) {
+				if (m_SellableItems [i].identifier == args.purchasedProduct.definition.id) {
+					m_ItemBeingPurchased = m_SellableItems[i];
+					break;
+				}
+			}		
+		}
+
         if (String.Equals(args.purchasedProduct.definition.id, m_ItemBeingPurchased.identifier, StringComparison.Ordinal))
         {
-            Debug.Log(string.Format("ProcessPurchase: PASS. Product: '{0}'", args.purchasedProduct.definition.id));//If the consumable item has been successfully purchased, add 100 coins to the player's in-game score.
+            Debug.Log(string.Format("ProcessPurchase: PASS. Product: '{0}'", args.purchasedProduct.definition.id));
             m_Callback(true, m_ItemBeingPurchased.type);
         }
         else

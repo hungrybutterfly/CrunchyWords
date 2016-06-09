@@ -128,12 +128,6 @@ public class ShopManager : MonoBehaviour
     ////////////////////////////////////////////////////////////////////////////////////////
     public void IAPReturn(bool _success, IAPurchaser.eIAPItems _item)
     {
-		if (_item == null) 
-		{
-			Debug.Log ("Issue - Item is null");
-			return;
-		}
-
         //Take the item
         eOption OptionIndex = (eOption)((int)_item);
 
@@ -152,7 +146,9 @@ public class ShopManager : MonoBehaviour
     ////////////////////////////////////////////////////////////////////////////////////////
     public void RestorePurchases()
     {
-        IAPurchaser PurchaseManager = GetComponent<IAPurchaser>();
+		SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
+		IAPurchaser PurchaseManager = Session.m_IAPManager;
+		PurchaseManager.m_Callback = IAPReturn;
         PurchaseManager.RestorePurchases();
     }
 
