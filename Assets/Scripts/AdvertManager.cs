@@ -125,10 +125,10 @@ public class AdvertManager : MonoBehaviour
     {
 #if UNITY_ANDROID
         string adUnitId = "ca-app-pub-5274247676971508/7231635075"; //Android Interstitial ID
-        string deviceID = GetAndroidAdMobID();
+		//string deviceID = GetDeviceID();
 #elif UNITY_IPHONE
 		string adUnitId = "ca-app-pub-5274247676971508/1324702270"; //iOS Interstitial ID
-		string deviceID = GetIOSAdMobID();
+		//string deviceID = GetDeviceID();
 #else
         string adUnitId = "unexpected_platform";
         string deviceID = "unexpected_platform";
@@ -138,7 +138,7 @@ public class AdvertManager : MonoBehaviour
         m_InterstitialAd = new InterstitialAd(adUnitId);
         // Create an ad request.
         AdRequest request = new AdRequest.Builder()
-            .AddTestDevice(deviceID)
+            //.AddTestDevice(deviceID)
             .Build();
 
         // Callbacks
@@ -254,41 +254,5 @@ public class AdvertManager : MonoBehaviour
     {
         //Rely on Unity
         return SystemInfo.deviceUniqueIdentifier;
-    }
-
-    //GOOGLE ADS - Return Device ID
-#if UNITY_ANDROID
-    private string GetAndroidAdMobID()
-    {
-        UnityEngine.AndroidJavaClass up = new UnityEngine.AndroidJavaClass("com.unity3d.player.UnityPlayer");
-        UnityEngine.AndroidJavaObject currentActivity = up.GetStatic<UnityEngine.AndroidJavaObject>("currentActivity");
-        UnityEngine.AndroidJavaObject contentResolver = currentActivity.Call<UnityEngine.AndroidJavaObject>("getContentResolver");
-        UnityEngine.AndroidJavaObject secure = new UnityEngine.AndroidJavaObject("android.provider.Settings$Secure");
-        string deviceID = secure.CallStatic<string>("getString", contentResolver, "android_id");
-        return Md5Sum(deviceID).ToUpper();
-    }
-#endif
-
-    //GOOGLE ADS - Return Device ID
-#if UNITY_IPHONE
-	private string GetIOSAdMobID() {
-		return Md5Sum(UnityEngine.iOS.Device.advertisingIdentifier);
-	}
-#endif
-
-    //GOOGLE ADS - Actual Md5Sum return
-    //Chris - Must remember this uses cryptography - issues!
-    private string Md5Sum(string strToEncrypt)
-    {
-        System.Text.UTF8Encoding ue = new System.Text.UTF8Encoding();
-        byte[] bytes = ue.GetBytes(strToEncrypt);
-        System.Security.Cryptography.MD5CryptoServiceProvider md5 = new System.Security.Cryptography.MD5CryptoServiceProvider();
-        byte[] hashBytes = md5.ComputeHash(bytes);
-        string hashString = "";
-        for (int i = 0; i < hashBytes.Length; i++)
-        {
-            hashString += System.Convert.ToString(hashBytes[i], 16).PadLeft(2, '0');
-        }
-        return hashString.PadLeft(32, '0');
     }
 }

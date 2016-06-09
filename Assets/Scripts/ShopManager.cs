@@ -95,37 +95,32 @@ public class ShopManager : MonoBehaviour
         SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
         SessionManager.PlaySound("Option_Select");
 
-        eOption OptionIndex = (eOption)int.Parse(Option);
-        OptionPurchasedSuccess(OptionIndex);
-
         // did player select to watch a video
-        if (OptionIndex == eOption.Watch)
-        {
-            Session.m_AdvertStatic = false;
-            Session.m_AdvertCount = 1;
-            Session.ChangeScene("Advert", LoadSceneMode.Additive);
-        }
-    }
-
-    ////////////////////////////////////////////////////////////////////////////////////////
-    // Real IAP option
-    ////////////////////////////////////////////////////////////////////////////////////////
-    public void OptionClickedReal(string Option)
-    {
-#if (!UNITY_IOS)
-        return;
-#else
-        SessionManager.MetricsLogEventWithParameters("ShopOptionClicked", new Dictionary<string, string>() { { "Option", Option } });
-        SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
-        SessionManager.PlaySound("Option_Select");
-
-        IAPurchaser.eIAPItems OptionIndex = (IAPurchaser.eIAPItems)int.Parse(Option);
-
-        //Buy the correct item
-		IAPurchaser PurchaseManager = Session.m_IAPManager;
-		PurchaseManager.m_Callback = IAPReturn;
-        PurchaseManager.BuyItem(OptionIndex);
-#endif
+		eOption OptionIndex = (eOption)int.Parse (Option);
+		if (OptionIndex == eOption.Watch) 
+		{
+			Session.m_AdvertStatic = false;
+			Session.m_AdvertCount = 1;
+			Session.ChangeScene ("Advert", LoadSceneMode.Additive);
+		} 
+		else
+		{
+			//Chris - This now splits depending on 'External Version'
+			if (Session.m_ExternalVersion) 
+			{
+				//REAL IAP
+				IAPurchaser.eIAPItems OptionIndexReal = (IAPurchaser.eIAPItems)int.Parse(Option);
+				//Buy the correct item
+				IAPurchaser PurchaseManager = Session.m_IAPManager;
+				PurchaseManager.m_Callback = IAPReturn;
+				PurchaseManager.BuyItem(OptionIndexReal);
+			} 
+			else 
+			{
+				//FAKE
+				OptionPurchasedSuccess (OptionIndex);
+			}
+		}
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////
