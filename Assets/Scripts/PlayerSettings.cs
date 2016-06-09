@@ -14,7 +14,17 @@ public class PlayerSettings : MonoBehaviour
 
 	void Start () 
     {
+        SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
+
         m_Root = GameObject.Find("Canvas").transform.Find("SettingsRoot").gameObject;
+
+        // set the version text
+        GameObject versionObject = GameObject.Find("VersionText");
+        if (versionObject)
+        {
+            Text Version = versionObject.GetComponent<Text>();
+            Version.text = Session.m_Version;
+        }
 
         UpdateButtons();	
 	}

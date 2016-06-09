@@ -12,14 +12,6 @@ public class Cover : MonoBehaviour
 
         SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
 
-        // set the version text
-		GameObject versionObject = GameObject.Find("VersionText");
-		if (versionObject) 
-		{
-			Text Version = versionObject.GetComponent<Text> ();
-			Version.text = Session.m_Version;
-		}
-
         // hide the debug buttons if this is an external version
         if (Session.m_ExternalVersion)
         {

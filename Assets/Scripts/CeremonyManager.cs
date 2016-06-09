@@ -400,6 +400,8 @@ public class CeremonyManager : MonoBehaviour
         string NewString = "Save your Chain\nwith UNDO!";
         Text1.GetComponent<Text>().text = NewString;
 
+        SessionManager.PlaySound("Fanfare_Wrong");
+
         // show cross
         Image.SetActive(true);
         yield return new WaitForSeconds(0.5f);

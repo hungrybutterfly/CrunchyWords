@@ -1226,7 +1226,7 @@ public class GameManager : MonoBehaviour {
 
         SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
 
-        if (m_UndoChainSession > 20)
+        //if (m_UndoChainSession > 20)
         {
             // kick off a video ad
             Session.m_AdvertStatic = false;
