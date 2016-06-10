@@ -32,11 +32,15 @@ public class IAPurchaser : MonoBehaviour, IStoreListener
     //Type of IAP
     public enum eIAPItems
     {
-        IAP_100Coins,
-        IAP_250Coins,
-        IAP_600Coins,
-        IAP_100CoinsRemoveStatics,
-        IAP_250CoinsRemoveAllAds,
+        IAP_1420Coins,
+        IAP_3530Coins,
+        IAP_10000Coins,
+        IAP_2XCoins,
+        IAP_2XCoinsRemoveStatics,
+        IAP_2XCoinsRemoveAllAds,
+        IAP_10XCoins,
+        IAP_10XCoinsRemoveAllAds,
+        IAP_InfiniteCoinsRemoveAllAds,
         IAP_LEN,
     };
 
@@ -64,40 +68,68 @@ public class IAPurchaser : MonoBehaviour, IStoreListener
             //Setup IAPs
             m_SellableItems = new IAPInfo[(int)eIAPItems.IAP_LEN];
 
-            //100 Coins
-            m_SellableItems[0].type = eIAPItems.IAP_100Coins;
-            m_SellableItems[0].identifier = "Consumable100Coins";
-            m_SellableItems[0].appleID = "WordChain.100Coins";
+            //1420 Coins
+            m_SellableItems[0].type = eIAPItems.IAP_1420Coins;
+            m_SellableItems[0].identifier = "IAP_1420Coins";
+            m_SellableItems[0].appleID = "WordChain.1420Coins";
             m_SellableItems[0].androidID = "com.unity3d.test.services.purchasing.consumable";
             m_SellableItems[0].productType = ProductType.Consumable;
 
-            //250 Coins
-            m_SellableItems[1].type = eIAPItems.IAP_250Coins;
-            m_SellableItems[1].identifier = "Consumable250Coins";
-            m_SellableItems[1].appleID = "WordChain.250Coins";
+            //3530 Coins
+            m_SellableItems[1].type = eIAPItems.IAP_3530Coins;
+            m_SellableItems[1].identifier = "IAP_3530Coins";
+            m_SellableItems[1].appleID = "WordChain.3530Coins";
             m_SellableItems[1].androidID = "com.unity3d.test.services.purchasing.consumable";
             m_SellableItems[1].productType = ProductType.Consumable;
 
-            //600 Coins
-            m_SellableItems[2].type = eIAPItems.IAP_600Coins;
-            m_SellableItems[2].identifier = "Consumable600Coins";
-            m_SellableItems[2].appleID = "WordChain.600Coins";
+            //10000 Coins
+            m_SellableItems[2].type = eIAPItems.IAP_10000Coins;
+            m_SellableItems[2].identifier = "IAP_10000Coins";
+            m_SellableItems[2].appleID = "WordChain.10000Coins";
             m_SellableItems[2].androidID = "com.unity3d.test.services.purchasing.consumable";
             m_SellableItems[2].productType = ProductType.Consumable;
 
-            //100 Coins - Remove Statics
-            m_SellableItems[3].type = eIAPItems.IAP_100CoinsRemoveStatics;
-            m_SellableItems[3].identifier = "NonConsumable100CoinsRemoveStatics";
-            m_SellableItems[3].appleID = "WordChain.100CoinRemoveStatics";
+            //2X Coins
+            m_SellableItems[3].type = eIAPItems.IAP_2XCoins;
+            m_SellableItems[3].identifier = "IAP_2XCoins";
+            m_SellableItems[3].appleID = "WordChain.DoubleCoins";
             m_SellableItems[3].androidID = "com.unity3d.test.services.purchasing.nonconsumable";
             m_SellableItems[3].productType = ProductType.NonConsumable;
 
-            //250 Coins - Remove Ads
-            m_SellableItems[4].type = eIAPItems.IAP_250CoinsRemoveAllAds;
-            m_SellableItems[4].identifier = "NonConsumable250CoinsRemoveAllAds";
-            m_SellableItems[4].appleID = "WordChain.250CoinRemoveAllAds";
+            //2X Coins - Remove Statics
+            m_SellableItems[4].type = eIAPItems.IAP_2XCoinsRemoveStatics;
+            m_SellableItems[4].identifier = "IAP_2XCoinsRemoveStatics";
+            m_SellableItems[4].appleID = "WordChain.DoubleCoinsRemoveStatics";
             m_SellableItems[4].androidID = "com.unity3d.test.services.purchasing.nonconsumable";
             m_SellableItems[4].productType = ProductType.NonConsumable;
+
+            //2X Coins - Remove Ads
+            m_SellableItems[5].type = eIAPItems.IAP_2XCoinsRemoveAllAds;
+            m_SellableItems[5].identifier = "IAP_2XCoinsRemoveAllAds";
+            m_SellableItems[5].appleID = "WordChain.DoubleCoinsRemoveAllAds";
+            m_SellableItems[5].androidID = "com.unity3d.test.services.purchasing.nonconsumable";
+            m_SellableItems[5].productType = ProductType.NonConsumable;
+
+            //10X Coins
+            m_SellableItems[6].type = eIAPItems.IAP_10XCoins;
+            m_SellableItems[6].identifier = "IAP_10XCoins";
+            m_SellableItems[6].appleID = "WordChain.TenXCoins";
+            m_SellableItems[6].androidID = "com.unity3d.test.services.purchasing.nonconsumable";
+            m_SellableItems[6].productType = ProductType.NonConsumable;           
+
+            //10X Coins - Remove Ads
+            m_SellableItems[7].type = eIAPItems.IAP_10XCoinsRemoveAllAds;
+            m_SellableItems[7].identifier = "IAP_10XCoinsRemoveAllAds";
+            m_SellableItems[7].appleID = "WordChain.TenXCoinsRemoveAllAds";
+            m_SellableItems[7].androidID = "com.unity3d.test.services.purchasing.nonconsumable";
+            m_SellableItems[7].productType = ProductType.NonConsumable;
+
+            //Infinite Coins - Remove Ads
+            m_SellableItems[8].type = eIAPItems.IAP_InfiniteCoinsRemoveAllAds;
+            m_SellableItems[8].identifier = "IAP_InfiniteCoinsRemoveAllAds";
+            m_SellableItems[8].appleID = "WordChain.InfiniteCoinsRemoveAllAds";
+            m_SellableItems[8].androidID = "com.unity3d.test.services.purchasing.nonconsumable";
+            m_SellableItems[8].productType = ProductType.NonConsumable;
 
             //Init Callback
             m_Callback = null;

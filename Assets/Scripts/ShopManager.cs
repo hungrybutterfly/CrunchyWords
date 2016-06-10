@@ -7,13 +7,17 @@ using System.Collections.Generic;
 public class ShopManager : MonoBehaviour
 {
     enum eOption
-    {
-        Coins100,
-        Coins250,
-        Coins600,
-        Coins100Static,
-        Coins250ALL,
-        Watch,
+    {        
+        Option_1420Coins,
+        Option_3530Coins,
+        Option_10000Coins,
+        Option_2XCoins,
+        Option_2XCoinsRemoveStatics,
+        Option_2XCoinsRemoveAllAds,
+        Option_10XCoins,
+        Option_10XCoinsRemoveAllAds,
+        Option_InfiniteCoinsRemoveAllAds,
+        Option_Watch,
     }
 
     public void Start()
@@ -59,25 +63,39 @@ public class ShopManager : MonoBehaviour
 
         switch (Option)
         {
-            case eOption.Coins100:
-                Session.m_SaveData.AddCoins(100);
+            case eOption.Option_1420Coins:
+                Session.m_SaveData.AddCoins(1420);
                 break;
-            case eOption.Coins250:
-                Session.m_SaveData.AddCoins(250);
+            case eOption.Option_3530Coins:
+                Session.m_SaveData.AddCoins(3530);
                 break;
-            case eOption.Coins600:
-                Session.m_SaveData.AddCoins(600);
+            case eOption.Option_10000Coins:
+                Session.m_SaveData.AddCoins(10000);
                 break;
-            case eOption.Coins100Static:
-                Session.m_SaveData.AddCoins(100);
+            case eOption.Option_2XCoins:
+                Session.m_SaveData.sd_DoubleCoins = 1;
+                break;
+            case eOption.Option_2XCoinsRemoveStatics:
+                Session.m_SaveData.sd_DoubleCoins = 1;
                 Session.m_SaveData.sd_RemoveStaticAds = 1;
                 break;
-            case eOption.Coins250ALL:
-                Session.m_SaveData.AddCoins(250);
+            case eOption.Option_2XCoinsRemoveAllAds:
+                Session.m_SaveData.sd_DoubleCoins = 1;
                 Session.m_SaveData.sd_RemoveALLAds = 1;
                 break;
-            case eOption.Watch:
-                Session.m_SaveData.AddCoins(10);
+            case eOption.Option_10XCoins:
+                Session.m_SaveData.sd_X10Coins = 1;
+                break;
+            case eOption.Option_10XCoinsRemoveAllAds:
+                Session.m_SaveData.sd_X10Coins = 1;
+                Session.m_SaveData.sd_RemoveALLAds = 1;
+                break;
+            case eOption.Option_InfiniteCoinsRemoveAllAds:
+                Session.m_SaveData.sd_InfinteCoins = 1;
+                Session.m_SaveData.sd_RemoveALLAds = 1;
+                break;
+            case eOption.Option_Watch:
+                Session.m_SaveData.AddCoins(100);
                 break;
         }
 
@@ -97,7 +115,7 @@ public class ShopManager : MonoBehaviour
 
         // did player select to watch a video
 		eOption OptionIndex = (eOption)int.Parse (Option);
-		if (OptionIndex == eOption.Watch) 
+		if (OptionIndex == eOption.Option_Watch) 
 		{
 			Session.m_AdvertStatic = false;
 			Session.m_AdvertCount = 1;
