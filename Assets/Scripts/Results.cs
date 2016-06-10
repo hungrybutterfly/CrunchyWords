@@ -106,7 +106,12 @@ public class Results : MonoBehaviour {
         Points.text = Number;
 
         Text EqualCoins = GameObject.Find("equal coins value").GetComponent<Text>();
-        int Coins = (int) ((float) Session.m_LastScore / Session.m_ScoreToCoins);
+        int Multiplier = 1;
+        if (Session.m_SaveData.sd_DoubleCoins == 1)
+            Multiplier = 2;
+        if (Session.m_SaveData.sd_X10Coins == 1)
+            Multiplier = 10;
+        int Coins = (int)(((float)Session.m_LastScore * Multiplier) / Session.m_ScoreToCoins);
         Number = Coins.ToString() + ")";
         EqualCoins.text = Number;
 
@@ -174,7 +179,12 @@ public class Results : MonoBehaviour {
         if (m_bCeremonyActive) yield return new WaitForSeconds(m_fLongDelay);
 
         int NumFrames = 60;
-        int CoinsToAdd = (int)((float)Session.m_LastScore / Session.m_ScoreToCoins);
+        int Multiplier = 1;
+        if (Session.m_SaveData.sd_DoubleCoins == 1)
+            Multiplier = 2;
+        if (Session.m_SaveData.sd_X10Coins == 1)
+            Multiplier = 10;
+        int CoinsToAdd = (int)(((float)Session.m_LastScore * Multiplier) / Session.m_ScoreToCoins);
         int CoinsTarget = Session.m_SaveData.sd_TotalScore + CoinsToAdd;
         float Coins = Session.m_SaveData.sd_TotalScore;
         float CoinsDelta = (CoinsTarget - Coins) / NumFrames;

@@ -921,8 +921,8 @@ public class GameManager : MonoBehaviour {
 
             // double the next cost until it's 1000
             AmountOut *= 2;
-            if (AmountOut > 1000)
-                AmountOut = 1000;
+            if (AmountOut > 10000)
+                AmountOut = 10000;
 
             // increase the cost until it's x10 original value
 /*            AmountOut += BaseAmount;

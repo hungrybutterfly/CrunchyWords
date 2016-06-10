@@ -44,6 +44,8 @@ public class SavePlayerData
     public int sd_RemoveStaticAds = 0;
     public int sd_RemoveALLAds = 0;
     public int sd_InfinteCoins = 0;
+    public int sd_DoubleCoins = 0;
+    public int sd_X10Coins = 0;
 
     //Reset and Initialise Save Data
     public void InitSaveData()
@@ -77,6 +79,8 @@ public class SavePlayerData
         sd_RemoveStaticAds = 0;
         sd_RemoveALLAds = 0;
         sd_InfinteCoins = 0;
+        sd_DoubleCoins = 0;
+        sd_X10Coins = 0;
 
         sd_LevelsComplete = new List<SavePlayerData.SaveLevelData>();
     }
@@ -113,6 +117,8 @@ public class SavePlayerData
         sd_Dictionary.Add("sd_RemoveStaticAds", sd_RemoveStaticAds);
         sd_Dictionary.Add("sd_RemoveALLAds", sd_RemoveALLAds);
         sd_Dictionary.Add("sd_InfinteCoins", sd_InfinteCoins);
+        sd_Dictionary.Add("sd_DoubleCoins", sd_DoubleCoins);
+        sd_Dictionary.Add("sd_X10Coins", sd_X10Coins);
     }
 
     //Take the serialised dictionary, convert it and restore the values (After Loading)
@@ -164,6 +170,8 @@ public class SavePlayerData
         if (sd_Dictionary.ContainsKey("sd_RemoveStaticAds")) { sd_RemoveStaticAds = (int)sd_Dictionary["sd_RemoveStaticAds"]; }
         if (sd_Dictionary.ContainsKey("sd_RemoveALLAds")) { sd_RemoveALLAds = (int)sd_Dictionary["sd_RemoveALLAds"]; }
         if (sd_Dictionary.ContainsKey("sd_InfinteCoins")) { sd_InfinteCoins = (int)sd_Dictionary["sd_InfinteCoins"]; }
+        if (sd_Dictionary.ContainsKey("sd_DoubleCoins")) { sd_DoubleCoins = (int)sd_Dictionary["sd_DoubleCoins"]; }
+        if (sd_Dictionary.ContainsKey("sd_X10Coins")) { sd_X10Coins = (int)sd_Dictionary["sd_X10Coins"]; }
     }
 
     //Has the player already entered/discovered this word?

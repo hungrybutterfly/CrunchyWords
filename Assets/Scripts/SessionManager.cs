@@ -107,7 +107,7 @@ public class SessionManager : MonoBehaviour
     public bool m_GenerateMaxWords = true;
 
     // conversion rate from score to coins
-    public float m_ScoreToCoins = 10.0f;
+    public float m_ScoreToCoins = 1.0f;
 
     [HideInInspector]
     public Color m_HintColour = new Color(0.5f, 1, 1);
