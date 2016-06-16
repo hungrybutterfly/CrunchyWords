@@ -67,68 +67,68 @@ public class IAPurchaser : MonoBehaviour, IStoreListener
         {
             //Setup IAPs
             m_SellableItems = new IAPInfo[(int)eIAPItems.IAP_LEN];
-
+            
             //1420 Coins
             m_SellableItems[0].type = eIAPItems.IAP_1420Coins;
             m_SellableItems[0].identifier = "IAP_1420Coins";
-            m_SellableItems[0].appleID = "WordChain.Coins1420";
-            m_SellableItems[0].androidID = "com.unity3d.test.services.purchasing.consumable";
+            m_SellableItems[0].appleID = "WordChain.1420Coins";
+            m_SellableItems[0].androidID = "denkiwordchain.1420coins";
             m_SellableItems[0].productType = ProductType.Consumable;
 
             //3530 Coins
             m_SellableItems[1].type = eIAPItems.IAP_3530Coins;
             m_SellableItems[1].identifier = "IAP_3530Coins";
-            m_SellableItems[1].appleID = "WordChain.Coins3530";
-            m_SellableItems[1].androidID = "com.unity3d.test.services.purchasing.consumable";
+            m_SellableItems[1].appleID = "WordChain.3530Coins";
+            m_SellableItems[1].androidID = "denkiwordchain.3530coins";
             m_SellableItems[1].productType = ProductType.Consumable;
 
             //10000 Coins
             m_SellableItems[2].type = eIAPItems.IAP_10000Coins;
             m_SellableItems[2].identifier = "IAP_10000Coins";
-            m_SellableItems[2].appleID = "WordChain.Coins10000";
-            m_SellableItems[2].androidID = "com.unity3d.test.services.purchasing.consumable";
+            m_SellableItems[2].appleID = "WordChain.10000Coins";
+            m_SellableItems[2].androidID = "denkiwordchain.10000coins";
             m_SellableItems[2].productType = ProductType.Consumable;
 
             //2X Coins
             m_SellableItems[3].type = eIAPItems.IAP_2XCoins;
             m_SellableItems[3].identifier = "IAP_2XCoins";
             m_SellableItems[3].appleID = "WordChain.DoubleCoins";
-            m_SellableItems[3].androidID = "com.unity3d.test.services.purchasing.nonconsumable";
+            m_SellableItems[3].androidID = "denkiwordchain.doublecoins";
             m_SellableItems[3].productType = ProductType.NonConsumable;
 
             //2X Coins - Remove Statics
             m_SellableItems[4].type = eIAPItems.IAP_2XCoinsRemoveStatics;
             m_SellableItems[4].identifier = "IAP_2XCoinsRemoveStatics";
             m_SellableItems[4].appleID = "WordChain.DoubleCoinsRemoveStatics";
-            m_SellableItems[4].androidID = "com.unity3d.test.services.purchasing.nonconsumable";
+            m_SellableItems[4].androidID = "denkiwordchain.doublecoinsremovestatics";
             m_SellableItems[4].productType = ProductType.NonConsumable;
 
             //2X Coins - Remove Ads
             m_SellableItems[5].type = eIAPItems.IAP_2XCoinsRemoveAllAds;
             m_SellableItems[5].identifier = "IAP_2XCoinsRemoveAllAds";
             m_SellableItems[5].appleID = "WordChain.DoubleCoinsRemoveAllAds";
-            m_SellableItems[5].androidID = "com.unity3d.test.services.purchasing.nonconsumable";
+            m_SellableItems[5].androidID = "denkiwordchain.doublecoinsremoveallads";
             m_SellableItems[5].productType = ProductType.NonConsumable;
 
             //10X Coins
             m_SellableItems[6].type = eIAPItems.IAP_10XCoins;
             m_SellableItems[6].identifier = "IAP_10XCoins";
             m_SellableItems[6].appleID = "WordChain.TenXCoins";
-            m_SellableItems[6].androidID = "com.unity3d.test.services.purchasing.nonconsumable";
+            m_SellableItems[6].androidID = "denkiwordchain.tenxcoins";
             m_SellableItems[6].productType = ProductType.NonConsumable;           
 
             //10X Coins - Remove Ads
             m_SellableItems[7].type = eIAPItems.IAP_10XCoinsRemoveAllAds;
             m_SellableItems[7].identifier = "IAP_10XCoinsRemoveAllAds";
             m_SellableItems[7].appleID = "WordChain.TenXCoinsRemoveAllAds";
-            m_SellableItems[7].androidID = "com.unity3d.test.services.purchasing.nonconsumable";
+            m_SellableItems[7].androidID = "denkiwordchain.tenxcoinsremoveallads";
             m_SellableItems[7].productType = ProductType.NonConsumable;
 
             //Infinite Coins - Remove Ads
             m_SellableItems[8].type = eIAPItems.IAP_InfiniteCoinsRemoveAllAds;
             m_SellableItems[8].identifier = "IAP_InfiniteCoinsRemoveAllAds";
             m_SellableItems[8].appleID = "WordChain.InfiniteCoinsRemoveAllAds";
-            m_SellableItems[8].androidID = "com.unity3d.test.services.purchasing.nonconsumable";
+            m_SellableItems[8].androidID = "denkiwordchain.infinitecoinsremoveallads";
             m_SellableItems[8].productType = ProductType.NonConsumable;
 
             //Init Callback
