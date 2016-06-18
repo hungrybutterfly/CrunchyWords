@@ -12,7 +12,7 @@ public class PlayerSettings : MonoBehaviour
 
     GameObject m_Root;
 
-	void Start () 
+	public void Start () 
     {
         SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
 
@@ -39,7 +39,9 @@ public class PlayerSettings : MonoBehaviour
     {
         SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
 
-        Image Sprite = m_Root.transform.Find("SFX").Find("Image").GetComponent<Image>();
+        Transform ButtonTransform = m_Root.transform.Find("SFX");
+        Transform ImageTransform = ButtonTransform.Find("Image");
+        Image Sprite = ImageTransform.GetComponent<Image>();
         if (Session.m_Settings.m_SFXEnabled == 1)
             Sprite.sprite = m_SFXOn;
         else

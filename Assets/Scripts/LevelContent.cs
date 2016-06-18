@@ -77,7 +77,10 @@ public class LevelContent : MonoBehaviour
                 if (Session.m_SaveData.FindLevelComplete(ZoneIndex, i - 1) == -1)
                 {
                     // disable the button
-                    TheButton.interactable = false;
+                    TheButton.enabled = false;
+
+                    // make it grey
+                    TheButton.GetComponent<Image>().color = new Color(0.5f, 0.5f, 0.5f);
                 }
             }
         }

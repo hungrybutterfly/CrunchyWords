@@ -183,10 +183,13 @@ public class CeremonyManager : MonoBehaviour
         {
             yield return new WaitForSeconds(0.01f);
 
-            // add on score
-            Score += ScoreDelta;
-            Game.m_TotalScore = (int)Score;
-            Game.UpdateScore();
+            if (!m_CerermonyInterrupted)
+            {
+                // add on score
+                Score += ScoreDelta;
+                Game.m_TotalScore = (int)Score;
+                Game.UpdateScore();
+            }
 
             // fade out text
             Color colour = CeremonyText.color;
@@ -194,9 +197,12 @@ public class CeremonyManager : MonoBehaviour
             CeremonyText.color = colour;
         }
 
-        // make sure final score is correct
-        Game.m_TotalScore = Game.m_TargetScore;
-        Game.UpdateScore();
+        if (!m_CerermonyInterrupted)
+        {
+            // make sure final score is correct
+            Game.m_TotalScore = Game.m_TargetScore;
+            Game.UpdateScore();
+        }
 
         // hide the text
         CeremonyText.gameObject.SetActive(false);
@@ -460,6 +466,11 @@ public class CeremonyManager : MonoBehaviour
                 GameManager Game = GameObject.Find("GameManager").GetComponent<GameManager>();
                 Game.ClearUsedLetters();
                 m_Root.gameObject.SetActive(false);
+
+                // make sure final score is correct
+                Game.m_TotalScore = Game.m_TargetScore;
+                Game.UpdateScore();
+
                 m_CerermonyInterrupted = true;
             }
         }

@@ -31,6 +31,9 @@ public class ShopManager : MonoBehaviour
         {
             GameObject.Find("Add Coins").SetActive(false);
         }
+
+        // get rid of a Unity bug where the viewport doesn't update properly when created. Doing this will force it to update correctly.
+        GameObject.Find("ShopViewport").GetComponent<RectTransform>().sizeDelta = new Vector2(1, 1);
     }
 
     public void Update()
@@ -40,12 +43,16 @@ public class ShopManager : MonoBehaviour
         // disable options that don't make sense to keep active
         if (Session.m_SaveData.sd_RemoveStaticAds != 0 || Session.m_SaveData.sd_RemoveALLAds != 0)
         {
-            Button Option = GameObject.Find("ShopOption4").GetComponentInChildren<Button>();
+            Button Option = GameObject.Find("ShopOption6").GetComponentInChildren<Button>();
             Option.interactable = false;
         }
         if (Session.m_SaveData.sd_RemoveALLAds != 0)
         {
-            Button Option = GameObject.Find("ShopOption5").GetComponentInChildren<Button>();
+            Button Option = GameObject.Find("ShopOption7").GetComponentInChildren<Button>();
+            Option.interactable = false;
+            Option = GameObject.Find("ShopOption9").GetComponentInChildren<Button>();
+            Option.interactable = false;
+            Option = GameObject.Find("ShopOption10").GetComponentInChildren<Button>();
             Option.interactable = false;
         }
 

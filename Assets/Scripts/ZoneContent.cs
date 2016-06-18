@@ -66,7 +66,7 @@ public class ZoneContent : MonoBehaviour
                 if (j < NumLevels)
                 {
                     // disable the button
-                    TheButton.interactable = false;
+                    TheButton.enabled = false;
                     Active = false;
 
                     // make it grey

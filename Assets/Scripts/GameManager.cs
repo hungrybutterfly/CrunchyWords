@@ -295,28 +295,30 @@ public class GameManager : MonoBehaviour {
         // set the total coins text
         Text Value = m_JumbleCostText.GetComponentInChildren<Text>();
         Value.text = m_ShuffleCost.ToString();
+        Color Colour = Value.color;
         if (Session.m_SaveData.sd_TotalScore >= m_ShuffleCost || Session.m_SaveData.sd_InfinteCoins != 0)
-            m_JumbleCostText.gameObject.SetActive(true);
+            Colour.a = 1.0f;
         else
-            m_JumbleCostText.gameObject.SetActive(false);
-
-/*        Object = GameObject.Find("Check Cost");
-        Value = Object.GetComponentInChildren<Text>();
-        Value.text = m_CheckWordCost.ToString();*/
+            Colour.a = 0.35f;
+        Value.color = Colour;
 
         Value = m_LockCostText.GetComponentInChildren<Text>();
         Value.text = m_LockCost.ToString();
+        Colour = Value.color;
         if (Session.m_SaveData.sd_TotalScore >= m_LockCost || Session.m_SaveData.sd_InfinteCoins != 0)
-            m_LockCostText.gameObject.SetActive(true);
+            Colour.a = 1.0f;
         else
-            m_LockCostText.gameObject.SetActive(false);
+            Colour.a = 0.35f;
+        Value.color = Colour;
 
         Value = m_HintCostText.GetComponentInChildren<Text>();
         Value.text = m_HintCost.ToString();
+        Colour = Value.color;
         if (Session.m_SaveData.sd_TotalScore >= m_HintCost || Session.m_SaveData.sd_InfinteCoins != 0)
-            m_HintCostText.gameObject.SetActive(true);
+            Colour.a = 1.0f;
         else
-            m_HintCostText.gameObject.SetActive(false);
+            Colour.a = 0.35f;
+        Value.color = Colour;
     }
 
     // get the scren position for a given letter when idle
@@ -876,7 +878,8 @@ public class GameManager : MonoBehaviour {
         if (!WordObject.IsFound() && !WordObject.IsHintUsed())
         {
             // turn off nudge on all words
-            for(int i = 0;i < m_WordList.Length;i++)
+            int i;
+            for(i = 0;i < m_WordList.Length;i++)
             {
                 m_WordList[i].SetNudge(false);
             }
@@ -902,6 +905,17 @@ public class GameManager : MonoBehaviour {
 
                 m_HintButton.SetNudge(true);
             }
+
+            // make sure the first letter of the selected word is used
+            ClearUsedLetters();
+            i = 0;
+            string FirstLetter = "" + m_SelectedWord.m_Word[0];
+            for (; i < m_MaxLetters;i++)
+            {
+                if (m_LetterList[i].m_Letter == FirstLetter)
+                    break;
+            }
+            AddLetter(i);
         }
     }
 

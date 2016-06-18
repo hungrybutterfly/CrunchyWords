@@ -21,6 +21,9 @@ public class Cover : MonoBehaviour
 				Button.SetActive (false);
 			}
         }
+
+        PlayerSettings Settings = GameObject.Find("Canvas").transform.Find("SettingsRoot").GetComponent<PlayerSettings>();
+        Settings.Start();
     }
 
     public void StartClicked()
