@@ -109,6 +109,9 @@ public class SessionManager : MonoBehaviour
     // conversion rate from score to coins
     public float m_ScoreToCoins = 1.0f;
 
+    public GameObject EventPrefab;
+    GameObject m_EventInstance;
+
     [HideInInspector]
     public Color m_HintColour = new Color(0.5f, 1, 1);
 
@@ -134,6 +137,9 @@ public class SessionManager : MonoBehaviour
         {
             DontDestroyOnLoad(gameObject);
             m_Instance = this;
+
+            m_EventInstance = Instantiate(EventPrefab);
+            DontDestroyOnLoad(m_EventInstance);
 
             // if we're not on the loading screen then immediately load the dictionary
             if (SceneManager.GetActiveScene().name != "Start" && SceneManager.GetActiveScene().name != "HowToPlay" && !m_IgnoreDictionary)
