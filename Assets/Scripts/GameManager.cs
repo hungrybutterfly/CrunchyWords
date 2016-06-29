@@ -1245,6 +1245,7 @@ public class GameManager : MonoBehaviour {
             // kick off a video ad
             Session.m_AdvertStatic = false;
             Session.m_AdvertCount = 1;
+            Session.m_AdvertNextScene = "";
             Session.ChangeScene("Advert", LoadSceneMode.Additive);
         }
 

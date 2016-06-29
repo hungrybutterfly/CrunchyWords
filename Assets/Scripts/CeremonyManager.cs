@@ -170,10 +170,14 @@ public class CeremonyManager : MonoBehaviour
 
         yield return new WaitForSeconds(0.5f);
 
+        int TempScore = Game.m_TotalScore;
+        Game.m_TotalScore = Game.m_TargetScore;
         Game.CompleteWordCorrect(m_CerermonyInterrupted);
+        Game.m_TotalScore = TempScore;
 
         // disable raycasting on the big panel so player can start clicking again
         CeremonyObject.GetComponent<Image>().raycastTarget = false;
+        Blocker.GetComponent<Image>().raycastTarget = false;
 
         // fade out text and add on score
         int FadeDelay = 30;

@@ -127,7 +127,8 @@ public class ShopManager : MonoBehaviour
 			Session.m_AdvertStatic = false;
 			Session.m_AdvertCount = 1;
 			Session.ChangeScene ("Advert", LoadSceneMode.Additive);
-		} 
+            OptionPurchasedSuccess(OptionIndex);
+        } 
 		else
 		{
 			//Chris - This now splits depending on 'External Version'

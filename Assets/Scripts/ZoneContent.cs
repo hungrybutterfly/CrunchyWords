@@ -140,6 +140,8 @@ public class ZoneContent : MonoBehaviour
             }
         } while (AdActive);
 
+        SessionManager.PlaySound("New_Pack");
+
         GameObject String = CeremonyObject.transform.Find("Text").gameObject;
         for (int i = 0; i < 8;i++)
         {
