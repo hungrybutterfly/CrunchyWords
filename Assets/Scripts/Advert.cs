@@ -38,9 +38,13 @@ public class Advert : MonoBehaviour
             GameObject skipButton = GameObject.Find("SkipButton");
             skipButton.SetActive(false);
 
-            //Call for an Ad to display 
-            //Display and Ad (bool is for true for static or video)
-            _session.m_AdvertManager.DisplayAd(_session.m_AdvertStatic);
+            //Call for an Ad to display
+			if( _session.m_AdvertStatic)
+			{
+            	_session.m_AdvertManager.DisplayStaticAd();
+			}else{
+				_session.m_AdvertManager.DisplayVideoAd(false); //false for non-skippable ads
+			}
             //Set the advert callback
             _session.m_AdvertManager.m_Callback = AdvertReturn;
 #endif

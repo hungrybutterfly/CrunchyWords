@@ -29,7 +29,7 @@ public class AdvertManager : MonoBehaviour
     private bool m_StaticAd = true;
 
     //Which Video AD mode?
-    private bool m_VideoADBasic = true;
+    private bool m_VideoADSkippable = true;
 
     //Hold static ad
     InterstitialAd m_InterstitialAd = null;
@@ -49,6 +49,7 @@ public class AdvertManager : MonoBehaviour
     }
 
     //Request an ad ready for later
+	//NOTE: Only static requires this
     public void RequestAd()
     {
         //Are we online?
@@ -57,18 +58,17 @@ public class AdvertManager : MonoBehaviour
             m_RequestMade = true;
             //Request the static
             //GOOGLE ADS
-            RequestStaticAd();
-            //NOTE: Only static requires this
+            RequestStaticAd();            
         }
     }
 
     //Display Ad now
-    public void DisplayAd(bool _static)
+    public void DisplayStaticAd()
     {
         //Return if not online
         if (!IsOnline()) { return; }
 
-        m_StaticAd = _static;
+        m_StaticAd = true;
         if (!m_RequestMade)
         {
             Debug.Log("SLOW!! YOU MUST REQUEST AN AD PREVIOUS TO THIS!");
@@ -79,17 +79,46 @@ public class AdvertManager : MonoBehaviour
         m_WaitingOnFullscreenAd = true;
 
         // send metrics
-        int Static = 0;
-        if (m_StaticAd) Static = 1;
-        int VideoADBasic = 0;
-        if (m_VideoADBasic) VideoADBasic = 1;
+        int Static = 1;
+		int VideoSkippable = 0;
+		int VideoNonSkippable = 0;
         SessionManager.MetricsLogEventWithParameters("Advert", new Dictionary<string, string>()
         {
-            { "Static", Static.ToString() },
-            { "VideoADBasic", VideoADBasic.ToString() },
+			{ "Static", Static.ToString() },
+			{ "VideoSkippable", VideoSkippable.ToString() },
+			{ "VideoNonSkippable", VideoNonSkippable.ToString() },
         });
 #endif
     }
+
+	//Display Ad now
+	public void DisplayVideoAd(bool _skippable)
+	{
+		//Return if not online
+		if (!IsOnline()) { return; }
+
+		m_VideoADSkippable = _skippable;
+		if (!m_RequestMade)
+		{
+			Debug.Log("SLOW!! YOU MUST REQUEST AN AD PREVIOUS TO THIS!");
+			RequestAd();
+		}
+		#if (UNITY_IOS || UNITY_ANDROID)
+		//Show an Ad...
+		m_WaitingOnFullscreenAd = true;
+
+		// send metrics
+		int Static = 0;
+		int VideoSkippable = _skippable ? 1 : 0;
+		int VideoNonSkippable = _skippable ? 0 : 1;
+		SessionManager.MetricsLogEventWithParameters("Advert", new Dictionary<string, string>()
+			{
+				{ "Static", Static.ToString() },
+				{ "VideoSkippable", VideoSkippable.ToString() },
+				{ "VideoNonSkippable", VideoNonSkippable.ToString() },
+			});
+		#endif
+	}
 
     //Update
     private void Update()
@@ -106,7 +135,7 @@ public class AdvertManager : MonoBehaviour
             else
             {
                 //UNITY ADS           
-                if (m_VideoADBasic)
+				if (m_VideoADSkippable)
                 {
                     //SKIPPABLE
                     ShowDefaultAd();
