@@ -124,10 +124,15 @@ public class ShopManager : MonoBehaviour
 		eOption OptionIndex = (eOption)int.Parse (Option);
 		if (OptionIndex == eOption.Option_Watch) 
 		{
-			Session.m_AdvertStatic = false;
-			Session.m_AdvertCount = 1;
-			Session.ChangeScene ("Advert", LoadSceneMode.Additive);
-            OptionPurchasedSuccess(OptionIndex);
+			//Are we online?
+			if (Session.m_AdvertManager.IsOnline ()) 
+			{
+				Session.m_AdvertStatic = false;
+				Session.m_AdvertSkippable = false;
+				Session.m_AdvertCount = 1;
+				Session.ChangeScene ("Advert", LoadSceneMode.Additive);
+				OptionPurchasedSuccess (OptionIndex);
+			}
         } 
 		else
 		{

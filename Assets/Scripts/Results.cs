@@ -321,7 +321,7 @@ public class Results : MonoBehaviour {
 
         if (!Session.m_ZoneComplete)
         {
-            if (Session.m_SaveData.sd_RemoveStaticAds == 0 && Session.m_SaveData.sd_RemoveALLAds == 0)
+			if (Session.m_SaveData.sd_RemoveStaticAds == 0 && Session.m_SaveData.sd_RemoveALLAds == 0 && Session.m_AdvertManager.IsOnline ())
             {
                 Session.m_AdvertStatic = true;
                 Session.m_AdvertCount = 1;
@@ -340,9 +340,10 @@ public class Results : MonoBehaviour {
             if (Session.m_CurrentZone == Data.m_Zones.Length - 1)
             {
                 // has all ads been paid for
-                if (Session.m_SaveData.sd_RemoveALLAds == 0)
+				if (Session.m_SaveData.sd_RemoveALLAds == 0 && Session.m_AdvertManager.IsOnline ())
                 {
                     Session.m_AdvertStatic = false;
+					Session.m_AdvertSkippable = false;
                     Session.m_AdvertCount = 1;
                     Session.m_AdvertNextScene = "AllComplete";
                     Session.ChangeScene("Advert");
@@ -355,9 +356,10 @@ public class Results : MonoBehaviour {
             else
             {
                 // has all ads been paid for
-                if (Session.m_SaveData.sd_RemoveALLAds == 0)
+				if (Session.m_SaveData.sd_RemoveALLAds == 0 && Session.m_AdvertManager.IsOnline ())
                 {
                     Session.m_AdvertStatic = false;
+					Session.m_AdvertSkippable = false;
                     Session.m_AdvertCount = 1;
                     Session.m_AdvertNextScene = "Zone";
                     Session.ChangeScene("Advert");

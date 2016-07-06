@@ -1240,10 +1240,11 @@ public class GameManager : MonoBehaviour {
 
         SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
 
-        //if (m_UndoChainSession > 20)
-        {
+		if (Session.m_AdvertManager.IsOnline ()) 
+		{
             // kick off a video ad
             Session.m_AdvertStatic = false;
+			Session.m_AdvertSkippable = true;
             Session.m_AdvertCount = 1;
             Session.m_AdvertNextScene = "";
             Session.ChangeScene("Advert", LoadSceneMode.Additive);

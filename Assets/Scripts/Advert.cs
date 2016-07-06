@@ -43,12 +43,11 @@ public class Advert : MonoBehaviour
 			{
             	_session.m_AdvertManager.DisplayStaticAd();
 			}else{
-				_session.m_AdvertManager.DisplayVideoAd(false); //false for non-skippable ads
+				_session.m_AdvertManager.DisplayVideoAd(_session.m_AdvertSkippable); //false for non-skippable ads
 			}
             //Set the advert callback
             _session.m_AdvertManager.m_Callback = AdvertReturn;
 #endif
-
             m_AdsSeen++;
         }
     }

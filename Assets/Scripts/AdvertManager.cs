@@ -43,9 +43,8 @@ public class AdvertManager : MonoBehaviour
     //Online?
     public bool IsOnline()
     {
-        //This is actually the best way believe it or not. Incredible.
-        WWW siteFound = new WWW("http://google.com");
-        return (siteFound.error == null);
+		bool internetAvailable = (Application.internetReachability == NetworkReachability.NotReachable) ? false : true;
+		return internetAvailable;
     }
 
     //Request an ad ready for later
@@ -97,13 +96,10 @@ public class AdvertManager : MonoBehaviour
 		//Return if not online
 		if (!IsOnline()) { return; }
 
+		m_StaticAd = false;
 		m_VideoADSkippable = _skippable;
-		if (!m_RequestMade)
-		{
-			Debug.Log("SLOW!! YOU MUST REQUEST AN AD PREVIOUS TO THIS!");
-			RequestAd();
-		}
-		#if (UNITY_IOS || UNITY_ANDROID)
+
+#if (UNITY_IOS || UNITY_ANDROID)
 		//Show an Ad...
 		m_WaitingOnFullscreenAd = true;
 
@@ -117,7 +113,7 @@ public class AdvertManager : MonoBehaviour
 				{ "VideoSkippable", VideoSkippable.ToString() },
 				{ "VideoNonSkippable", VideoNonSkippable.ToString() },
 			});
-		#endif
+#endif
 	}
 
     //Update
@@ -266,9 +262,10 @@ public class AdvertManager : MonoBehaviour
     {
         //print("HandleStaticFailedToLoad event received with message: " + args.Message);
         //Next Scene
-        m_Callback(false);
-        //Next Ad
-        RequestAd();
+		if (m_Callback != null) 
+		{
+			m_Callback (false);
+		}
     }
     public void HandleStaticClosed(object sender, EventArgs args)
     {
