@@ -238,14 +238,17 @@ public class AdvertManager : MonoBehaviour
         switch (result)
         {
             case ShowResult.Finished:
+                SessionManager.MetricsLogEvent("VideoAdvertCompleted");
                 //Debug.Log("The ad was successfully shown.");
                 success = true;
                 break;
             case ShowResult.Skipped:
+                SessionManager.MetricsLogEvent("VideoAdvertSkipped");
                 //Debug.Log("The ad was skipped before reaching the end.");
                 success = true;
                 break;
             case ShowResult.Failed:
+                SessionManager.MetricsLogEvent("VideoAdvertFailed");
                 //Debug.LogError("The ad failed to be shown.");
                 success = false;
                 break;

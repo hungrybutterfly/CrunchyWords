@@ -16,14 +16,14 @@ public class Loading : MonoBehaviour
         if(m_Frame > 120)
         {
             SessionManager Session = GameObject.Find("SessionManager").GetComponent<SessionManager>();
-            if (Session.m_Settings.m_HowToSeen == 0)
+            /*if (Session.m_Settings.m_HowToSeen == 0)
             {
                 Session.ChangeScene("ChooseIcon");
             }
             else
-            {
+            {*/
                 Session.ChangeScene("Cover");
-            }
+            //}
         }
     }
 }

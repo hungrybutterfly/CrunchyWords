@@ -163,6 +163,10 @@ public class SessionManager : MonoBehaviour
                 KHD.FlurryAnalytics.Instance.StartSession("RTFXKFFH7FKH545GTCQ5", "FGF2V8MGPGPHV5BSPWRM", true);
                 KHD.FlurryAnalytics.Instance.SetAppVersion(m_Version);
                 KHD.FlurryAnalytics.Instance.SetUserId(m_AdvertManager.GetDeviceID());
+
+                //Online?
+                string Log = "Online" + m_AdvertManager.IsOnline().ToString();
+                MetricsLogEvent(Log);
             }
 
 			//Create IAP

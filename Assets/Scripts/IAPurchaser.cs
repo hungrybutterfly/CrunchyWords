@@ -214,6 +214,9 @@ public class IAPurchaser : MonoBehaviour, IStoreListener
             // ... begin restoring purchases
             Debug.Log("RestorePurchases started ...");
 
+            //Metric
+            SessionManager.MetricsLogEvent("RestoringPurchases");
+
             // Fetch the Apple store-specific subsystem.
             var apple = m_StoreExtensionProvider.GetExtension<IAppleExtensions>();
             // Begin the asynchronous process of restoring purchases. Expect a confirmation response in the Action<bool> below, and ProcessPurchase if there are previously purchased products to restore.
@@ -249,11 +252,19 @@ public class IAPurchaser : MonoBehaviour, IStoreListener
 
         if (String.Equals(args.purchasedProduct.definition.id, m_ItemBeingPurchased.identifier, StringComparison.Ordinal))
         {
+            //Metric
+            string Log = "PurchasedItemSuccess_"+ m_ItemBeingPurchased.identifier;
+            SessionManager.MetricsLogEvent(Log);
+
             Debug.Log(string.Format("ProcessPurchase: PASS. Product: '{0}'", args.purchasedProduct.definition.id));
             m_Callback(true, m_ItemBeingPurchased.type);
         }
         else
         {
+            //Metric
+            string Log = "PurchasedItemFailed_" + m_ItemBeingPurchased.identifier;
+            SessionManager.MetricsLogEvent(Log);
+
             Debug.Log(string.Format("ProcessPurchase: FAIL. Unrecognized product: '{0}'", args.purchasedProduct.definition.id));
             m_Callback(false, m_ItemBeingPurchased.type);
         }
@@ -330,6 +341,10 @@ public class IAPurchaser : MonoBehaviour, IStoreListener
     public void OnPurchaseFailed(Product product, PurchaseFailureReason failureReason)
     {
 		m_CurrentlyPurchasing = false;
+
+        //Metric
+        string Log = "PurchasedItemFailed_" + m_ItemBeingPurchased.identifier;
+        SessionManager.MetricsLogEvent(Log);
 
         // A product purchase attempt did not succeed. Check failureReason for more detail. Consider sharing this reason with the user.
         Debug.Log(string.Format("OnPurchaseFailed: FAIL. Product: '{0}', PurchaseFailureReason: {1}", product.definition.storeSpecificId, failureReason));
