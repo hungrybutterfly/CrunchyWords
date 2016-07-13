@@ -266,8 +266,10 @@ public class Results : MonoBehaviour {
         if ((!Session.m_ZoneComplete && (Session.m_SaveData.sd_RemoveStaticAds != 0 || Session.m_SaveData.sd_RemoveALLAds != 0)) ||
             (Session.m_ZoneComplete && Session.m_SaveData.sd_RemoveALLAds != 0))
         {
-            if (m_Skip)
-                m_Skip.SetActive(false);
+			if (m_Skip) 
+				m_Skip.SetActive (false);
+			if (m_Next)
+				m_Next.GetComponent<Text>().text = "NEXT";
         }
     }
 	
