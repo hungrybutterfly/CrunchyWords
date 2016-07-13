@@ -71,21 +71,21 @@ public class IAPurchaser : MonoBehaviour, IStoreListener
             //1420 Coins
             m_SellableItems[0].type = eIAPItems.IAP_1420Coins;
             m_SellableItems[0].identifier = "IAP_1420Coins";
-            m_SellableItems[0].appleID = "WordChain.1420Coins";
+            m_SellableItems[0].appleID = "WordChain.Coins1420";
             m_SellableItems[0].androidID = "denkiwordchain.1420coins";
             m_SellableItems[0].productType = ProductType.Consumable;
 
             //3530 Coins
             m_SellableItems[1].type = eIAPItems.IAP_3530Coins;
             m_SellableItems[1].identifier = "IAP_3530Coins";
-            m_SellableItems[1].appleID = "WordChain.3530Coins";
+            m_SellableItems[1].appleID = "WordChain.Coins3530";
             m_SellableItems[1].androidID = "denkiwordchain.3530coins";
             m_SellableItems[1].productType = ProductType.Consumable;
 
             //10000 Coins
             m_SellableItems[2].type = eIAPItems.IAP_10000Coins;
             m_SellableItems[2].identifier = "IAP_10000Coins";
-            m_SellableItems[2].appleID = "WordChain.10000Coins";
+            m_SellableItems[2].appleID = "WordChain.Coins10000";
             m_SellableItems[2].androidID = "denkiwordchain.10000coins";
             m_SellableItems[2].productType = ProductType.Consumable;
 
