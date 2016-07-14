@@ -1,29 +1,45 @@
-2016-07-13 15:04:49.661 CrunchyWords[8002:1997078] Unity Ads video position: video_start, gamer id: 575935fa572e55ca005f448d
-2016-07-13 15:04:56.046 CrunchyWords[8002:1997184] Unity Ads video position: first_quartile, gamer id: 575935fa572e55ca005f448d
-2016-07-13 15:05:02.333 CrunchyWords[8002:1997249] Unity Ads video position: mid_point, gamer id: 575935fa572e55ca005f448d
-2016-07-13 15:05:08.625 CrunchyWords[8002:1997333] Unity Ads video position: third_quartile, gamer id: 575935fa572e55ca005f448d
-2016-07-13 15:05:14.992 CrunchyWords[8002:1994461] Unity Ads video completed
-2016-07-13 15:05:14.994 CrunchyWords[8002:1997333] Unity Ads video position: video_end, gamer id: 575935fa572e55ca005f448d
-Unloading 4 Unused Serialized files (Serialized files now loaded: 0)
-UnloadTime: 2.565875 ms
+16
+GameManager:SubmitWord()
+UnityEngine.Events.InvokableCallList:Invoke(Object[])
+UnityEngine.EventSystems.ExecuteEvents:Execute(GameObject, BaseEventData, EventFunction`1)
+UnityEngine.EventSystems.ExecuteEvents:ExecuteHierarchy(GameObject, BaseEventData, EventFunction`1)
+UnityEngine.EventSystems.StandaloneInputModule:ProcessTouchPress(PointerEventData, Boolean, Boolean)
+UnityEngine.EventSystems.StandaloneInputModule:ProcessTouchEvents()
+UnityEngine.EventSystems.StandaloneInputModule:Process()
+ 
+(Filename: /Users/builduser/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineDebugBindings.gen.cpp Line: 37)
 
-Unloading 1 unused Assets to reduce memory usage. Loaded Objects now: 359.
-Total: 2.353166 ms (FindLiveObjects: 0.044375 ms CreateObjectMapping: 0.017833 ms MarkObjects: 2.254833 ms  DeleteObjects: 0.034791 ms)
+SAVED -> /var/mobile/Containers/Data/Application/F9040B7F-1A01-40C9-AE17-1E2F6820D962/Documents/playerInfo8.dat
+GameManager:SubmitWord()
+UnityEngine.Events.InvokableCallList:Invoke(Object[])
+UnityEngine.EventSystems.ExecuteEvents:Execute(GameObject, BaseEventData, EventFunction`1)
+UnityEngine.EventSystems.ExecuteEvents:ExecuteHierarchy(GameObject, BaseEventData, EventFunction`1)
+UnityEngine.EventSystems.StandaloneInputModule:ProcessTouchPress(PointerEventData, Boolean, Boolean)
+UnityEngine.EventSystems.StandaloneInputModule:ProcessTouchEvents()
+UnityEngine.EventSystems.StandaloneInputModule:Process()
+ 
+(Filename: /Users/builduser/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineDebugBindings.gen.cpp Line: 37)
+
+SAVED -> /var/mobile/Containers/Data/Application/F9040B7F-1A01-40C9-AE17-1E2F6820D962/Documents/playerInfo8.dat
+GameManager:Win()
+<PlayCorrectWord>c__Iterator0:MoveNext()
+ 
+(Filename: /Users/builduser/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineDebugBindings.gen.cpp Line: 37)
+
+Unloading 4 Unused Serialized files (Serialized files now loaded: 0)
+UnloadTime: 29.413832 ms
+
+Unloading 149 unused Assets to reduce memory usage. Loaded Objects now: 440.
+Total: 4.233041 ms (FindLiveObjects: 0.058208 ms CreateObjectMapping: 0.028208 ms MarkObjects: 3.031750 ms  DeleteObjects: 1.113375 ms)
 
 NullReferenceException: A null value was found where an object instance was required.
-  at ShopManager..ctor () [0x00000] in <filename unknown>:0 
-  at ZoneContent+<PlayZoneComplete>c__Iterator7.MoveNext () [0x00000] in <filename unknown>:0 
-  at ZoneContent.Start () [0x00000] in <filename unknown>:0 
-ZoneContent:Start()
+  at Results.SkipAdClicked () [0x00000] in <filename unknown>:0 
  
 (Filename: currently not available on il2cpp Line: -1)
 
 Unhandled Exception: System.NullReferenceException: A null value was found where an object instance was required.
-  at ShopManager..ctor () [0x00000] in <filename unknown>:0 
-  at ZoneContent+<PlayZoneComplete>c__Iterator7.MoveNext () [0x00000] in <filename unknown>:0 
-  at ZoneContent.Start () [0x00000] in <filename unknown>:0 
+  at Results.SkipAdClicked () [0x00000] in <filename unknown>:0 
 UnityEngine.UnhandledExceptionHandler:PrintException(String, Exception)
 UnityEngine.UnhandledExceptionHandler:HandleUnhandledException(Object, UnhandledExceptionEventArgs)
-ZoneContent:Start()
  
 (Filename: /Users/builduser/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineDebugBindings.gen.cpp Line: 37)
