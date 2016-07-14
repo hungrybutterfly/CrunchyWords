@@ -203,7 +203,7 @@ public class IAPurchaser : MonoBehaviour, IStoreListener
         if (!IsInitialized())
         {
             // ... report the situation and stop restoring. Consider either waiting longer, or retrying initialization.
-            Debug.Log("RestorePurchases FAIL. Not initialized.");
+            //Debug.Log("RestorePurchases FAIL. Not initialized.");
             return;
         }
 
@@ -212,7 +212,7 @@ public class IAPurchaser : MonoBehaviour, IStoreListener
              Application.platform == RuntimePlatform.OSXPlayer)
         {
             // ... begin restoring purchases
-            Debug.Log("RestorePurchases started ...");
+            //Debug.Log("RestorePurchases started ...");
 
             //Metric
             SessionManager.MetricsLogEvent("RestoringPurchases");
@@ -223,14 +223,14 @@ public class IAPurchaser : MonoBehaviour, IStoreListener
             apple.RestoreTransactions((result) =>
             {
                 // The first phase of restoration. If no more responses are received on ProcessPurchase then no purchases are available to be restored.
-                Debug.Log("RestorePurchases continuing: " + result + ". If no further messages, no purchases available to restore.");
+                //Debug.Log("RestorePurchases continuing: " + result + ". If no further messages, no purchases available to restore.");
             });
         }
         // Otherwise ...
         else
         {
             // We are not running on an Apple device. No work is necessary to restore purchases.
-            Debug.Log("RestorePurchases FAIL. Not supported on this platform. Current = " + Application.platform);
+            //Debug.Log("RestorePurchases FAIL. Not supported on this platform. Current = " + Application.platform);
         }
     }
 
@@ -239,11 +239,13 @@ public class IAPurchaser : MonoBehaviour, IStoreListener
         m_CurrentlyPurchasing = false;
 
 		//Handle Restore having no ID
-		if (m_ItemBeingPurchased.identifier == null) 
+		if (!String.Equals(args.purchasedProduct.definition.id, m_ItemBeingPurchased.identifier, StringComparison.Ordinal))
 		{
-			Debug.Log ("Restoring Item in Purchase");
-			for (int i = 0; i < (int)eIAPItems.IAP_LEN; ++i) {
-				if (m_SellableItems [i].identifier == args.purchasedProduct.definition.id) {
+			//Debug.Log ("Restoring Item in Purchase");
+			for (int i = 0; i < (int)eIAPItems.IAP_LEN; ++i) 
+			{
+				if (String.Equals(args.purchasedProduct.definition.id, m_SellableItems[i].identifier, StringComparison.Ordinal))
+				{
 					m_ItemBeingPurchased = m_SellableItems[i];
 					break;
 				}
@@ -256,7 +258,7 @@ public class IAPurchaser : MonoBehaviour, IStoreListener
             string Log = "PurchasedItemSuccess_"+ m_ItemBeingPurchased.identifier;
             SessionManager.MetricsLogEvent(Log);
 
-            Debug.Log(string.Format("ProcessPurchase: PASS. Product: '{0}'", args.purchasedProduct.definition.id));
+            //Debug.Log(string.Format("ProcessPurchase: PASS. Product: '{0}'", args.purchasedProduct.definition.id));
             m_Callback(true, m_ItemBeingPurchased.type);
         }
         else
@@ -265,7 +267,7 @@ public class IAPurchaser : MonoBehaviour, IStoreListener
             string Log = "PurchasedItemFailed_" + m_ItemBeingPurchased.identifier;
             SessionManager.MetricsLogEvent(Log);
 
-            Debug.Log(string.Format("ProcessPurchase: FAIL. Unrecognized product: '{0}'", args.purchasedProduct.definition.id));
+            //Debug.Log(string.Format("ProcessPurchase: FAIL. Unrecognized product: '{0}'", args.purchasedProduct.definition.id));
             m_Callback(false, m_ItemBeingPurchased.type);
         }
 
@@ -296,35 +298,35 @@ public class IAPurchaser : MonoBehaviour, IStoreListener
                 // If the look up found a product for this device's store and that product is ready to be sold ... 
                 if (product != null && product.availableToPurchase)
                 {
-                    Debug.Log(string.Format("Purchasing product asychronously: '{0}'", product.definition.id));// ... buy the product. Expect a response either through ProcessPurchase or OnPurchaseFailed asynchronously.
+                    //Debug.Log(string.Format("Purchasing product asychronously: '{0}'", product.definition.id));// ... buy the product. Expect a response either through ProcessPurchase or OnPurchaseFailed asynchronously.
                     m_StoreController.InitiatePurchase(product);
                 }
                 // Otherwise ...
                 else
                 {
                     // ... report the product look-up failure situation  
-                    Debug.Log("BuyProductID: FAIL. Not purchasing product, either is not found or is not available for purchase");
+                    //Debug.Log("BuyProductID: FAIL. Not purchasing product, either is not found or is not available for purchase");
                 }
             }
             // Otherwise ...
             else
             {
                 // ... report the fact Purchasing has not succeeded initializing yet. Consider waiting longer or retrying initiailization.
-                Debug.Log("BuyProductID FAIL. Not initialized.");
+                //Debug.Log("BuyProductID FAIL. Not initialized.");
             }
         }
         // Complete the unexpected exception handling ...
         catch (Exception e)
         {
             // ... by reporting any unexpected exception for later diagnosis.
-            Debug.Log("BuyProductID: FAIL. Exception during purchase. " + e);
+            //Debug.Log("BuyProductID: FAIL. Exception during purchase. " + e);
         }
     }
 
     public void OnInitialized(IStoreController controller, IExtensionProvider extensions)
     {
         // Purchasing has succeeded initializing. Collect our Purchasing references.
-        Debug.Log("OnInitialized: PASS");
+        //Debug.Log("OnInitialized: PASS");
 
         // Overall Purchasing system, configured with products for this application.
         m_StoreController = controller;
@@ -335,7 +337,7 @@ public class IAPurchaser : MonoBehaviour, IStoreListener
     public void OnInitializeFailed(InitializationFailureReason error)
     {
         // Purchasing set-up has not succeeded. Check error for reason. Consider sharing this reason with the user.
-        Debug.Log("OnInitializeFailed InitializationFailureReason:" + error);
+        //Debug.Log("OnInitializeFailed InitializationFailureReason:" + error);
     }
 
     public void OnPurchaseFailed(Product product, PurchaseFailureReason failureReason)
@@ -347,6 +349,6 @@ public class IAPurchaser : MonoBehaviour, IStoreListener
         SessionManager.MetricsLogEvent(Log);
 
         // A product purchase attempt did not succeed. Check failureReason for more detail. Consider sharing this reason with the user.
-        Debug.Log(string.Format("OnPurchaseFailed: FAIL. Product: '{0}', PurchaseFailureReason: {1}", product.definition.storeSpecificId, failureReason));
+        //Debug.Log(string.Format("OnPurchaseFailed: FAIL. Product: '{0}', PurchaseFailureReason: {1}", product.definition.storeSpecificId, failureReason));
     }
 }
