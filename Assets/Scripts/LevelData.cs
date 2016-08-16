@@ -93,6 +93,66 @@ public class LevelData : MonoBehaviour
         new Level(10, 18, "DINGHY"),
     };
 
+    static Level[] m_Zone7_Levels =
+    {
+        new Level(10, 18, "TARTAN"),
+        new Level(10, 18, "VERMIN"),
+        new Level(10, 18, "TOASTS"),
+        new Level(10, 18, "LYCHEE"),
+        new Level(10, 18, "WALRUS"),
+        new Level(10, 18, "LENGTH"),
+    };
+
+    static Level[] m_Zone8_Levels =
+    {
+        new Level(10, 18, "GINGER"),
+        new Level(10, 18, "RULERS"),
+        new Level(10, 18, "AGHAST"),
+        new Level(10, 18, "GAZEBO"),
+        new Level(10, 18, "REMAKE"),
+        new Level(10, 18, "NAUSEA"),
+    };
+
+    static Level[] m_Zone9_Levels =
+    {
+        new Level(10, 18, "JUICES"),
+        new Level(10, 18, "TOILET"),
+        new Level(10, 18, "ENJOYS"),
+        new Level(10, 18, "ENOUGH"),
+        new Level(10, 18, "ONIONS"),
+        new Level(10, 18, "PHOTON"),
+    };
+
+    static Level[] m_Zone10_Levels =
+    {
+        new Level(10, 18, "SKINNY"),
+        new Level(10, 18, "DEFECT"),
+        new Level(10, 18, "HELIUM"),
+        new Level(10, 18, "PIXELS"),
+        new Level(10, 18, "VELOUR"),
+        new Level(10, 18, "ORPHAN"),
+    };
+
+    static Level[] m_Zone11_Levels =
+    {
+        new Level(10, 18, "FENNEL"),
+        new Level(10, 18, "HUNGER"),
+        new Level(10, 18, "PUMMEL"),
+        new Level(10, 18, "TYRANT"),
+        new Level(10, 18, "GRUBBY"),
+        new Level(10, 18, "SAFARI"),
+    };
+
+    static Level[] m_Zone12_Levels =
+    {
+        new Level(10, 18, "VOICES"),
+        new Level(10, 18, "SHREWS"),
+        new Level(10, 18, "ENRICH"),
+        new Level(10, 18, "SKETCH"),
+        new Level(10, 18, "PEAKED"),
+        new Level(10, 18, "SCENTS"),
+    };
+
     public ZoneData[] m_Zones =
     {
         new ZoneData("PACK #1", m_Zone1_Levels, "B6D7A8ff"),
@@ -101,6 +161,12 @@ public class LevelData : MonoBehaviour
         new ZoneData("PACK #4", m_Zone4_Levels, "EA9999ff"),
         new ZoneData("PACK #5", m_Zone5_Levels, "B4A7D6ff"),
         new ZoneData("PACK #6", m_Zone6_Levels, "F9CB9Cff"),
+        new ZoneData("PACK #7",  m_Zone7_Levels, "B6D7A8ff"),
+        new ZoneData("PACK #8",  m_Zone8_Levels, "FFE599ff"),
+        new ZoneData("PACK #9",  m_Zone9_Levels, "A4C2F4ff"),
+        new ZoneData("PACK #10", m_Zone10_Levels, "EA9999ff"),
+        new ZoneData("PACK #11", m_Zone11_Levels, "B4A7D6ff"),
+        new ZoneData("PACK #12", m_Zone12_Levels, "F9CB9Cff"),
     };
 
     public Dictionary<string, string> m_Definitions = new Dictionary<string, string>() 
