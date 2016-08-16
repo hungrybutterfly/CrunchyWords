@@ -268,8 +268,11 @@ public class Results : MonoBehaviour {
         {
 			if (m_Skip) 
 				m_Skip.SetActive (false);
-			if (m_Next)
-				m_Next.GetComponent<Text>().text = "NEXT";
+			if (m_Next) {
+				if (m_Next.GetComponent<Text> ()) {
+					m_Next.GetComponent<Text> ().text = "NEXT";
+				}
+			}
         }
     }
 	
